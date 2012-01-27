@@ -1,0 +1,45 @@
+<h1>最新发布</h1>
+<a id="top"></a>
+<div class="show_goods" id="show_goods"><div class="animate"></div></div>
+<div class="goods_container">
+    <?php for ($k = 0; $k < 4; $k++): ?>
+        <div class="col">
+            <?php $i = 0;
+            foreach ($this->paginator as $tmp): ?><?php if ($i++ % 4 == $k): ?>
+                    <div class="box" style="background-color: <?= $tmp['color'] ?>">
+                        <label style="display:none;"><?= $tmp['id'] ?></label>
+                        <div class="pic" style="display:none;"><img src="<?= $tmp['pic_url'] ?>" /></div>
+                        <div class="text">
+                            <h3><?= $tmp['name'] ?></h3>
+                            <div><?= $tmp['publish_time'] ?></div>
+                            <div><?= $tmp['detail'] ?>...</div></div>
+                    </div><?php endif; ?>
+        <?php endforeach; ?>
+        </div>
+<?php endfor; ?> 
+</div>
+<div class="clear"></div>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+<script type="text/javascript">
+    $('.box').mouseover(function(){
+        $(this).find('.pic').show();
+        $(this).find('.text').hide();
+    });
+    $('.box').mouseleave(function(){
+        $(this).find('.pic').hide();
+        $(this).find('.text').show();
+    });
+    $('.box').click(function(){
+        $.scrollTo($("#top"),800);
+        pro = $('#show_goods');
+        pro.css("background-color","red");
+        pro.find(".animate").css("background-color","black");
+        pro.find(".animate").animate({width:"960px"},500);
+        id = $(this).find("label").html();
+        color = $(this).css("background-color");
+        pro.load("/goods/ajaxdetail?gid=" + id,null,function(){  
+            pro.css("background-color",color);
+            pro.animate({height:"700px"});
+        });
+    });
+</script>

@@ -1,0 +1,45 @@
+<style type="text/css">
+    .ele{margin: 10px 0;}
+    .ele div{font-size: 20px;}
+    .ele input{height: 25px;width: 365px;}
+    .addressee{margin: 20px 0;font-size: 25px;}
+    #err_msg{color: red;}
+</style>
+<h1>发送站内信</h1>
+<div class="quickmsg">
+    <div class="addressee">收件人：<a href='/user/profile?uid=<?php echo $this->user['uid']; ?>'><?php echo $this->user['name']; ?></a></div>
+    <div id="err_msg"></div>
+    <form>
+        <input type="hidden" name="to_user" value="<?php echo $this->user['uid']; ?>"/>
+        <div class="ele"><div>标题</div><input type="text" name="title" /></div>
+        <div class="ele"><div>内容</div><textarea name="msg" rows="10" cols="50"/></div>
+        <div><input type="button" class="button" id="send_msg" value="发送"/></div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#send_msg").click(function(){
+        x=$("form").serializeArray();
+        var postdata = "";
+        $.each(x, function(i, field){
+            if(field.value == ""){
+                $("#err_msg").html("不能为空哦！");
+                field.focus();
+                return;
+            }
+            postdata += (field.name + "=" + field.value + "&");
+        });
+        $.fancybox.showActivity();
+        $.ajax({
+            type		: "POST",
+            cache	: false,
+            url		: "/msg/send",
+            data		: postdata,
+            success: function(data) {
+                if(data == 'success')
+                    $.fancybox.close();
+                else
+                    $("#err_msg").html("出现错误了。。。");
+            }
+        });
+    });
+</script>

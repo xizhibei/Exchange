@@ -1,0 +1,20 @@
+<h1>站内信</h1>
+<div>
+    <?php if (count($this->paginator)): ?>
+        <ul>
+            <?php foreach ($this->paginator as $tmp): ?>
+                <?php if ($tmp['status'] == MessageModel::Readed): ?>
+                    <li><a href='/msg/show?mid=<?= $tmp['mid'] ?>'><?= $tmp['title'] ?></a><br />
+                    <?php elseif ($tmp['status'] == MessageModel::Sended): ?>
+                    <li><a href='/msg/show?mid=<?= $tmp['mid'] ?>'><strong><?= $tmp['title'] ?></strong></a><br />
+                    <?php endif ?>
+                    发信时间：<?= $tmp['date'] ?><br />
+                    <a href='/msg/delete?mid=<?= $tmp['mid'] ?>'>删除</a><br />
+                    发件人：<a href='/user/profile?uid=<?= $tmp['from_uid'] ?>'><?= $tmp['sender_name'] ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+        <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+    <?php else: ?>
+        收件箱还没有信息哦！
+    <?php endif ?>
+</div>

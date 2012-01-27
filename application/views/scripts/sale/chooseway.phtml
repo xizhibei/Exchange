@@ -1,0 +1,20 @@
+<h1>选择交易方式：</h1>
+<div>
+    请选择方式：
+    <?php
+    switch ($this->tmp['sale_ways']) {
+        case "交易":;
+            echo "<div><a href='/sale/sale?gid=" . $this->tmp['id'] . "'>交易</a></div>";
+            break;
+        case "交换":;
+            echo "<div><a href='/sale/exchange?gid=" . $this->tmp['id'] . "'>交换</a></div>";
+            break;
+        case "均可":;
+            echo "<div><a href='/sale/sale?gid=" . $this->tmp['id'] . "'>交易</a></div>";
+            echo "<div><a href='/sale/exchange?gid=" . $this->tmp['id'] . "'>交换</a></div>";
+            break;
+        default :
+            echo '<div>商品不存在</div>';
+    }
+    ?>
+</div>

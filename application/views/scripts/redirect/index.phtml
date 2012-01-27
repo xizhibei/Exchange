@@ -1,0 +1,15 @@
+<div id="welcome">
+    <h1><?php echo htmlentities($this->msg,ENT_NOQUOTES,"UTF-8"); ?></h1>
+    <p>正在跳转中，还剩<span id="remain_second">3</span>秒，如果浏览器没有跳转，请点击<a href="<?php echo $this->url; ?>">这里</a></p>
+</div>
+<script type="text/javascript">
+    var second = $('#remain_second').html();
+    setInterval("redirect()", 1000); 
+    function redirect(){
+        if (second < 0){
+            location.href = '<?php echo $this->url; ?>'; 
+        } else{
+            $('#remain_second').html(second--);
+        }
+    }
+</script>

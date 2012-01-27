@@ -1,0 +1,55 @@
+<?= $this->doctype('XHTML1_STRICT') ?>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <?= $this->headTitle() ?>
+        <?php $this->headLink()->appendStylesheet("/css/style.css"); ?>
+        <?= $this->headLink() ?>
+        <?php $this->headScript()->appendFile("/js/jquery.js"); ?>
+        <?= $this->headScript() ?>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+
+            </div>
+            <div class="main">
+                <?= $this->layout()->content ?>
+            </div>
+
+        </div>
+        <div class="footer">
+            <div class="boxes">
+                <div class="box">
+                    <h3>常用</h3>
+                    <ul>                                                                       
+                        <li><a href="/index">主页</a></li>
+                        <li><a href="/user/reg">注册</a></li>
+                        <li><a href="/user/login">登录</a></li>                      
+                        <li><a href="/friends/my">好友</a></li>
+                        <li><a href="/friends/search">交友</a></li>
+                        
+                        <li><a href="/link">链接</a></li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3>常用</h3>
+                    <ul>        
+                        <li><a href="/goods">最新货物</a></li>
+                        <li><a href="/goods/add">添加货物</a></li>
+                        <li><a href="/goods/manage">管理货物</a></li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3>常用</h3>
+                    <ul>        
+                        <li><a href="/msg">留言</a></li>
+                        <li><a href="/msg/inbox">收件箱</a></li>
+                        <li><a href="/msg/outbox">发件箱</a></li>
+                        <li><a href="/msg/draft">草稿箱</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,60 @@
+<h1>商品详细信息</h1>
+<a id="close" href="javascript:void(0);">关闭</a>
+<div class="detail">
+    <div>
+        <img src="<?= $this->detail['pic_url'] ?>"/>        
+    </div>
+    <div class="left">
+        名称：
+    </div>
+    <div class="right">
+        <?= $this->detail['name'] ?>
+    </div>
+    <div class="left">
+        发布时间：
+    </div>
+    <div class="right">
+        <?= $this->detail['publish_time'] ?>
+    </div>
+    <div class="left">
+        价格：
+    </div>
+    <div class="right">
+        <?= $this->detail['price'] ?>&nbsp;
+    </div>
+    <div class="left">
+        交换条件：
+    </div>
+    <div class="right">
+        <?= $this->detail['ex_cond'] ?>&nbsp;
+    </div>
+    <div class="left">
+        交易方式：
+    </div>
+    <div class="right">
+        <?= $this->detail['sale_ways'] ?>
+    </div>
+    <div class="left">
+        细节：
+    </div>
+    <div class="right">
+        <?= $this->detail['detail'] ?>
+    </div>
+    <div class="left">
+        状态：
+    </div>
+    <div class="right">
+        <?= $this->detail['status'] ?>
+    </div>
+    <a href='/goods/detail?gid=<?= $this->detail['id'] ?>'>详细</a>
+    <a href='/sale/chooseway?gid=<?= $this->detail['id'] ?>'>交易</a>
+</div>
+<script type="text/javascript">
+    $("#close").click(function(){
+        pro = $('#show_goods');
+        pro.html("<div class='animate'></div>");
+        pro.animate({height:"5px"});
+        pro.css("background-color","#333");
+        $.scrollTo("-=100px",800);
+    });
+</script>

@@ -1,0 +1,43 @@
+<h1>更新个人资料</h1>
+<div class="avater_area">您当前的头像：<img src="<?= $this->user['small_avater'] ?>" class="avater"/></div>
+<form enctype="application/x-www-form-urlencoded" method="post" class="normal_form" action=""><div>
+        <div class="element"><div>
+                <label for="username" class="label required">会员号:</label></div>
+            <div class="disabled"><?= $this->user['uid'] ?></div></div>
+        <div class="element"><div>
+                <label for="username" class="label required">邮箱:</label></div>
+            <div class="disabled"><?= $this->user['email'] ?></div></div>
+        <div class="element"><div>
+                <label for="username" class="label required">注册时间:</label></div>
+            <div class="disabled"><?= date("Y-m-d H:i:s", $this->user['regdate']) ?></div></div>
+        <div class="element"><div>
+                <label for="username" class="label required">用户名:</label></div>
+            <input type="text" name="username" id="username" value="<?= $this->user['name'] ?>"></div>
+        <div class="element">
+            <div><label class="label optional">头像：<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>(限制2M):</label></div>
+            <input type="text" name="avater" id="avater" value="<?= $this->user['small_avater'] ?>"></div>
+        <div class="element"><div>
+                <label for="qq" class="label required">QQ:</label></div>
+            <input type="text" name="qq" id="qq" value="<?= $this->user['qq'] ?>"></div>
+        <div class="element"><div>
+                <label for="cellphone" class="label required">手机:</label></div>
+            <input type="text" name="cellphone" id="cellphone" value="<?= $this->user['cellphone'] ?>"></div>
+        <dt id="sex-label"><label>性别:</label></dt>
+        <div class="element">
+            <label><input type="radio" name="sex" value="男" <?= $this->user['sex'] == "男" ? "checked=\"checked\"" : "" ?>>男</label> 
+            <label><input type="radio" name="sex" value="女" <?= $this->user['sex'] == "女" ? "checked=\"checked\"" : "" ?>>女</label></div>
+        <div class="submit">
+            <input type="submit" value="更新" class="button"></div></div></form>
+
+<script type="text/javascript">
+    window.KCFinder = {
+        callBack: function(url) {
+            window.KCFinder = null;
+            $('#avater').val(url);
+            $.fancybox.close();
+        }
+    };
+    $("#upload").fancybox({
+        'type':'iframe'
+    });
+</script>

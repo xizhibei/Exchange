@@ -1,0 +1,16 @@
+<?php echo $this->doctype('XHTML1_STRICT') ?>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <?php echo $this->headTitle() ?>
+        <?php $this->headLink()->appendStylesheet("/css/style.css"); ?>
+        <?php echo $this->headLink() ?>
+        <?php $this->headScript()->appendFile("/js/jquery.js"); ?>
+        <?php echo $this->headScript() ?>
+    </head>
+    <body>
+            <div class="main">
+                <?php echo $this->layout()->content ?>
+            </div>
+    </body>
+</html>

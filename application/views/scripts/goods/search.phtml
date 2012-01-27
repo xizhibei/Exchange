@@ -1,0 +1,23 @@
+<h1>商品搜索：</h1>
+<div class="search">
+    <form method="get">
+        <div>请输入关键字：</div>
+        <div class="search_area">
+            <input type="text" name="q"/>
+            <br/>
+            <input type="submit" name="submit" value="搜索" class="button"/></div>
+    </form>
+</div>
+<div class="searchoutcome">
+    <table>
+        <tr><th>ID</th><th>名称</th><th>价格</th><th>交换条件</th><th>详细描述</th><th>交易方式</th><th>状态</th><th>发布时间</th><th>详细</th><th>交易</th></tr>
+        <?php foreach ($this->paginator as $tmp): ?>
+            <tr><td><?= $tmp['id'] ?></td><td><?= $tmp['name'] ?></td><td><?= $tmp['price'] ?></td><td><?= $tmp['ex_cond'] ?></td>
+                <td><?= $tmp['detail'] ?>...</td><td><?= $tmp['sale_ways'] ?></td>
+                <td><?= $tmp['status'] ?></td><td><?= $tmp['publish_time'] ?></td>
+                <td><a href='/goods/detail?gid=<?= $tmp['id'] ?>'>详细</a></td>
+                <td><a href='/sale/chooseway?gid=<?= $tmp['id'] ?>'>交易</a></td></tr>
+        <?php endforeach; ?>	 
+    </table>
+    <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+</div>

@@ -1,0 +1,16 @@
+<h1>发件箱</h1>
+<div>
+    <?php if (count($this->paginator)): ?>
+        <ul>
+            <?php foreach ($this->paginator as $tmp): ?>
+                <li><a href='/msg/show?mid=<?= $tmp['mid'] ?>'><?= $tmp['title'] ?></a><br />
+                    发信时间：<?= $tmp['date'] ?><br />
+                    <a href='/msg/delete?mid=<?= $tmp['mid'] ?>'>删除</a><br />
+                    发件人：<a href='/user/profile?uid=<?= $tmp['to_uid'] ?>'><?= $tmp['receiver_name'] ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+        <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+    <?php else: ?>
+        发件箱还没有信息哦！
+    <?php endif ?>
+</div>

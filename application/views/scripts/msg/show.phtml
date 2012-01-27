@@ -1,0 +1,7 @@
+<h1>站内信</h1>
+<div>
+    <div>发件人：<a href="/user/profile?uid=<?php echo $this->user['uid']?>"><?php echo $this->user['name']?></a></div>
+    <div>发送时间：<?php echo date("Y-m-d H:i:s",$this->msg['date']);?></div>
+    <div>标题：<?php echo $this->msg['title']?></div>
+    <div>内容：<?php echo $this->msg['message']?></div>   
+</div>

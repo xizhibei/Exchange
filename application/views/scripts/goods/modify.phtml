@@ -1,0 +1,38 @@
+<h1>修改货物信息</h1>
+<form enctype="application/x-www-form-urlencoded" method="post" class="normal_form" action=""><div>
+        <div class="element"><div id="name-label">
+                <label for="name" class="label required">名称:</label></div>
+            <input type="text" name="name" id="name" value="<?php echo $this->goods['name']?>"></div>
+        <div class="element"><div id="ex_cond-label">
+                <label for="ex_cond" class="label optional">交换条件:</label></div>
+            <input type="text" name="ex_cond" id="ex_cond" value="<?php echo $this->goods['ex_cond']?>"></div>
+        <div class="element">
+            <div id="price-label"><label for="price" class="label optional">价格:</label></div>
+            <input type="text" name="price" id="price" value="<?php echo $this->goods['price']?>"></div>
+        <div class="element">
+            <div id="pic-label"><label for="pic" class="label optional">图片<a href="/kcfinder/browse.php?type=images" id="upload">上传(限制2M)</a>:</label></div>
+            <input type="text" name="pic" id="pic" value="<?php echo $this->goods['pic_url']?>"></div>
+        <div><div id="detail-label">
+                <label for="detail" class="label required">详细描述:</label></div>
+            <textarea name="detail" id="detail" class="ckeditor" rows="24" cols="80"><?php echo $this->goods['detail']?></textarea></div>
+        <dt id="sale_ways-label">
+        <label class="required">交易方式:</label></dt>
+        <div class="element">
+            <label for="sale_ways-交易"><input type="radio" name="sale_ways" value="交易" <?php echo $this->goods['sale_ways'] == "交易"?"checked='checked'":"";?>>交易</label> 
+            <label for="sale_ways-交换"><input type="radio" name="sale_ways" value="交换" <?php echo $this->goods['sale_ways'] == "交换"?"checked='checked'":"";?>>交换</label> 
+            <label for="sale_ways-均可"><input type="radio" name="sale_ways" value="均可" <?php echo $this->goods['sale_ways'] == "均可"?"checked='checked'":"";?>>均可</label></div>
+        <div class="submit">
+            <input type="submit" name="发布" value="发布" class="button"></div></div>
+</form> 
+<script type="text/javascript">
+    window.KCFinder = {
+        callBack: function(url) {
+            window.KCFinder = null;
+            $('#pic').val(url);
+            $.fancybox.close();
+        }
+    };
+    $("#upload").fancybox({
+        'type':'iframe'
+    });
+</script>

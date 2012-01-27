@@ -1,0 +1,22 @@
+<h1>交易请求</h1>
+<?php if(isset ($this->paginator)):?>
+<?php foreach ($this->paginator as $tmp): ?>
+    <div>买家: <a href='/user/profile?uid=<?= $tmp['sellerid'] ?>'><?= $tmp['name'] ?></a></div>
+    <?php if ($tmp['use_goods'] == "money") : ?>
+        <div>想以<strong>交易</strong>方式购买您的</div>
+    <?php else : ?>
+        <div>想以</div>
+        <?php foreach ($tmp['use_names'] as $gid => $name) : ?>
+            <p><a href='/goods/detail?gid=<?= $gid ?>'><?= $name;?></a></p>
+        <?php endforeach; ?>
+        <div><strong>交换</strong>您的</div>
+    <?php endif; ?>
+    <?php foreach ($tmp['ask_names'] as $gid => $name) : ?>
+        <p><a href='/goods/detail?gid=<?= $gid ?>'><?= $name; ?></a></p>
+    <?php endforeach; ?>
+    <a href='/sale/refuse?sid=<?= $tmp['sid'] ?>'>拒绝</a>
+    <a href='/sale/accept?sid=<?= $tmp['sid'] ?>'>同意</a>
+<?php endforeach; ?>
+<?php else:?>
+    您还没有新的交易请求
+<?php endif; ?>

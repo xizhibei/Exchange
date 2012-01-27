@@ -1,0 +1,12 @@
+<h1>商品交换</h1>
+<div>
+    您要交换的物品：
+    <?php echo "<a href='/goods/detail?gid=" . $this->exchange['id'] . "'>" . $this->exchange['name'] . "</a>"; ?>
+    <div>价格:<strong><?php echo $this->exchange['price']; ?></strong></div>
+    来自于
+    <?php echo "<a href='/user/profile?uid=" . $this->user_profile['uid'] . "'>" . $this->user_profile['name'] . "</a>"; ?>
+</div>
+<form method="post">
+    <?php echo $this->form; ?>
+    <input type="submit" value="确认提交购买请求" name ="submit"style="height:40px;font-size: 25px;margin: 30px 0;"/>
+</form>

@@ -1,0 +1,30 @@
+<h1>搜索朋友：</h1>
+<div class="search">
+    <form method="get">
+        <div>请输入关键字：</div>
+        <div class="search_area">
+            <input type="text" name="q"/>
+            <br/>
+            <input type="submit" name="submit" value="搜索" class="button"/></div>
+    </form>
+</div>
+<div class="search_outcome">
+    <?php if (isset($this->paginator)): ?>
+        <?php if (count($this->paginator)): ?>
+            <?php foreach ($this->paginator as $tmp): ?><?php if ($tmp['friend_status'] == FriendModel::BLACK_LIST || $tmp['friend_status'] == FriendModel::UserUnnormal)
+                continue; ?>
+                <div>
+                    <div><img src='<?= $tmp['small_avater'] ?>' alt='<?= $tmp['name'] ?>' class='avater'/></div>
+                    <div><a href='/user/profile?uid=<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a></div>
+                    <?php if ($tmp['friend_status'] == FriendModel::NoRelated || $tmp['friend_status'] == FriendModel::Rejected): ?>
+                        <div><a href='/friends/add?uid=<?= $tmp['uid'] ?>'>添加好友</a></div>
+                    <?php endif ?>
+                    <div><a href='/msg/message?uid=<?= $tmp['uid'] ?>'>给TA留言</a></div>
+                </div>
+            <?php endforeach; ?>
+            <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+        <?php else: ?>
+            抱歉，没有搜索到相应的结果！
+        <?php endif ?>
+    <?php endif ?>  
+</div>

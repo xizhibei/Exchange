@@ -1,0 +1,49 @@
+<h1>商品详细信息</h1>
+<div class="goods_detail">
+    <div>
+        <img src="<?php echo $this->detail['pic_url'] ?>"/>        
+    </div>
+    <div class="left">
+        名称：
+    </div>
+    <div class="right">
+        <?php echo $this->detail['name'] ?>
+    </div>
+    <div class="left">
+        发布时间：
+    </div>
+    <div class="right">
+        <?php echo date("Y-m-d H:i:s", $this->detail['publish_time']) ?>
+    </div>
+    <div class="left">
+        价格：
+    </div>
+    <div class="right">
+        <?php echo $this->detail['price'] ?>&nbsp;
+    </div>
+    <div class="left">
+        交换条件：
+    </div>
+    <div class="right">
+        <?php echo $this->detail['ex_cond'] ?>&nbsp;
+    </div>
+    <div class="left">
+        交易方式：
+    </div>
+    <div class="right">
+        <?php echo $this->detail['sale_ways'] ?>
+    </div>
+    <div class="left">
+        细节：
+    </div>
+    <div class="right">
+        <?php echo $this->detail['detail'] ?>
+    </div>
+    <div class="left">
+        状态：
+    </div>
+    <div class="right">
+        <?php echo $this->status; ?>
+    </div>
+</div>
+
