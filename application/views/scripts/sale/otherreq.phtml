@@ -1,6 +1,8 @@
-<h1>交易请求</h1>
-<?php if ($this->paginator->count()): ?>
-    <?php foreach ($this->paginator as $tmp): ?>
+<h1>其他请求</h1>
+<div>您同意的交易中的物品，共有<?=$this->other_req_num?>位用户请求</div>
+<div><a href="/sale/request">返回</a></div>
+<div>详细如下：</div>
+<?php foreach ($this->paginator as $tmp): ?>
         <div class="sale_request">
             <div>买家: <a href='/user/profile?uid=<?= $tmp['sellerid'] ?>'><?= $tmp['name'] ?></a> 想以</div>
             <?php if ($tmp['use_goods'] == "money") : ?>
@@ -19,6 +21,3 @@
         </div>
     <?php endforeach; ?>
 <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
-<?php else: ?>
-    您还没有新的交易请求
-<?php endif; ?>

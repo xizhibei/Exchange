@@ -42,7 +42,7 @@ class GoodsModel extends Zend_Db_Table {
     }
 
     public function getAllMy($uid) {
-        $all = $this->fetchAll("status <> and uid = $uid", "publish_time desc")->toArray();
+        $all = $this->fetchAll("status <> 0 and uid = $uid", "publish_time desc")->toArray();
         foreach ($all as &$tmp) {
             $tmp['name'] = strlen($tmp['name']) <= 40 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
             $tmp['detail'] = strlen($tmp['detail']) <= 40 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 40);

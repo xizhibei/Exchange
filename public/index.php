@@ -17,8 +17,18 @@ set_include_path(implode(PATH_SEPARATOR, array(
             realpath(APPLICATION_PATH . '/forms'),
             realpath(APPLICATION_PATH . '/models'),
         )));
+
+require_once 'Zend/Registry.php';
+/* * **********   Set Logs *************** */
+require_once 'Zend/Log.php';
+require_once 'Zend/Log/Writer/Stream.php';
+
+$log = new Zend_Log(new Zend_Log_Writer_Stream('../logs/errors_' . date("Y-m-d") . '.log', 'a+'));
+Zend_Registry::set('error_log', $log);
+
 require_once 'Zend/Config/Ini.php';
 $config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'staging');
+Zend_Registry::set('config', $config);
 
 require_once 'Zend/Db.php';
 $params = $config->database->params->toArray();
@@ -48,7 +58,6 @@ $acl = new Zend_Acl();
 $acl->addRole(new Zend_Acl_Role('guest'));
 $acl->addRole(new Zend_Acl_Role('user'), 'guest');
 $acl->addRole(new Zend_Acl_Role('admin'));
-
 require_once 'Zend/Auth.php';
 $auth = Zend_Auth::getInstance();
 //begin to deal identity
@@ -64,12 +73,11 @@ if (isset($user['uid'])) {
     $_SESSION['KCFINDER']['disabled'] = true;
 }
 
-require_once 'Zend/Registry.php';
 Zend_Registry::set('auth', $auth);
 Zend_Registry::set('acl', $acl);
 
 
-require_once 'Zend/Loader.php';
+//require_once 'Zend/Loader.php';
 
 $application->bootstrap()
         ->run();

@@ -1,8 +1,9 @@
 <?php
-/*******************************************************************************
-    Author:XuZhipei <xuzhipei@gmail.com>
-    Date:  2012/1/25
-*******************************************************************************/
+
+/* * *****************************************************************************
+  Author:XuZhipei <xuzhipei@gmail.com>
+  Date:  2012/1/25
+ * ***************************************************************************** */
 Zend_Loader::loadClass("UserModel");
 Zend_Loader::loadClass("SaleModel");
 Zend_Loader::loadClass("GoodsModel");
@@ -12,15 +13,15 @@ class SaleController extends Zend_Controller_Action {
 
     private $user;
     private $page_num = 5;
-    
+
     public function init() {
         $auth = Zend_Registry::get("auth");
         $acl = Zend_Registry::get("acl");
         $this->user = (array) $auth->getStorage()->read();
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
-        $acl->allow('guest', $res);
-        $acl->allow('user', $res, array('sale', 'exchange', 'chooseway', 'request','accept','refuse','detail'));
+        $acl->allow('guest', $res, array());
+        $acl->allow('user', $res, array('sale', 'exchange', 'chooseway', 'request', 'accept', 'refuse', 'detail', 'otherreq'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
             header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
@@ -30,9 +31,9 @@ class SaleController extends Zend_Controller_Action {
 
     public function indexAction() {
         $this->view->headTitle("已完成交易");
-        
+
         $sale = new SaleModel();
-        
+
         $all = $sale->getAllMy($this->user['uid']); //除了已删除
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
@@ -143,8 +144,8 @@ class SaleController extends Zend_Controller_Action {
             header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
         }
     }
-    
-    public function refuseAction(){
+
+    public function refuseAction() {
         if (isset($_GET['sid']) && is_numeric($_GET['sid'])) {
             $gid = $_GET['sid'];
             $sale = new SaleModel();
@@ -153,21 +154,31 @@ class SaleController extends Zend_Controller_Action {
             header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
         }
     }
-    
-    public function acceptAction(){
+
+    public function acceptAction() {
         if (isset($_GET['sid']) && is_numeric($_GET['sid'])) {
-            $gid = $_GET['sid'];
+            $sid = $_GET['sid'];
             $sale = new SaleModel();
-            $sale->update(array('status' => SaleModel::Agreed), "sid = $sid");
+            $others = $sale->getOtherReqNum($sid, false);
+            $this->view->other_req_num = count($others);
+            $this->view->sid = $sid;
+            if (isset($_GET["confirm"]) && $_GET['confirm'] == "true") {
+                $sale->update(array('status' => SaleModel::Agreed), "sid = $sid");
+                foreach ($others as $id) {//reject other request
+                    if ($id != $sid)
+                        $sale->update(array('status' => SaleModel::Rejected), "sid = $id");
+                }
+                header("Location:/redirect?url=/sale/request&msg=" . urlencode("确认成功!"));
+            }
         } else {
             header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
         }
     }
-    
+
     public function requestAction() {
+        $this->view->headTitle("交易请求");
         $sale = new SaleModel();
-        
-        $all = $sale->getAllReq($this->user['uid']); //除了已删除
+        $all = $sale->getAllReq($this->user['uid']);
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
             $page = 1;
@@ -177,8 +188,30 @@ class SaleController extends Zend_Controller_Action {
                 ->setItemCountPerPage($numPerPage);
         $this->view->paginator = $paginator;
     }
-    
-    public function detailAction(){
+
+    public function otherreqAction() {
+        $this->view->headTitle("其他交易详情");
+        if (isset($_GET['sid']) && is_numeric($_GET['sid'])) {
+            $sid = $_GET['sid'];
+            $sale = new SaleModel();
+            $this->view->other_req_num = $sale->getOtherReqNum($sid);
+
+            $all = $sale->getAllReq($this->user['uid'], $sid);
+            $page = $this->_getParam('page', 1); //高置默认页
+            if (!is_numeric($page))
+                $page = 1;
+            $numPerPage = $this->page_num; //每页显示的条数
+            $paginator = Zend_Paginator::factory($all);
+            $paginator->setCurrentPageNumber($page)
+                    ->setItemCountPerPage($numPerPage);
+            $this->view->paginator = $paginator;
+        } else {
+            header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
+        }
+    }
+
+    public function detailAction() {
+        $this->view->headTitle("交易详情");
         if (isset($_GET['sid']) && is_numeric($_GET['sid'])) {
             $sid = $_GET['sid'];
             $sale = new SaleModel();
@@ -187,6 +220,7 @@ class SaleController extends Zend_Controller_Action {
             header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
         }
     }
+
 //    function __call($action, $arguments) {
 //        $this->_redirect('./');
 //        print_r($action);

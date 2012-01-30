@@ -102,3 +102,7 @@ a:hover{text-decoration:underline;}
 .goods_container .box img{width: 210px;height: 210px;}
 .goods_container .box .text{font-size: 15px;}
 
+.sale_request{margin: 10px 0;}
+.sale_request ul{list-style: decimal;margin-left: 50px;}
+.sale_request ul li{margin: 5px;}
+
