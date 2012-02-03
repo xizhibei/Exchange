@@ -30,11 +30,11 @@ class FriendModel extends Zend_Db_Table {
         }
         return $rows;
     }
-    
+
     /**
      *
      * @param type $uid1
-     * @param type $uid2
+     * @param type $uid2 当前登录用户
      * @return type int,-1 is no relashipship
      */
     public function friend_status($uid1, $uid2) {
@@ -43,14 +43,43 @@ class FriendModel extends Zend_Db_Table {
             if ($row['us'] == 1)
                 return $row['fs'];
             else
-                return self::UserUnnormal;//user status unnormal
+                return self::UserUnnormal; //user status unnormal
         }
         else
             return self::NoRelated;
     }
+    
+    /**
+     * make two user to be friend
+     * @param type $uid1
+     * @param type $uid2 当前登录用户
+     * @return type bool whether success
+     */
+    public function makeFriend($uid1, $uid2) {
+        $status = $this->friend_status($uid1, $uid2);
+        if ($status == self::Accepted)
+            return true;
+        if ($status == self::Deleted || $status == self::Sended) {
+            $this->update(array('status' => self::Accepted), "(app_uid = $uid1 and rec_uid= $uid2) or (rec_uid = $uid2 and app_uid= $uid1)");
+            return true;
+        }
+        else if ($status == self::NoRelated) {
+            $this->insert(array(
+                'app_uid' => $uid1,
+                'rec_uid' => $uid2,
+                'msg' => "Auto Make Friend by System",
+                'status' => FriendModel::Accepted,
+                'date' => time(),
+            ));
+            return true;
+        }else if ($status == self::BLACK_LIST) {
+            return false;
+        }       
+    }
+
     const UserUnnormal = -2;
     const NoRelated = -1;
-    
+
     const BLACK_LIST = 0;
     const Sended = 1;
     const Accepted = 2;

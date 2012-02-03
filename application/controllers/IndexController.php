@@ -34,8 +34,11 @@ class IndexController extends Zend_Controller_Action {
             $msg_count = $message->getUnreadedNum($this->user['uid']);
             $this->view->msg = "<a href=\"/msg/index\">您有" . $msg_count . "条未读站内信</a>";
             $sale = new SaleModel();
-            $msg_count = $sale->getUnreadedNum($this->user['uid']);
+            $msg_count = $sale->getUnreadReqNum($this->user['uid']);
             $this->view->sale_msg = "<a href=\"/sale/request\">您有" . $msg_count . "条未处理交易请求</a>";
+            
+            $msg_count = $sale->getUnreadReqOutcomeNum($this->user['uid']);
+            $this->view->sale_outcome_msg = "<a href=\"/sale/unread\">您有" . $msg_count . "条未读交易请求处理结果信息</a>";
         }
         else
             $this->view->content = "Hello " . $this->user['name'];

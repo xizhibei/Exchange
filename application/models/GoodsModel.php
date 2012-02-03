@@ -81,16 +81,6 @@ class GoodsModel extends Zend_Db_Table {
         }
     }
 
-    public function getStatusId($status) {
-        switch ($status) {
-            case "已删除":return 0;
-            case "已发布":return 1;
-            case "暂存中":return 2;
-            case "已交易":return 3;
-            case "交易中":return 4;
-        }
-    }
-
 }
 
 ?>

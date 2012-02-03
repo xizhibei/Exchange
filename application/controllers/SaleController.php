@@ -21,20 +21,40 @@ class SaleController extends Zend_Controller_Action {
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
         $acl->allow('guest', $res, array());
-        $acl->allow('user', $res, array('sale', 'exchange', 'chooseway', 'request', 'accept', 'refuse', 'detail', 'otherreq'));
+        $acl->allow('user', $res);//, array('sale', 'exchange', 'chooseway', 'request', 'accept', 'refuse', 'detail', 'otherreq')
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
             header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
             exit;
         }
     }
-
-    public function indexAction() {
-        $this->view->headTitle("已完成交易");
+    
+    public function indexAction(){
+        
+    }
+    
+    public function sellerAction() {
+        $this->view->headTitle("已完成交易（卖家）");
 
         $sale = new SaleModel();
 
         $all = $sale->getAllMy($this->user['uid']); //除了已删除
+        $page = $this->_getParam('page', 1); //高置默认页
+        if (!is_numeric($page))
+            $page = 1;
+        $numPerPage = $this->page_num; //每页显示的条数
+        $paginator = Zend_Paginator::factory($all);
+        $paginator->setCurrentPageNumber($page)
+                ->setItemCountPerPage($numPerPage);
+        $this->view->paginator = $paginator;
+    }
+
+    public function buyerAction() {
+        $this->view->headTitle("已完成交易（买家）");
+
+        $sale = new SaleModel();
+
+        $all = $sale->getReqOutcome($this->user['uid']); //除了已删除
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
             $page = 1;
@@ -149,7 +169,7 @@ class SaleController extends Zend_Controller_Action {
         if (isset($_GET['sid']) && is_numeric($_GET['sid'])) {
             $gid = $_GET['sid'];
             $sale = new SaleModel();
-            $sale->update(array('status' => SaleModel::Rejected), "sid = $sid");
+            $sale->update(array('status' => SaleModel::Rejecting), "sid = $sid");
         } else {
             header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
         }
@@ -159,14 +179,20 @@ class SaleController extends Zend_Controller_Action {
         if (isset($_GET['sid']) && is_numeric($_GET['sid'])) {
             $sid = $_GET['sid'];
             $sale = new SaleModel();
+            $friend = new FriendModel();
             $others = $sale->getOtherReqNum($sid, false);
             $this->view->other_req_num = count($others);
             $this->view->sid = $sid;
+            $sale_info = $sale->fetchRow("sid = $sid");
             if (isset($_GET["confirm"]) && $_GET['confirm'] == "true") {
-                $sale->update(array('status' => SaleModel::Agreed), "sid = $sid");
+                $sale->update(array('status' => SaleModel::Accepting), "sid = $sid");
+                //set all goods status saled
+                $sale->setSaled($sid);
+                //make friend
+                $friend->makeFriend($sale['buyer'],$this->user['uid']);
                 foreach ($others as $id) {//reject other request
                     if ($id != $sid)
-                        $sale->update(array('status' => SaleModel::Rejected), "sid = $id");
+                        $sale->update(array('status' => SaleModel::Rejecting), "sid = $id");
                 }
                 header("Location:/redirect?url=/sale/request&msg=" . urlencode("确认成功!"));
             }
@@ -219,6 +245,26 @@ class SaleController extends Zend_Controller_Action {
         } else {
             header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
         }
+    }
+    //未读请求处理结果
+    public function unreadAction(){
+        $this->view->headTitle("未读交易请求处理结果");
+        $sale = new SaleModel();
+
+        $all = $sale->getUnreadReqOutcome($this->user['uid']); //除了已删除
+        $page = $this->_getParam('page', 1); //高置默认页
+        if (!is_numeric($page))
+            $page = 1;
+        $numPerPage = $this->page_num; //每页显示的条数
+        $paginator = Zend_Paginator::factory($all);
+        $paginator->setCurrentPageNumber($page)
+                ->setItemCountPerPage($numPerPage);
+        $this->view->paginator = $paginator;
+    }
+
+
+    public function failAction(){
+        
     }
 
 //    function __call($action, $arguments) {
