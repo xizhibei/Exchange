@@ -54,6 +54,9 @@ class GoodsController extends Zend_Controller_Action {
         $this->view->headScript()->appendFile("/fancybox/jquery.fancybox-1.3.4.pack.js");
         $this->view->headLink()->appendStylesheet("/fancybox/jquery.fancybox-1.3.4.css");
         $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
+        $this->view->headScript()->appendFile("/js/languages/jquery.validationEngine-zh_CN.js");
+        $this->view->headScript()->appendFile("/js/jquery.validationEngine.js");
+        $this->view->headLink()->appendStylesheet("/css/validationEngine.jquery.css");
         $form = new GoodsPublishForm();
 
         if ($this->getRequest()->isPost()) {

@@ -1,0 +1,20 @@
+
+<h1>重置密码</h1>    
+<div class="zend_form">
+    <form method="post" action="">
+        <?php if (isset($this->old_required) && $this->old_required == true): ?>
+            <div class="element"><label class="label required">旧密码:</label>
+                <input type="password" name="oldpassword" id="password" class="validate[required]"></div>
+        <?php endif; ?>
+        <div class="element"><label class="label required">新密码:</label>
+            <input type="password" name="password1" id="password1" class="validate[required]"></div>
+        <div class="element"><label class="label required">再次:</label>
+            <input type="password" name="password2" id="password2" class="validate[required,equals[password1]]"></div>
+        <div class="submit">
+            <input type="submit" value="提交" class="button" onsubmit="checkform()">
+        </div>
+    </form></div>
+
+<script type="text/javascript">
+    $("form").validationEngine();
+</script>

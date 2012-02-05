@@ -61,10 +61,14 @@ $acl->addRole(new Zend_Acl_Role('admin'));
 require_once 'Zend/Auth.php';
 $auth = Zend_Auth::getInstance();
 //begin to deal identity
-$user = (array) $auth->getStorage()->read();
-if (isset($user['uid'])) {
-    $_SESSION['KCFINDER']['disabled'] = false;
-    $_SESSION['KCFINDER']['uploadURL'] = "/upload/" . $user['uid'] . "/";
+if ($auth->hasIdentity()) {
+    $user = (array) $auth->getStorage()->read();
+    if (isset($user['uid'])) {
+        $_SESSION['KCFINDER']['disabled'] = false;
+        $_SESSION['KCFINDER']['uploadURL'] = "/upload/" . $user['uid'] . "/";
+    } else {//guest
+        $_SESSION['KCFINDER']['disabled'] = true;
+    }
 } else {
     $auth->getStorage()->write((object) array(
                 'role' => 'guest',

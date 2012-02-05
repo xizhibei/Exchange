@@ -16,8 +16,8 @@ class AdminController extends Zend_Controller_Action {
         $this->user = (array) $auth->getStorage()->read();
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
-        $acl->allow('guest', $res, array('login'));
-        $acl->allow('user', $res);
+        $acl->allow('guest', $res, array());
+        $acl->allow('user', $res, array('login'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
             header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));

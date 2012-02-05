@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        
+    </head>
+    <body>
+        <div class="container">
+            亲爱的<?=$this->user['name']?>先生/女士，您已在本网注册成功，请在24小时之内点击以下链接激活
+            <br />
+            如果这不是您在本网注册的，可能是是他人用您的邮箱注册，尽管删除即可
+            <br />
+            <a href="<?=$this->url?>" target="_blank"><?=$this->url?></a>
+            <br />
+            如果您的账户在24小时之内（即在<?=date("Y-m-d H:i:s",$this->user['code_date'] + 86400)?>到期）没有被激活，我们将删除您的账户，切记！
+        </div>
+    </body>
+</html>

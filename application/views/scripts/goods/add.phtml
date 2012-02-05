@@ -1,26 +1,26 @@
 <h1>发布货物信息</h1>
-<form enctype="application/x-www-form-urlencoded" method="post" class="goods_publish" action=""><div>
+<form enctype="application/x-www-form-urlencoded" method="post" class="goods_publish" action="" id="form"><div>
         <div class="element"><div id="name-label">
                 <label for="name" class="label required">名称:</label></div>
-            <input type="text" name="name" id="name" value=""></div>
+            <input type="text" name="name" id="name"  class="validate[required]"></div>
         <div class="element"><div id="ex_cond-label">
-                <label for="ex_cond" class="label optional">交换条件:</label></div>
-            <input type="text" name="ex_cond" id="ex_cond" value=""></div>
+                <label for="ex_cond" class="label optional">交换条件:(希望用他人什么交换)</label></div>
+            <input type="text" name="ex_cond" id="ex_cond" class="validate[required]"></div>
         <div class="element">
             <div id="price-label"><label for="price" class="label optional">价格:</label></div>
-            <input type="text" name="price" id="price" value=""></div>
+            <input type="text" name="price" id="price" class="validate[required,custom[number]]"></div>
         <div class="element">
             <div id="pic-label"><label for="pic" class="label optional">图片<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>:</label></div>
-            <input type="text" name="pic" id="pic" value=""></div>
+            <input type="text" name="pic" id="pic" class="validate[required]"></div>
         <div><div id="detail-label">
                 <label for="detail" class="label required">详细描述:</label></div>
             <textarea name="detail" id="detail" class="ckeditor" rows="24" cols="80"></textarea></div>
-        <dt id="sale_ways-label">
-        <label class="required">交易方式:</label></dt>
+        <div id="sale_ways-label">
+        <label class="required">交易方式:</label></div>
         <div class="element">
-            <label for="sale_ways-交易"><input type="radio" name="sale_ways" value="交易">交易</label> 
-            <label for="sale_ways-交换"><input type="radio" name="sale_ways" value="交换">交换</label> 
-            <label for="sale_ways-均可"><input type="radio" name="sale_ways" value="均可">均可</label></div>
+            <label for="sale_ways-交易"><input type="radio" name="sale_ways" value="交易" class="validate[required]">交易</label> 
+            <label for="sale_ways-交换"><input type="radio" name="sale_ways" value="交换" class="validate[required]">交换</label> 
+            <label for="sale_ways-均可"><input type="radio" name="sale_ways" value="均可" class="validate[required]">均可</label></div>
         <div class="submit">
             <input type="submit" name="发布" value="发布" class="button"></div></div>
 </form> 
@@ -35,4 +35,5 @@
     $("#upload").fancybox({
         'type':'iframe'
     });
+    $("#form").validationEngine();
 </script>

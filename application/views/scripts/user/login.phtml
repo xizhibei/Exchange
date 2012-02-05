@@ -1,13 +1,40 @@
 
 <h1>用户登录</h1>
-<?php echo $this->form; ?>
-<form method="post" action="">
-    <div class="zend_form">
-        <div class="element"><div id="email-label"><label for="email" class="label required">邮箱:</label></div>
-            <input type="text" name="email" id="email" value=""></div>
-        <div class="element"><div id="password-label"><label for="password" class="label required">密码:</label></div>
-            <input type="password" name="password" id="password" value=""></div>
+<div class="zend_form">
+    <form method="post" action="">
+        <div class="element"><label class="label required">邮箱:</label>
+            <input type="text" name="email" id="email" class="validate[required,custom[email]"></div>
+        <div class="element"><label class="label required">密码:</label>
+            <input type="password" name="password" id="password" class="validate[required]"></div>
+        <?php if (isset($this->code_required) && $this->code_required == true): ?>
+            <div class="code"><label class="label required">验证码:</label>
+                <div class="img"><img src="/img/code" onclick="javascript:this.src=this.src+ '?' + Math.random()" style="cursor: pointer;"/></div><input type="text" name="code" id="code" value=""></div>
+        <?php else: ?>
+            <div id="nocode"></div>
+        <? endif; ?>
         <div class="submit">
             <input type="submit" value="提交" class="button">
-        </div></div>
-</form>
+        </div>
+    </form></div> 
+<div>
+    啥？没有帐号？赶紧<a href="/user/reg">注册</a>吧！
+</div>
+<div>
+    啥？忘记密码？赶紧<a href="/user/sendactivecode/type/findpwd">找回密码</a>吧！
+</div>
+
+<script type="text/javascript">
+    $("#email").blur(function(){
+        var e = /^[\w\-\.]+@[\w\-\.]+(\.\w+)+$/;
+        if(!e.test($(this).val())){return;}
+        if($("#nocode").html() == ""){
+            $.get("/user/coderequired/email/" + $(this).val(), function(result){
+                if(result == "true"){
+                    $("#nocode").html("<label class=\"label required\">验证码:</label><div class=\"img\"><img src=\"/img/code\"  onclick=\"javascript:this.src=this.src+ '?' + Math.random()\" style=\"cursor: pointer;\"/></div><input type=\"text\" name=\"code\" id=\"code\">");
+                    $("#nocode").addClass("code");
+                }
+            });
+        }
+    });
+    $("form").validationEngine();
+</script>

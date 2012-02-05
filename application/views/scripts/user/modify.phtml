@@ -1,5 +1,5 @@
 <h1>更新个人资料</h1>
-<div class="avater_area">您当前的头像：<img src="<?= $this->user['small_avater'] ?>" class="avater"/></div>
+<div class="avater_area">您当前的头像：<img src="<?= $this->user['small_avatar'] ?>" class="avater"/></div>
 <form enctype="application/x-www-form-urlencoded" method="post" class="normal_form" action=""><div>
         <div class="element"><div>
                 <label for="username" class="label required">会员号:</label></div>
@@ -15,7 +15,7 @@
             <input type="text" name="username" id="username" value="<?= $this->user['name'] ?>"></div>
         <div class="element">
             <div><label class="label optional">头像：<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>(限制2M):</label></div>
-            <input type="text" name="avater" id="avater" value="<?= $this->user['small_avater'] ?>"></div>
+            <input type="text" name="avater" id="avater" value="<?= $this->user['small_avatar'] ?>"></div>
         <div class="element"><div>
                 <label for="qq" class="label required">QQ:</label></div>
             <input type="text" name="qq" id="qq" value="<?= $this->user['qq'] ?>"></div>

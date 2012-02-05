@@ -2,7 +2,7 @@
 <div class="my_friend">
     <?php if (count($this->paginator)): ?>
         <?php foreach ($this->paginator as $tmp): ?>
-            <div><div><img src='<?= $tmp['small_avater'] ?>' alt='<?= $tmp['name'] ?>'/></div>
+            <div><div><img src='<?= $tmp['small_avatar'] ?>' alt='<?= $tmp['name'] ?>'/></div>
                 <a href='/user/profile?uid=<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a>
                 <div><a href='/msg/quickmsg?uid=<?= $tmp['uid'] ?>' class='msg'>给TA留言</a></div>
                 <a href='/friends/delete?uid=<?= $tmp['uid'] ?>'>删除</a>
