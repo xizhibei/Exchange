@@ -22,7 +22,7 @@ class IndexController extends Zend_Controller_Action {
         $acl->allow('user', $res);
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
+            redirect("/user/login","请先登录!");
             exit;
         }
     }

@@ -14,12 +14,12 @@ a:hover{text-decoration:underline;}
 
 #note {position: absolute;z-index: 6001; top: 0; left: 0; right: 0; 
        background: #fde073;text-align: center; line-height: 2.5;overflow: hidden; 
-    -webkit-box-shadow: 0 0 5px black; -moz-box-shadow:0 0 5px black; box-shadow:0 0 5px black;
+       -webkit-box-shadow: 0 0 5px black; -moz-box-shadow:0 0 5px black; box-shadow:0 0 5px black;
 }
 
 #close {position: absolute; right: 10px;top: 9px; text-indent: -9999px;
- background: url(/img/close.png);height: 16px;width: 16px;cursor: pointer;
- }
+        background: url(/img/close.png);height: 16px;width: 16px;cursor: pointer;
+}
 
 .button {
     border-top: 1px solid #96d1f8;
@@ -50,7 +50,10 @@ a:hover{text-decoration:underline;}
 .pagination {margin: 10px 0;}
 .pagination ul {list-style: none;}
 .pagination .disabled{color: #999;}
-.pagination li{border: green 1px solid;padding: 5px;margin: 0 5px;float: left;}
+.pagination .actived{background-color: #0059F6;}
+.pagination li{padding: 5px;margin: 0 5px;float: left;color: white;background-color: white;}
+.pagination li:hover{background-color: #0059F6;}
+
 .title_name{font-size: 40px;color:white;padding-top: 45px;}
 .header{height: 50px;}
 
@@ -77,6 +80,7 @@ a:hover{text-decoration:underline;}
 .normal_form .element input[type="password"]{height: 30px;width: 400px;font-size: 20px;margin: 14px 0;color: #666;}
 .normal_form .element input[type="radio"]{margin: 14px 20px;}
 .normal_form .element .disabled{margin: 6px 0;color: #999;}
+.normal_form .submit{margin: 14px 0;}
 .normal_form .submit input{font-size: 20px;}
 
 .zend_form{font-size: 40px;}
@@ -87,6 +91,7 @@ a:hover{text-decoration:underline;}
 .zend_form .code{margin: 10px 0;padding: auto 0;line-height: 49px;}
 .zend_form .code .img{margin: 11px 5px;float: left;}
 .zend_form .code input[type="text"]{height: 50px;width: 209px;font-size: 40px;margin: 14px 0;color: #666;}
+.zend_form .submit{margin: 14px 0;}
 .zend_form .submit input{font-size: 40px;}
 
 .proflie img {width: 100px;height: 100px;}
@@ -99,10 +104,12 @@ a:hover{text-decoration:underline;}
 .goods_detail img{width: 180px;height: 180px;}
 .goods_detail .left{float: left;width: 180px;}
 
+.goods_exchange_detail{margin: 20px 0;font-size: 25px;}
+.goods_exchange_form .submit{font-size: 20px;margin: 10px 0;} 
 .goods_box{width: 450px;height: 450px;border: 1px blue solid;}
-.goods_box ul{list-style: decimal;}
-.goods_box ul li input{zoom:200%}
-.button_box input{width: 80px;height: 40px;margin: 10px;font-size: 25px;}
+.goods_box ul{list-style: decimal;margin-left: 40px;}
+.goods_box ul li{margin: 5px 0;font-size: 20px;}
+.button_box input{margin: 10px;font-size: 25px;}
 
 .show_goods{height: 5px;background-color: #999;margin: 10px 0;}
 .show_goods .animate{background-color: black;width: 0;height: 5px;}
@@ -112,8 +119,17 @@ a:hover{text-decoration:underline;}
 .goods_container{width: 960px;}
 .goods_container .col{float: left;width: 210px;margin: 0 15px;}
 .goods_container .box{width: 210px;color: white;margin: 10px 0;min-height: 215px;padding: 5px;}
-.goods_container .box img{width: 210px;height: 210px;}
+.goods_container .box .pic img{width: 210px;height: 210px;}
 .goods_container .box .text{font-size: 15px;}
+.goods_container .box .text .small_pic img{width: 50px;height: 50px;}
+.goods_container .box .pic .bottom{background-color: #999;}
+.goods_container .box .pic .bottom .icon{float: left;height: 30px;width: 30px;}
+.goods_container .box .pic .bottom .like{background: url("images/like.png") no-repeat top left;}
+.goods_container .box .pic .bottom .like_red{background: url("images/like_red.png") no-repeat top left;}
+.goods_container .box .pic .bottom .hate{background: url("images/hate.png") no-repeat top left;}
+.goods_container .box .pic .bottom .detail{background: url("images/detail.png") no-repeat top left;}
+.goods_container .box .pic .bottom .sale{background: url("images/sale.png") no-repeat top left;}
+.goods_container .box .pic .bottom .exchange{background: url("images/exchange.png") no-repeat top left;}
 
 .sale_request{margin: 10px 0;}
 .sale_request ul{list-style: decimal;margin-left: 50px;}

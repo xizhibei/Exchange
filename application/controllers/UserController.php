@@ -25,7 +25,7 @@ class UserController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('modify', 'logout'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
+            redirect("/user/login","请先登录!");
             exit;
         }
     }
@@ -44,7 +44,7 @@ class UserController extends Zend_Controller_Action {
                 $data = $form->getValues();
                 $user = new UserModel();
                 if ($user->emailExist($data['email'])) {
-                    js_alert("此邮箱已被注册！");
+                    $this->view->note = "此邮箱已被注册！";
                 } else {
                     $insertData = array(
                         'name' => $data['username'],
@@ -62,10 +62,10 @@ class UserController extends Zend_Controller_Action {
                     $mail = new Custom_Controller_Plugin_SendMail();
                     $mail->send($insertData, "您已经成功注册，请尽快通过邮箱激活", "reg.phtml");
 
-                    header("Location:/redirect?url=/index&msg=" . urlencode("注册成功,请尽快通过邮箱激活"));
+                    redirect("/index","注册成功,请尽快通过邮箱激活");
                 }
             } else {
-                echo js_alert("注册失败！请检查输入！");
+                $this->view->note = "注册失败！请检查输入！";
             }
         }
         $this->view->form = $form;
@@ -124,7 +124,10 @@ class UserController extends Zend_Controller_Action {
                     $result['role'] = "user"; //统一字段为role，表示身份
 //                    $auth = Zend_Registry::get("auth");
                     $auth->getStorage()->write((object) $result);
-                    header("Location:/redirect?url=/index&msg=" . urlencode("登录成功"));
+                    $url = $this->_getParam("return_url");
+                    if (!isset($url))
+                        $url = "/index";
+                    redirect($url,"登录成功");
                 } else {
                     $user->incLoginTimes($result['uid']);
                     $this->view->note = "密码不正确！";
@@ -161,9 +164,9 @@ class UserController extends Zend_Controller_Action {
         $auth = Zend_Registry::get("auth");
         if (!$auth->getStorage()->isEmpty()) {
             $auth->getStorage()->clear();
-            header("Location:/redirect?url=/index&msg=" . urlencode("退出成功"));
+            redirect("/index","退出成功");
         } else {
-            header("Location:/redirect?url=/index&msg=" . urlencode("您还没有登录"));
+            redirect("/index","您还没有登录");
         }
     }
 
@@ -189,7 +192,7 @@ class UserController extends Zend_Controller_Action {
                     'small_avater' => $formData['avater'],
                 );
                 $user->update($updateData, "uid = " . $this->user['uid']);
-                header("Location:/redirect?url=/user/modify&msg=" . urlencode("修改成功！"));
+                redirect("/user/modify","修改成功！");
             } else {
                 js_alert("更新失败！请检查输入！");
             }
@@ -198,8 +201,8 @@ class UserController extends Zend_Controller_Action {
     }
 
     public function profileAction() {
-        if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
-            $uid = $_GET['uid'];
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
             $user = new UserModel();
             $profile = $user->fetchRow("uid = " . $uid);
             $dispaly = "";
@@ -252,16 +255,16 @@ class UserController extends Zend_Controller_Action {
 
             if ($type == "active" && $tmp['status'] == UserModel::NotValid) {
                 $user->update(array('status' => UserModel::Normal), "uid = $uid");
-                header("Location:/redirect?url=/user/login&msg=" . urlencode("激活成功!"));
+                redirect("/user/login","激活成功!");
             } else if ($type == "unlock" && $tmp['status'] == UserModel::Locked) {
                 $user->update(array('status' => UserModel::Normal, 'login_times' => 0), "uid = $uid"); //clean the login times
-                header("Location:/redirect?url=/user/login&msg=" . urlencode("激活成功,之前可能由于他人登录您账户所致，建议您登录之后修改密码!"));
+                redirect("/user/login","激活成功,之前可能由于他人登录您账户所致，建议您登录之后修改密码!");
             } else if ($type == "findpwd" && $tmp['status'] == UserModel::Normal) {
                 $this->user['uid'] = $tmp['uid'];
                 $this->user['temp'] = true;
                 $auth = Zend_Registry::get("auth");
                 $auth->getStorage()->write((object) $this->user); //update cache
-                header("Location:/redirect?url=/user/resetpwd&msg=" . urlencode("激活成功,之前可能由于他人登录您账户所致，建议您登录之后修改密码!"));
+                redirect("/user/resetpwd","激活成功,之前可能由于他人登录您账户所致，建议您登录之后修改密码!");
             }
             else
                 $this->view->msg = "您不可，或者，不用激活";
@@ -287,7 +290,7 @@ class UserController extends Zend_Controller_Action {
                 if ($result['status'] != UserModel::NotValid
                         || $result['status'] != UserModel::Locked
                         || !($type == "findpwd" && $result['status'] == UserModel::Normal)) {
-                    header("Location:/redirect?url=/index&msg=" . urlencode("您不需要，或者不可发送激活邮件！"));
+                    redirect("/index","您不需要，或者不可发送激活邮件！");
                     return;
                 }
 
@@ -307,11 +310,11 @@ class UserController extends Zend_Controller_Action {
                 } else if ($type == "findpwd" && $result['status'] == UserModel::Normal) {
                     $mail->send($result, "请尽快通过邮箱激活并修改密码", "findpwd.phtml");
                 } else {
-                    header("Location:/redirect?url=/index&msg=" . urlencode("您不需要，或者不可发送激活邮件！"));
+                    redirect("/index","您不需要，或者不可发送激活邮件！");
                     return;
                 }
 
-                header("Location:/redirect?url=/index&msg=" . urlencode("成功发送激活邮件！"));
+                redirect("/index","成功发送激活邮件！");
             }else
                 $this->view->note = $validater->getMsg();
         }

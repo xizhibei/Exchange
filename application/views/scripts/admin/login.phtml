@@ -1,3 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utff-8" />
+        <title>管理员登录</title>
+        <script type="text/javascript" src="/js/jquery.js"></script>
+        <script type="text/javascript" src="/js/superfish.js"></script>
+        <script type="text/javascript" src="/js/jquery-ui-1.7.2.js"></script>
+        <script type="text/javascript" src="/js/tooltip.js"></script>
+        <script type="text/javascript" src="/js/tablesorter.js"></script>
+        <script type="text/javascript" src="/js/tablesorter-pager.js"></script>
+        <script type="text/javascript" src="/js/cookie.js"></script>
+        <script type="text/javascript" src="/js/custom.js"></script>
+        <style type="text/css">
+            @import url('/css/reset.css');
+            @import url('/css/general.css');
+            @import url('/css/styles/default/ui.css');
+            @import url('/css/forms.css');
+            @import url('/css/tables.css');
+            @import url('/css/messages.css');
+        </style>
+        <!--[if IE 6]>
+        <link href="/foradmin/css/ie6.css" rel="stylesheet" media="all" />
+        
+        <script src="/js/pngfix.js"></script>
+        <script>
+          /* EXAMPLE */
+          DD_belatedPNG.fix('.logo, .other ul#dashboard-buttons li a');
 
-<h1>管理员登录</h1>
-<?php echo $this->form; ?>
+        </script>
+        <![endif]-->
+        <!--[if IE 7]>
+        <link href="/foradmin/css/ie7.css" rel="stylesheet" media="all" />
+        <![endif]-->
+    </head>
+    <body>
+        <div id="welcome_login" title="Welcome to Admin">
+            <div class="response-msg ui-corner-all" style="display:none;">
+            </div>
+<!--            <div class="response-msg success ui-corner-all" style="display:none;">
+                <span>Success message</span>
+                Lorem ipsum dolor sit amet, consectetuer adipiscing elit
+            </div>-->
+            <form action="" method="post" class="forms" name="form" >
+                <ul>
+                    <li><label for="password" class="desc">密码：</label>
+                        <div><input type="password" tabindex="1" maxlength="255" value="" class="field text full" name="password" id="password" /></div>
+                    </li>
+                    <li><label for="code" class="desc">验证码：</label>
+                        <div><input type="text" tabindex="2" maxlength="255" value="" class="field text full" name="code" id="code" /></div>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </body>
+</html>

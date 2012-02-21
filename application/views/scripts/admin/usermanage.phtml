@@ -1,0 +1,56 @@
+<div id="main-wrapper">
+    <div id="main-content">
+        <div class="title">
+            <h3>用户列表</h3>
+        </div>
+        <div class="hastable">
+            <form name="myform" class="pager-form" method="post" action="">
+                <table> 
+                    <thead> 
+                        <tr>
+                            <th><input type="checkbox" value="check_none" onclick="this.value=check(this.form.list)" class="submit"/></th>
+                            <th>UID</th> 
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>QQ</th>
+                            <th>手机</th> 
+                            <th>Email</th> 
+                            <th>状态</th> 
+                            <th>注册时间</th>
+                            <th style="width:132px">Options</th> 
+                        </tr> 
+                    </thead> 
+                    <tbody>
+                        <?php foreach ($this->paginator as $tmp): ?>
+                            <tr>
+                                <td class="center"><input type="checkbox" value="1" name="list" class="checkbox"/></td> 
+                                <td><?= $tmp['uid'] ?></td> 
+                                <td><?= $tmp['name'] ?></td> 
+                                <td><?= $tmp['sex'] ?></td> 
+                                <td><?= $tmp['qq'] ?></td> 
+                                <td><?= $tmp['cellphone'] ?></td>
+                                <td><?= $tmp['email'] ?></td>
+                                <td><?= $tmp['status'] ?></td>
+                                <td><?= $tmp['regdate'] ?></td> 
+                                <td>
+                                    <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Edit this user" href="#">
+                                        <span class="ui-icon ui-icon-wrench"></span>
+                                    </a>
+                                    <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Delete this user" href="#">
+                                        <span class="ui-icon ui-icon-circle-close"></span>
+                                    </a>
+                                    <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Lock this user" href="#">
+                                        <span class="ui-icon ui-icon-locked"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </form>
+            <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list_admin.phtml'); ?>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+</div>

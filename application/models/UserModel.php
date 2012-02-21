@@ -12,7 +12,17 @@ class UserModel extends Zend_Db_Table {
         $this->_primary = 'uid';
         parent::_setup();
     }
-
+    
+    /**********       for admin          ********/
+    public function getAllUser(){
+        $all = $this->fetchAll()->toArray();
+        foreach($all as &$tmp){
+            $tmp['regdate'] = date("Y-m-d H:i:s", $tmp['regdate']);
+            $tmp['status'] = self::getStatus($tmp['status']);
+        }
+        return $all;
+    }
+    /**********         end        ****************/
     public function getAvatar($uid) {
         return $this->_db->fetchRow("select big_avatar,small_avatar from user where uid = $uid");
     }
@@ -81,7 +91,7 @@ class UserModel extends Zend_Db_Table {
             case 1:return "正常";
             case 2:return "待验证";
             case 3:return "已锁定"; //登录失败被锁定，可自行解锁
-            case 4:return "已锁定"; //此时被管理员锁定，不可自行解锁
+            case 4:return "管理员锁定"; //此时被管理员锁定，不可自行解锁
         }
     }
 

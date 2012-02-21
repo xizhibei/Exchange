@@ -16,18 +16,37 @@ class GoodsModel extends Zend_Db_Table {
         parent::_setup();
     }
 
+    /*     * **********    for admin ************************ */
+
+    public function getAllGoods() {
+        $all = $this->fetchAll(null, "publish_time desc")->toArray();
+        foreach ($all as &$tmp) {
+            $tmp['name'] = strlen($tmp['name']) <= 30 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
+            $tmp['detail'] = strlen($tmp['detail']) <= 100 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 100);
+            $tmp['publish_time'] = date("Y-m-d H:i:s", $tmp['publish_time']);
+            $tmp['status'] = self::getStatus($tmp['status']);
+        }
+        return $all;
+    }
+
+    /*     * ************  end  ********************** */
+
     public function getAllPublished() {
         $cache = Zend_Cache::factory('Core', 'File', $this->config->front->toArray(), $this->config->back->toArray());
-        //$cache->clean();///////////
+        $cache->clean();///////////
         if (($all = $cache->load('all_published')) === false) {
-            $color = array('#FF4D4D', '#469AE9', '#333333', '#05183e', '#B6B986', '#C0F0C0', '#666699');
+            $color = array('#FF4D4D', '#469AE9', '#333333', '#05183e', '#B6B986',  '#666699','#ff8a00','#de312b','#63a716');
+            $num = count($color) - 1;
             $all = $this->fetchAll("status =" . GoodsModel::Published, "publish_time desc")->toArray();
             foreach ($all as &$tmp) {
                 $tmp['name'] = strlen($tmp['name']) <= 30 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
                 $tmp['detail'] = strlen($tmp['detail']) <= 200 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 200);
                 $tmp['publish_time'] = date("Y-m-d H:i:s", $tmp['publish_time']);
                 $tmp['status'] = self::getStatus($tmp['status']);
-                $tmp['color'] = $color[mt_rand(0, 6)];
+                $tmp['color'] = $color[mt_rand(0, $num - 1)];
+                $tmp['click'] = $this->_db->fetchOne("select count(*) from click where gid = " . $tmp['id']);
+                $tmp['like'] = $this->_db->fetchOne("select count(*) from taste where status = 2 and gid = " . $tmp['id']);
+                $tmp['hate'] = $this->_db->fetchOne("select count(*) from taste where status = 3 and gid = " . $tmp['id']);
             }
             $cache->save($all, 'all_published');
         }

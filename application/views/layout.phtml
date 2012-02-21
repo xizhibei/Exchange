@@ -15,7 +15,10 @@
             </div>
             <div class="main">
                 <?php if (isset($this->note)): ?>
-                    <div id="note"><?= $this->note ?><a id="close">[close]</a></div>
+                    <div id="note" ><?= $this->note ?><a id="close">[close]</a></div>
+                <?php else: ?>
+                    <div id="note" style="display: none;"><b></b><a id="close">[close]</a></div>
+                <?php endif; ?>
                     <script type="text/javascript">
                         close = document.getElementById("close");
                         close.addEventListener('click', function() {
@@ -23,7 +26,7 @@
                             note.style.display = 'none';
                         }, false);
                     </script>
-                <?php endif; ?>
+                
                 <?= $this->layout()->content ?>
             </div>
 

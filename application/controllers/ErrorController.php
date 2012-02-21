@@ -1,5 +1,5 @@
 <?php
-
+require_once 'Utility.php';
 class ErrorController extends Zend_Controller_Action {
 
     public function errorAction() {
@@ -21,15 +21,8 @@ class ErrorController extends Zend_Controller_Action {
                 $this->view->message = 'Application error';
                 break;
         }
-        if (getenv('HTTP_CLIENT_IP')) {
-            $onlineip = getenv('HTTP_CLIENT_IP');
-        } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-            $onlineip = getenv('HTTP_X_FORWARDED_FOR');
-        } elseif (getenv('REMOTE_ADDR')) {
-            $onlineip = getenv('REMOTE_ADDR');
-        } else {
-            $onlineip = $HTTP_SERVER_VARS['REMOTE_ADDR'];
-        }
+
+        $onlineip = getIp();
 
         $exception = $errors->exception;
         $log->debug($onlineip . PHP_EOL . $exception->getMessage() .

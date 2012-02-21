@@ -1,60 +1,71 @@
-<h1>商品交换</h1>
-<div>
+<h1>物品交换</h1>
+<div class="goods_exchange_detail">
     您要交换的物品：
-    <?php echo "<a href='/goods/detail?gid=" . $this->exchange['id'] . "'>" . $this->exchange['name'] . "</a>"; ?>
-    来自于
-    <?php echo "<a href='/user/profile?uid=" . $this->user_profile['uid'] . "'>" . $this->user_profile['name'] . "</a>"; ?>
+    <a href='/goods/detail/gid/<?= $this->exchange['id'] ?>'><?= $this->exchange['name'] ?></a>
+    来自于用户：
+    <a href='/user/profile/uid/<?= $this->user_profile['uid'] ?>'><?= $this->user_profile['name'] ?></a>
 </div>
-<form method="post">
+<form method="post" class="goods_exchange_form">
     <div class="floatleft goods_box">
         <h3>我拥有的可交换物品</h3>
         <div>
-            <?php echo $this->my_goods_list; ?>
+            <?php if (!count($this->my_goods)): ?>
+                您还没有物品可以跟对方交换，马上去<a href="/goods/add">添加</a><?php else: ?>         
+                <ul>
+                    <?php foreach ($this->my_goods as $tmp): ?>
+                        <li><input type='checkbox' name='my_gids[]' class='my' value='<?= $tmp['id'] ?>'/><?= $tmp['name'] ?></li>
+                    <?php endforeach; ?>    
+                </ul><?php endif; ?>
         </div>
         <div class="button_box">
-            <input type="button" id="my_all" value="全选"/>
-            <input type="button" id="my_reverse" value="反选"/>
+            <input type="button" id="my_all" class="button" value="全选"/>
+            <input type="button" id="my_reverse" class="button" value="反选"/>
         </div>
     </div>
     <div class="floatright goods_box">
         <h3>我想用来交换的物品</h3>
         <div id="other">
-            <?php echo $this->other_goods_list; ?>
+            <ul>
+                <?php foreach ($this->other_goods as $tmp): ?>
+                    <li><input type='checkbox' name='other_gids[]' class='other' value='<?= $tmp['id'] ?>'/><?= $tmp['name'] ?></li>
+                <?php endforeach; ?>    
+            </ul>
         </div>
         <div class="button_box">
-            <input type="button" id="other_all" value="全选"/>
-            <input type="button" id="other_reverse" value="反选"/>
+            <input type="button" id="other_all" class="button" value="全选"/>
+            <input type="button" id="other_reverse" class="button" value="反选"/>
         </div>
     </div>
+    <input type="hidden" name="target_id" value="<?= $this->target_id; ?>"/>
     <div class="clear"></div>
-    <input type="submit" value="确认提交请求" style="height:40px;font-size: 25px;margin: 30px 0;"/>
+    <input type="submit" value="确认提交请求" class="button submit"/>
 </form>
 
 <script type="text/javascript">
-       $("#my_all").click(function(){
-           $(".my").each(function(){
-               $(this).attr("checked",true);
-           });
-       });
-       $("#my_reverse").click(function(){
-           $(".my").each(function(){
-               if($(this).attr("checked"))
-                   $(this).removeAttr("checked");
-               else
-                   $(this).attr("checked",true);
-           });
-       });
-       $("#other_all").click(function(){
-           $(".other").each(function(){
-               $(this).attr("checked",true);
-           });
-       });
-       $("#other_reverse").click(function(){
-           $(".other").each(function(){
-               if($(this).attr("checked"))
-                   $(this).removeAttr("checked");
-               else
-                   $(this).attr("checked",true);
-           });
-       });
+    $("#my_all").click(function(){
+        $(".my").each(function(){
+            $(this).attr("checked",true);
+        });
+    });
+    $("#my_reverse").click(function(){
+        $(".my").each(function(){
+            if($(this).attr("checked"))
+                $(this).removeAttr("checked");
+            else
+                $(this).attr("checked",true);
+        });
+    });
+    $("#other_all").click(function(){
+        $(".other").each(function(){
+            $(this).attr("checked",true);
+        });
+    });
+    $("#other_reverse").click(function(){
+        $(".other").each(function(){
+            if($(this).attr("checked"))
+                $(this).removeAttr("checked");
+            else
+                $(this).attr("checked",true);
+        });
+    });
 </script>

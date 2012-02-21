@@ -1,12 +1,14 @@
 <?php
-/*******************************************************************************
-    Author:XuZhipei <xuzhipei@gmail.com>
-    Date:  2012/1/25
-*******************************************************************************/
+
+/* * *****************************************************************************
+  Author:XuZhipei <xuzhipei@gmail.com>
+  Date:  2012/1/25
+ * ***************************************************************************** */
 Zend_Loader::loadClass("GoodsPublishForm");
 Zend_Loader::loadClass("GoodsModel");
 Zend_Loader::loadClass("SaleModel");
 Zend_Loader::loadClass("UserModel");
+//Zend_Loader::loadClass("ClickModel");
 require_once 'Utility.php';
 
 class GoodsController extends Zend_Controller_Action {
@@ -20,11 +22,11 @@ class GoodsController extends Zend_Controller_Action {
         $this->user = (array) $auth->getStorage()->read();
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
-        $acl->allow('guest', $res, array('index', 'search', 'detail', 'default','ajaxdetail'));
+        $acl->allow('guest', $res, array('index', 'search', 'detail', 'default', 'ajaxdetail', 'like', 'hate'));
         $acl->allow('user', $res, array('add', 'delete', 'modify', 'manage'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
+            redirect("/user/login","请先登录!");
             exit;
         }
     }
@@ -33,9 +35,18 @@ class GoodsController extends Zend_Controller_Action {
         $this->view->headTitle("最新货物");
         $this->view->headScript()->appendFile("/js/jquery.js");
         $this->view->headScript()->appendFile("/js/jquery.scrollTo-min.js");
+        $this->view->headScript()->appendFile("/fancybox/jquery.mousewheel-3.0.4.pack.js");
+        $this->view->headScript()->appendFile("/fancybox/jquery.fancybox-1.3.4.pack.js");
+        $this->view->headLink()->appendStylesheet("/fancybox/jquery.fancybox-1.3.4.css");
         $goods = new GoodsModel();
 
         $all = $goods->getAllPublished();
+        if (isset($this->user['uid'])) {
+            Zend_Loader::loadClass("TasteModel");
+            $t = new TasteModel();
+            $all = $t->addStatus($all, $this->user['uid']);
+        }
+
 
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
@@ -56,13 +67,16 @@ class GoodsController extends Zend_Controller_Action {
         $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
         $this->view->headScript()->appendFile("/js/languages/jquery.validationEngine-zh_CN.js");
         $this->view->headScript()->appendFile("/js/jquery.validationEngine.js");
+        $this->view->headScript()->appendFile("/js/anytimec.js");
         $this->view->headLink()->appendStylesheet("/css/validationEngine.jquery.css");
-        $form = new GoodsPublishForm();
+        $this->view->headLink()->appendStylesheet("/css/anytimec.css");
+        $this->view->headScript()->appendFile("/js/jquery.scrollTo-min.js");
 
         if ($this->getRequest()->isPost()) {
-            $formData = $this->getRequest()->getPost();
-            if ($form->isValid($formData)) {
-                $data = $form->getValues();
+            Zend_Loader::loadClass("Custom_Controller_Plugin_FormValidate");
+            $validater = new Custom_Controller_Plugin_FormValidate();
+            $data = $this->getRequest()->getPost();
+            if ($validater->isValid("goodsPublish", $data)) {
                 $goods = new GoodsModel();
 
                 $insertData = array(
@@ -77,36 +91,35 @@ class GoodsController extends Zend_Controller_Action {
                     'status' => $goods->getStatusId("已发布"),
                 );
                 $goods->insert($insertData);
-                header("Location:/redirect?url=/goods/manage&msg=" . urlencode("发布成功!"));
+                redirect("/goods/manage","发布成功!");
             } else {
-                echo '<script>alert("发布失败！请检查输入！");</script>';
+                $this->view->note = "发布失败！请检查输入！";
             }
         }
-        $this->view->form = $form;
     }
 
     /**
      * @ToDo:待完善，包括删除确认，可能有人正在请求交换这个货物，此时确认的话还需将所有请求拒绝
      */
     public function deleteAction() {
-        if (isset($_GET['gid']) && is_numeric($_GET['gid'])) {
-            $gid = $_GET['gid'];
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid)) {
             $goods = new GoodsModel();
             $goods->update(array('status' => $goods->getStatusId("已删除")), "id = " . $gid);
-            header("Location:/redirect?url=/goods/manage&msg=" . urlencode("删除成功!"));
+            redirect("/goods/manage","删除成功!");
         } else {
             $this->_redirect("/index");
         }
     }
 
     public function modifyAction() {
-        if (isset($_GET['gid']) && is_numeric($_GET['gid'])) {
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid)) {
             $this->view->headScript()->appendFile("/js/jquery.js");
             $this->view->headScript()->appendFile("/fancybox/jquery.mousewheel-3.0.4.pack.js");
             $this->view->headScript()->appendFile("/fancybox/jquery.fancybox-1.3.4.pack.js");
             $this->view->headLink()->appendStylesheet("/fancybox/jquery.fancybox-1.3.4.css");
             $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
-            $gid = $_GET['gid'];
             $this->view->headTitle("货物信息修改");
             $form = new GoodsPublishForm();
             $goods = new GoodsModel();
@@ -127,7 +140,7 @@ class GoodsController extends Zend_Controller_Action {
                         'status' => $goods->getStatusId("已发布"),
                     );
                     $goods->update($insertData, "id = " . $gid);
-                    header("Location:/redirect?url=/goods/manage&msg=" . urlencode("更新成功!"));
+                    redirect("/goods/manage","更新成功!");
                 } else {
                     echo '<script>alert("更新失败！请检查输入！");</script>';
                 }
@@ -144,7 +157,7 @@ class GoodsController extends Zend_Controller_Action {
 //            ));
 //            $this->view->form = $form;
         } else {
-            header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/index","走错地方了吧!");
         }
     }
 
@@ -176,31 +189,56 @@ class GoodsController extends Zend_Controller_Action {
     }
 
     public function detailAction() {
-        if (isset($_GET['gid']) && is_numeric($_GET['gid'])) {
-            $gid = $_GET['gid'];
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid)) {
             $goods = new GoodsModel();
             $this->view->detail = $goods->fetchRow("id = " . $gid);
             $this->view->status = $goods->getStatus($this->view->detail['status']);
         } else
-            header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/index","走错地方了吧!");
     }
-    
-    public function ajaxdetailAction(){
-        if (isset($_GET['gid']) && is_numeric($_GET['gid'])) {
-            $this->_helper->layout->disableLayout(); //disable layout
-            $this->_helper->viewRenderer->setNoRender(); //suppress auto-rendering
-            $gid = $_GET['gid'];
+
+    public function ajaxdetailAction() {
+        $this->_helper->layout->disableLayout(); //disable layout
+        $this->_helper->viewRenderer->setNoRender(); //suppress auto-rendering
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid)) {
             $goods = new GoodsModel();
             $this->view->detail = $goods->getSinglePublished($gid);
             $this->render("ajaxdetail");
+
+            Zend_Loader::loadClass("ClickModel");
+            $c = new ClickModel();
+            $c->updateClick(isset($this->user['uid']) ? $this->user['uid'] : null, $gid, getIp());
         } else
             echo 'fail';
     }
 
-//    function __call($action, $arguments) {
-//        $this->_redirect('./');
-//        print_r($action);
-//        print_r($arguments);
-//    }
+    public function likeAction() {
+        $this->_helper->layout->disableLayout(); //disable layout
+        $this->_helper->viewRenderer->setNoRender(); //suppress auto-rendering
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid) && isset($this->user['uid'])) {
+            Zend_Loader::loadClass("TasteModel");
+            $c = new TasteModel();
+            $c->like($this->user['uid'], $gid);
+            echo 'success';
+        }else
+            echo 'fail';
+    }
+
+    public function hateAction() {
+        $this->_helper->layout->disableLayout(); //disable layout
+        $this->_helper->viewRenderer->setNoRender(); //suppress auto-rendering
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid) && isset($this->user['uid'])) {
+            Zend_Loader::loadClass("TasteModel");
+            $c = new TasteModel();
+            $c->hate($this->user['uid'], $gid);
+            echo 'success';
+        }else
+            echo 'fail';
+    }
+
 }
 

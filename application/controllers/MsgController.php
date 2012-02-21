@@ -24,7 +24,7 @@ class MsgController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('index', 'message', 'send', 'inbox', 'outbox', 'show', 'quickmsg', 'draft', 'delete'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
+            redirect("/user/login","请先登录!");
             exit;
         }
     }
@@ -41,7 +41,7 @@ class MsgController extends Zend_Controller_Action {
             $tmp = $message->fetchRow("mid = $mid");
             if ($tmp['to_uid'] == $this->user['uid'] || $tmp['from_uid'] == $this->user['uid']) {
                 if ($tmp['status'] == MessageModel::Deleted) {
-                    header("Location:/redirect?url=index&msg=" . urlencode("消息不存在!"));
+                    redirect("index","消息不存在!");
                     return;
                 }
                 $user = new UserModel();
@@ -50,10 +50,10 @@ class MsgController extends Zend_Controller_Action {
                 if ($tmp['status'] == MessageModel::Sended)
                     $message->update(array('status' => MessageModel::Readed), "mid = $mid");
             } else {
-                header("Location:/redirect?url=/msg/index&msg=" . urlencode("有错误哦。。。"));
+                redirect("/msg/index","有错误哦。。。");
             }
         }else
-            header("Location:/redirect?url=/msg/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/msg/index","走错地方了吧!");
     }
 
     public function quickmsgAction() {
@@ -69,7 +69,7 @@ class MsgController extends Zend_Controller_Action {
             $tmp = $user->fetchRow("uid = $uid");
             $this->view->user = $tmp->toArray();
         }else
-            header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/index","走错地方了吧!");
     }
 
     public function sendAction() {
@@ -126,10 +126,10 @@ class MsgController extends Zend_Controller_Action {
                         'date' => time(),
                     ));
                 }
-                header("Location:/redirect?url=index&msg=" . urlencode("成功!"));
+                redirect("index","成功!");
             }
         }else
-            header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/index","走错地方了吧!");
     }
 
     public function inboxAction() {
@@ -187,11 +187,11 @@ class MsgController extends Zend_Controller_Action {
                 $this->view->confirm_link = "<a href='/msg/delete?mid=$mid&confirm=true'>确认</a>";
                 if (isset($_GET['confirm']) && $_GET['confirm'] == "true") {
                     if ($tmp['to_del'] == 1) {
-                        header("Location:/redirect?url=/msg/index&msg=" . urlencode("消息不存在!"));
+                        redirect("/msg/index","消息不存在!");
                         return;
                     }else
                         $message->update(array('to_del' => 1), "mid = $mid");
-                    header("Location:/redirect?url=/msg/index&msg=" . urlencode("删除成功"));
+                    redirect("/msg/index","删除成功");
                 }
             } else if ($tmp['from_uid'] == $this->user['uid']) {//发信者
                 $this->view->confirm_link = "<a href='/msg/delete?mid=$mid&confirm=true'>确认</a>";
@@ -203,15 +203,15 @@ class MsgController extends Zend_Controller_Action {
                             'status' => MessageModel::Deleted
                                 ), "mid = $mid");
                     else if ($tmp['from_del'] == 1) {
-                        header("Location:/redirect?url=/msg/index&msg=" . urlencode("消息不存在!"));
+                        redirect("/msg/index","消息不存在!");
                         return;
                     }else
                         $message->update(array('from_del' => 1), "mid = $mid");
-                    header("Location:/redirect?url=/msg/index&msg=" . urlencode("删除成功"));
+                    redirect("/msg/index","删除成功");
                 }
             }
         }else
-            header("Location:/redirect?url=/msg/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/msg/index","走错地方了吧!");
     }
 
 }

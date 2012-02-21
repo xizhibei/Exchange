@@ -1,27 +1,47 @@
 <h1>发布货物信息</h1>
-<form enctype="application/x-www-form-urlencoded" method="post" class="goods_publish" action="" id="form"><div>
+<form enctype="application/x-www-form-urlencoded" method="post" class="normal_form" action="" id="form"><div>
         <div class="element"><div id="name-label">
                 <label for="name" class="label required">名称:</label></div>
-            <input type="text" name="name" id="name"  class="validate[required]"></div>
+            <input type="text" name="name" id="name"  class="step1 validate[required]"></div>
         <div class="element"><div id="ex_cond-label">
                 <label for="ex_cond" class="label optional">交换条件:(希望用他人什么交换)</label></div>
-            <input type="text" name="ex_cond" id="ex_cond" class="validate[required]"></div>
+            <input type="text" name="ex_cond" id="ex_cond" class="step1 validate[required]"></div>
         <div class="element">
-            <div id="price-label"><label for="price" class="label optional">价格:</label></div>
-            <input type="text" name="price" id="price" class="validate[required,custom[number]]"></div>
+            <div id="price-label"><label for="price" class="label optional">估计价格:</label></div>
+            <input type="text" name="price" id="price" class="step1 validate[required,custom[number]]"></div>
+        <div class="element">
+            <div id="date-label"><label for="date" class="label optional">过期时间:（留空为不过期）</label></div>
+            <input type="text" name="date" id="date" class="step1 validate[custom[dateTimeFormat],future[NOW]]">
+        </div>
         <div class="element">
             <div id="pic-label"><label for="pic" class="label optional">图片<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>:</label></div>
-            <input type="text" name="pic" id="pic" class="validate[required]"></div>
-        <div><div id="detail-label">
-                <label for="detail" class="label required">详细描述:</label></div>
-            <textarea name="detail" id="detail" class="ckeditor" rows="24" cols="80"></textarea></div>
+            <input type="text" name="pic" id="pic" class="step1 validate[required]"></div>
         <div id="sale_ways-label">
-        <label class="required">交易方式:</label></div>
+            <label class="required">交易方式:</label></div>
         <div class="element">
-            <label for="sale_ways-交易"><input type="radio" name="sale_ways" value="交易" class="validate[required]">交易</label> 
-            <label for="sale_ways-交换"><input type="radio" name="sale_ways" value="交换" class="validate[required]">交换</label> 
-            <label for="sale_ways-均可"><input type="radio" name="sale_ways" value="均可" class="validate[required]">均可</label></div>
+            <label for="sale_ways"><input type="radio" name="sale_ways" value="交易" class="step1 validate[required]">交易</label> 
+            <label for="sale_ways"><input type="radio" name="sale_ways" value="交换" class="step1 validate[required]">交换</label> 
+            <label for="sale_ways"><input type="radio" name="sale_ways" value="均可" class="step1 validate[required]">均可</label></div>
+
         <div class="submit">
+            <input type="button" value="继续" class="button" id="load1"></div>
+        <div class="more1" id ="more1" style="display: none;">
+            <div id="detail-label">
+                <label for="detail" class="label required">详细描述:</label></div>
+            <textarea name="detail" id="detail" rows="40" cols="80"></textarea></div>
+
+        <div class="submit more1" style="display: none;">
+            <input type="button" value="继续" class="button" id="load2"></div>
+
+        <div class="element more2" id="more2"  style="display: none;"><div id="tags-label">
+                <p>标签有非常大的作用，当其他用户搜索您发布的物品时，</p>
+                <p>很大程度上是根据您提供的标签搜索的</p>
+                <p>因此请您根据您的物品来创建或者，</p>
+                <p>根据大家的常用标签来给自己的物品打上标签！谢谢合作！</p>
+                <p>多个标签以逗号作为分隔符</p>
+                <label for="tags" class="label optional">标签：</label></div>
+            <input type="text" name="tags" id="tags" class="validate[required]" style="width:800px;"></div>
+        <div class="submit more2" style="display: none;">
             <input type="submit" name="发布" value="发布" class="button"></div></div>
 </form> 
 <script type="text/javascript">
@@ -32,8 +52,26 @@
             $.fancybox.close();
         }
     };
+    CKEDITOR.replace( 'detail',{ height : 400});
+    
     $("#upload").fancybox({
-        'type':'iframe'
+        'type':'iframe',
+        'height':600,
+        'width':800
     });
     $("#form").validationEngine();
+    //    $( "#date" ).datepicker({dateFormat: 'yy-mm-dd'});
+    $("#date").AnyTime_picker(
+    { format: "%Y-%m-%d %h:%i:%s %p",
+        placement: "popup" } );
+      
+    $("#load1").click(function(){
+            $(".more1").show();
+            $.scrollTo($("#more1"),2000);
+    });
+    $("#load2").click(function(){
+            $(".more2").show();
+            $.scrollTo($("#more2"),2000);
+    });
+
 </script>

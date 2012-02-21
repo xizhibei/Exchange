@@ -24,7 +24,7 @@ class FriendsController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('search', 'add', 'my', 'delete'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            header("Location:/redirect?url=/user/login&msg=" . urlencode("请先登录!"));
+            redirect("/user/login","请先登录!");
             exit;
         }
     }
@@ -85,7 +85,7 @@ class FriendsController extends Zend_Controller_Action {
             }
             $this->view->outcome = $outcome;
         }else
-            header("Location:/redirect?url=/index&msg=" . urlencode("走错地方了吧!"));
+            redirect("/index","走错地方了吧!");
     }
 
     public function dealaddAction() {//ajax
@@ -138,9 +138,9 @@ class FriendsController extends Zend_Controller_Action {
                         'date' => time(),
                     );
                     $friend->update($data, "(app_uid = " . $this->user['uid'] . " and rec_uid = $uid) or (app_uid = $uid and rec_uid = " . $this->user['uid'] . ")");
-                    header("Location:/redirect?url=my&msg=" . urlencode("删除成功!"));
+                    redirect("my","删除成功!");
                 }else
-                    header("Location:/redirect?url=my&msg=" . urlencode("出现错误了..."));
+                    redirect("my","出现错误了...");
             }
         }
     }

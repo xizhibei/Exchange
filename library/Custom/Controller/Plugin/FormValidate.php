@@ -24,9 +24,34 @@ class Custom_Controller_Plugin_FormValidate extends Zend_Controller_Plugin_Abstr
 //            $this->msg = $validater->getMessages();
             return false;
         }
-        if ($data['password'] == "")
+
+        $validater = new Zend_Validate_NotEmpty();
+        if (!$validater->isValid($data['password'])) {
+            $this->msg = "密码不能为空";
             return false;
+        }
         //pwd can be any char
+        return true;
+    }
+
+    public function goodsPublish($data) {
+        $validater = new Zend_Validate_Alnum();
+        if (!$validater->isValid($data['price'])) {
+            $this->msg = "价格不正确";
+            return false;
+        }
+        $n = array('name', 'title', 'pic', 'detail', 'ex_cond',);
+        $validater = new Zend_Validate_NotEmpty();
+        foreach ($n as $a) {
+            if (!$validater->isValid($data[$a])) {
+                $this->msg = "$a 不能为空";
+                return false;
+            }
+        }
+        if (!in_array($data['sale_way'], array('交易', '交换', '均可'))) {
+            $this->msg = "交易方式不合法";
+            return false;
+        }
         return true;
     }
 
