@@ -1,48 +1,53 @@
-<h1>发布货物信息</h1>
 <form enctype="application/x-www-form-urlencoded" method="post" class="normal_form" action="" id="form"><div>
         <div class="element"><div id="name-label">
                 <label for="name" class="label required">名称:</label></div>
-            <input type="text" name="name" id="name"  class="step1 validate[required]"></div>
+            <input type="text" name="name" id="name"  class="step1 validate[required]" value="<?= isset($this->goods['name']) ? $this->goods['name'] : ""; ?>"></div>
         <div class="element"><div id="ex_cond-label">
                 <label for="ex_cond" class="label optional">交换条件:(希望用他人什么交换)</label></div>
-            <input type="text" name="ex_cond" id="ex_cond" class="step1 validate[required]"></div>
+            <input type="text" name="ex_cond" id="ex_cond" class="step1 validate[required]" value="<?= isset($this->goods['ex_cond']) ? $this->goods['ex_cond'] : ""; ?>"></div>
         <div class="element">
             <div id="price-label"><label for="price" class="label optional">估计价格:</label></div>
-            <input type="text" name="price" id="price" class="step1 validate[required,custom[number]]"></div>
+            <input type="text" name="price" id="price" class="step1 validate[required,custom[number]]" value="<?= isset($this->goods['price']) ? $this->goods['price'] : ""; ?>"></div>
         <div class="element">
             <div id="date-label"><label for="date" class="label optional">过期时间:（留空为不过期）</label></div>
-            <input type="text" name="date" id="date" class="step1 validate[custom[dateTimeFormat],future[NOW]]">
+            <input type="text" name="date" id="date" class="step1 validate[custom[dateTimeFormat],future[NOW]]"  value="<?= isset($this->goods['date']) ? $this->goods['date'] : ""; ?>">
         </div>
         <div class="element">
-            <div id="pic-label"><label for="pic" class="label optional">图片<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>:</label></div>
-            <input type="text" name="pic" id="pic" class="step1 validate[required]"></div>
+            <div id="pic-label"><label for="pic" class="label optional">图片(在物品展示作为主要图片)<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>:</label></div>
+            <input type="text" name="pic" id="pic_url" class="step1 validate[required]"  value="<?= isset($this->goods['pic_url']) ? $this->goods['pic_url'] : ""; ?>"></div>
         <div id="sale_ways-label">
             <label class="required">交易方式:</label></div>
         <div class="element">
-            <label for="sale_ways"><input type="radio" name="sale_ways" value="交易" class="step1 validate[required]">交易</label> 
-            <label for="sale_ways"><input type="radio" name="sale_ways" value="交换" class="step1 validate[required]">交换</label> 
-            <label for="sale_ways"><input type="radio" name="sale_ways" value="均可" class="step1 validate[required]">均可</label></div>
+            <label for="sale_ways"><input type="radio" name="sale_ways" value="交换" class="step1 validate[required]" 
+                                          <?= isset($this->goods['sale_ways']) ? ($this->goods['sale_ways'] == "交换" ? "checked='checked'" : "") : ""; ?>>交换</label> 
+            <label for="sale_ways"><input type="radio" name="sale_ways" value="交易" class="step1 validate[required]" 
+                                          <?= isset($this->goods['sale_ways']) ? ($this->goods['sale_ways'] == "交易" ? "checked='checked'" : "") : ""; ?>>交易</label> 
+            <label for="sale_ways"><input type="radio" name="sale_ways" value="均可" class="step1 validate[required]" 
+                                          <?= isset($this->goods['sale_ways']) ? ($this->goods['sale_ways'] == "均可" ? "checked='checked'" : "") : ""; ?>>均可</label></div>
 
         <div class="submit">
             <input type="button" value="继续" class="button" id="load1"></div>
         <div class="more1" id ="more1" style="display: none;">
             <div id="detail-label">
                 <label for="detail" class="label required">详细描述:</label></div>
-            <textarea name="detail" id="detail" rows="40" cols="80"></textarea></div>
+            <textarea name="detail" id="detail" rows="40" cols="80"><?= isset($this->goods['detail']) ? $this->goods['detail'] : ""; ?></textarea></div>
 
         <div class="submit more1" style="display: none;">
             <input type="button" value="继续" class="button" id="load2"></div>
 
         <div class="element more2" id="more2"  style="display: none;"><div id="tags-label">
-                <p>标签有非常大的作用，当其他用户搜索您发布的物品时，</p>
-                <p>很大程度上是根据您提供的标签搜索的</p>
-                <p>因此请您根据您的物品来创建或者，</p>
-                <p>根据大家的常用标签来给自己的物品打上标签！谢谢合作！</p>
-                <p>多个标签以逗号作为分隔符</p>
+                <div><p>标签有非常大的作用，当其他用户搜索您发布的物品时，</p>
+                    <p>很大程度上是根据您提供的标签搜索的</p>
+                    <p>因此请您根据您的物品来创建或者，</p>
+                    <p>根据大家的常用标签来给自己的物品打上标签！谢谢合作！</p>
+                    <p>多个标签以逗号作为分隔符</p></div>
+                <ul class="tag_list"><?php foreach ($this->tags as $tag): ?>
+                        <li> <input type="checkbox" value="<?= $tag['name'] ?>" class="tag"> <?= $tag['name'] ?></li><?php endforeach; ?>
+                    <a href="javascript:void(0);" id="moretag">更多</a></ul>
                 <label for="tags" class="label optional">标签：</label></div>
-            <input type="text" name="tags" id="tags" class="validate[required]" style="width:800px;"></div>
-        <div class="submit more2" style="display: none;">
-            <input type="submit" name="发布" value="发布" class="button"></div></div>
+            <input type="text" name="tags" id="tags" class="validate[required]" style="width:800px;"  value="<?= isset($this->goods['tags']) ? $this->goods['tags'] : ""; ?>"></div>
+                   <div class="submit more2" style="display: none;">
+                   <input type="submit" name="发布" value="发布" class="button"></div></div>
 </form> 
 <script type="text/javascript">
     window.KCFinder = {
@@ -52,7 +57,9 @@
             $.fancybox.close();
         }
     };
-    CKEDITOR.replace( 'detail',{ height : 400});
+    CKEDITOR.replace( 'detail',{
+        height : 400
+    });
     
     $("#upload").fancybox({
         'type':'iframe',
@@ -62,16 +69,52 @@
     $("#form").validationEngine();
     //    $( "#date" ).datepicker({dateFormat: 'yy-mm-dd'});
     $("#date").AnyTime_picker(
-    { format: "%Y-%m-%d %h:%i:%s %p",
-        placement: "popup" } );
+    {
+        format: "%Y-%m-%d %h:%i:%s %p",
+        placement: "popup"
+    } );
       
     $("#load1").click(function(){
-            $(".more1").show();
-            $.scrollTo($("#more1"),2000);
+        $(".more1").show();
+        $.scrollTo($("#more1"),1500);
     });
     $("#load2").click(function(){
-            $(".more2").show();
-            $.scrollTo($("#more2"),2000);
+        $(".more2").show();
+        $.scrollTo($("#more2"),1500);
     });
-
+    
+    function tag_click(){
+        if($('#tags').val() == ""){
+            $('#tags').val($(this).val());
+        }else if($(this).attr("checked") == "checked"){
+            $('#tags').val($('#tags').val() +","  +  $(this).val());
+        }else{
+            tags = $('#tags').val().split(',');
+            t = $(this).val();
+            val = "";
+            for (i=0;i<tags.length ;i++ ){
+                if(tags[i] != t){
+                    val += tags[i] + ",";
+                }
+            }
+            $('#tags').val(val.substr(0,val.length - 1));
+        }
+    }
+    
+    $('.tag').click(tag_click);
+    
+    $('#moretag').click(function(){
+        t = $(this);
+        t.before("<div id='loading'><img src='/img/loading.gif'/></div>");
+        $.get("/goods/moretag/off/10/limit/20",null,function(data){
+            data = eval(data);
+            list = "";
+            for(i = 0;i < data.length;i++){
+                list += "<li> <input type=\"checkbox\" value=\""+data[i] + "\" class=\"tag\"> "+data[i]+"</li>";
+            }
+            $('#loading').hide();
+            t.before(list);
+            $('.tag').click(tag_click);
+        });
+    }); 
 </script>

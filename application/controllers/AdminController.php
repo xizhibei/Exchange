@@ -7,6 +7,7 @@
 Zend_loader::loadClass("AdminModel");
 Zend_Loader::loadClass("UserModel");
 Zend_Loader::loadClass("GoodsModel");
+Zend_Loader::loadClass("NewsModel");
 require_once 'Utility.php';
 
 class AdminController extends Zend_Controller_Action {
@@ -24,7 +25,7 @@ class AdminController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('login', 'logincheck'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login", "请先登录!");
             exit;
         }
         $this->_helper->layout->setLayout('admin');
@@ -87,14 +88,13 @@ class AdminController extends Zend_Controller_Action {
         $this->view->headTitle("管理员登录");
         $this->_helper->layout->disableLayout(); //disable layout
 
-        $auth = Zend_Registry::get("auth");
         if (isset($this->user['code_required']) && $this->user['code_required'] == true)
             $this->view->code_required = true;
 
         $admin = new AdminModel();
         $temp = $admin->fetchRow("aid = " . $this->user['uid']);
         if (empty($temp))
-            redirect("/index","你不是管理员哈~");
+            redirect("/index", "你不是管理员哈~");
     }
 
     public function logoutAction() {
@@ -103,28 +103,28 @@ class AdminController extends Zend_Controller_Action {
         $auth = Zend_Registry::get("auth");
         $uid = $this->user['uid'];
         $fully = $this->_getParam("fully");
-        if (!$auth->getStorage()->isEmpty()) {          
-            if($fully == "true"){
+        if (!$auth->getStorage()->isEmpty()) {
+            if ($fully == "true") {
                 $auth->getStorage()->clear();
-            }else{
+            } else {
                 $user = new UserModel();
                 $tmp = $user->fetchRow("uid = $uid")->toArray();
                 $tmp['role'] = "user";
                 $auth->getStorage()->write((object) $tmp);
             }
-            redirect("/index","退出成功");
+            redirect("/index", "退出成功");
         } else {
-            redirect("/index","您还没有登录");
+            redirect("/index", "您还没有登录");
         }
     }
-    
-    public function usermanageAction(){
+
+    public function usermanageAction() {
         $this->view->headTitle("用户列表");
         $user = new UserModel();
         $all = $user->getAllUser();
 
         $page = $this->_getParam('page', 1); //高置默认页
-        $page_num = $this->_getParam("num",10);
+        $page_num = $this->_getParam("num", 10);
         if (!is_numeric($page))
             $page = 1;
         if (!is_numeric($page_num))
@@ -135,27 +135,81 @@ class AdminController extends Zend_Controller_Action {
                 ->setItemCountPerPage($numPerPage);
         $this->view->paginator = $paginator;
     }
-    
-    public function userlockAction(){
-        
-    }
-    
-    public function usereditAction(){
-        
-    }
-    
-    public function userdeleteAction(){
-        
+
+    public function userlockAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
+            $user = new UserModel();
+            $user->update(array('status' => UserModel::LockedByAdmin), "uid = $uid");
+            echo 'success';
+        }else
+            echo 'fail';
     }
 
+    public function userunlockAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
+            $user = new UserModel();
+            $user->update(array('status' => UserModel::Normal), "uid = $uid");
+            echo 'success';
+        }else
+            echo 'fail';
+    }
 
-    public function goodsmanageAction(){
+    public function usereditAction() {
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
+            
+        }
+    }
+
+    public function userdeleteAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
+            $user = new UserModel();
+            $user->update(array('status' => UserModel::Deleted), "uid = $uid");
+            echo 'success';
+        }else
+            echo 'fail';
+    }
+
+    public function userupgradeAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
+            $user = new UserModel();
+            $this->view->user = $user->fetchRow("uid = $uid");
+
+            if ($this->getRequest()->isPost()) {
+                $data = $this->getRequest()->getPost();
+                $admin = new AdminModel();
+                $insertData = array(
+                    'aid' => $uid,
+                    'pwd' => $data['pwd'],
+                    'level' => $data['level']
+                );
+                $admin->insert($insertData);
+            }
+            echo 'success';
+        } else {
+            echo 'fail';
+        }
+    }
+
+    public function goodsmanageAction() {
         $this->view->headTitle("货物列表");
         $user = new GoodsModel();
         $all = $user->getAllGoods();
 
         $page = $this->_getParam('page', 1); //高置默认页
-        $page_num = $this->_getParam("num",10);
+        $page_num = $this->_getParam("num", 10);
         if (!is_numeric($page))
             $page = 1;
         if (!is_numeric($page_num))
@@ -166,14 +220,41 @@ class AdminController extends Zend_Controller_Action {
                 ->setItemCountPerPage($numPerPage);
         $this->view->paginator = $paginator;
     }
-    
-    public function goodseditAction(){
+
+    public function goodseditAction() {
         
     }
-    
-    public function goodsdeleteAction(){
+
+    public function goodsdeleteAction() {
         
     }
+
+    public function newspublishAction() {
+        $this->view->headTitle("新闻发布");
+        $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
+
+        if ($this->getRequest()->isPost()) {
+            $data = $this->getRequest()->getPost();
+
+            $news = new NewsModel();
+            $insertData = array(
+                'title' => $data['title'],
+                'content' => $data['content'],
+                'publish_time' => time(),
+                'update_time' => time(),
+                'aid' => $this->user['aid'],
+                'status' => NewsModel::Published,
+                'type' => $data['type'] == "news" ? NewsModel::News : NewsModel::Announcement,
+            );
+            $news->insert($insertData);
+            redirect("/admin/newmanage", "发布成功");
+        }
+    }
+
+    public function newsmanageAction() {
+        
+    }
+
 }
 
 ?>

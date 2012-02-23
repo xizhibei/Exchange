@@ -1,0 +1,55 @@
+
+<div id="main-wrapper">
+    <div id="main-content">
+        <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all form-container">
+            <div class="portlet-header ui-widget-header">Form elements in box</div>
+            <div class="portlet-content">
+                <form action="#" method="post" enctype="multipart/form-data" class="forms" name="form" >
+                    <ul>
+                        <li>
+                            <label  class="desc" for="title">
+                                标题
+                            </label>
+                            <div>
+                                <input type="text" tabindex="1" maxlength="255" value="" class="field text medium" name="title" />
+                            </div>
+                        </li>
+                        <li>
+                            <label  class="desc" for="content">
+                                内容：
+                            </label>
+                            <div>
+                                <textarea tabindex="2" cols="50" rows="5" class="field textarea small" id="content" name="content" ></textarea>
+                            </div>
+                        </li>
+                        <li>
+                            <label for="type" id="title4" class="desc">
+                                类型：
+                            </label>
+                            <div class="col">
+                                <span>
+                                    <input type="radio" tabindex="3" value="news" class="field radio" name="type" />
+                                    <label  class="choice">新闻</label>
+                                    <input type="radio" tabindex="4" value="anno" class="field radio" name="type" />
+                                    <label  class="choice">公告</label>
+                                </span>
+                            </div>
+                        </li>
+
+                        <li class="buttons">
+                            <input type="submit" value="Submit" class="submit" />
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<script type="text/javascript">
+    CKEDITOR.replace( 'content',{
+        width : 900,
+        height : 300
+    });
+</script>

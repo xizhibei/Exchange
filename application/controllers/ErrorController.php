@@ -1,5 +1,7 @@
 <?php
+
 require_once 'Utility.php';
+
 class ErrorController extends Zend_Controller_Action {
 
     public function errorAction() {
@@ -26,7 +28,8 @@ class ErrorController extends Zend_Controller_Action {
 
         $exception = $errors->exception;
         $log->debug($onlineip . PHP_EOL . $exception->getMessage() .
-                PHP_EOL . $exception->getTraceAsString());
+                PHP_EOL . $exception->getTraceAsString() . 
+                PHP_EOL . var_export($errors->request->getParams(),true));
 
         $this->view->exception = $errors->exception;
         $this->view->request = $errors->request;

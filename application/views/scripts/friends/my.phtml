@@ -2,10 +2,10 @@
 <div class="my_friend">
     <?php if (count($this->paginator)): ?>
         <?php foreach ($this->paginator as $tmp): ?>
-            <div><div><img src='<?= $tmp['small_avatar'] ?>' alt='<?= $tmp['name'] ?>'/></div>
-                <a href='/user/profile?uid=<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a>
-                <div><a href='/msg/quickmsg?uid=<?= $tmp['uid'] ?>' class='msg'>给TA留言</a></div>
-                <a href='/friends/delete?uid=<?= $tmp['uid'] ?>'>删除</a>
+            <div><div><img src='/img/avatar/uid/<?= $tmp['uid'] ?>' alt='<?= $tmp['name'] ?>'/></div>
+                <a href='/user/profile/uid/<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a>
+                <div><a href='/msg/quickmsg/uid/<?= $tmp['uid'] ?>' class='msg'>给TA留言</a></div>
+                <a href='/friends/delete/uid/<?= $tmp['uid'] ?>'>删除</a>
             </div>
         <?php endforeach; ?>
     <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>

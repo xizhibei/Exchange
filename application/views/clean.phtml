@@ -9,8 +9,22 @@
         <?php echo $this->headScript() ?>
     </head>
     <body>
+        <div class="container">
             <div class="main">
+                <?php if (isset($this->note)): ?>
+                    <div id="note" ><?= $this->note ?><a id="close">[close]</a></div>
+                <?php else: ?>
+                    <div id="note" style="display: none;"><b></b><a id="close">[close]</a></div>
+                <?php endif; ?>
+                <script type="text/javascript">
+                    close = document.getElementById("close");
+                    close.addEventListener('click', function() {
+                        note = document.getElementById("note");
+                        note.style.display = 'none';
+                    }, false);
+                </script>
                 <?php echo $this->layout()->content ?>
             </div>
+        </div>
     </body>
 </html>

@@ -65,7 +65,19 @@ if ($auth->hasIdentity()) {
     $user = (array) $auth->getStorage()->read();
     if (isset($user['uid'])) {
         $_SESSION['KCFINDER']['disabled'] = false;
-        $_SESSION['KCFINDER']['uploadURL'] = "/upload/" . $user['uid'] . "/";
+        $dir = "/upload/" . $user['uid'] . "/";
+        $_SESSION['KCFINDER']['uploadURL'] = $dir;
+        $dir = "." . $dir;
+        if (!is_dir($dir)) {
+            mkdir($dir);
+            touch($dir . "index.html");
+            mkdir($dir . "images/");
+            touch($dir . "images/index.html");
+            mkdir($dir . ".thumbs/");
+            touch($dir . ".thumbs/index.html");
+            mkdir($dir . ".thumbs/images/");
+            touch($dir . ".thumbs/images/index.html");
+        }
     } else {//guest
         $_SESSION['KCFINDER']['disabled'] = true;
     }

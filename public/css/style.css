@@ -80,6 +80,8 @@ a:hover{text-decoration:underline;}
 .normal_form .element input[type="password"]{height: 30px;width: 400px;font-size: 20px;margin: 14px 0;color: #666;}
 .normal_form .element input[type="radio"]{margin: 14px 20px;}
 .normal_form .element .disabled{margin: 6px 0;color: #999;}
+.normal_form .element .tag_list{list-style:disc;}
+.normal_form .element .tag_list li{margin-left: 50px;}
 .normal_form .submit{margin: 14px 0;}
 .normal_form .submit input{font-size: 20px;}
 
@@ -111,9 +113,11 @@ a:hover{text-decoration:underline;}
 .goods_box ul li{margin: 5px 0;font-size: 20px;}
 .button_box input{margin: 10px;font-size: 25px;}
 
-.show_goods{height: 5px;background-color: #999;margin: 10px 0;}
+.show_goods{height: 5px;background-color: #999;margin: 10px 0;overflow-y: scroll;}
 .show_goods .animate{background-color: black;width: 0;height: 5px;}
 .show_goods .detail{color: white;}
+.show_goods .detail .left{font-size: 22px;margin: 10px 0 10px 20px;border-bottom: white 2px inset;width: 160px;}
+.show_goods .detail .right{margin-left: 30px;}
 .show_goods .detail img{width: 180px;height: 180px;}
 
 .goods_container{width: 960px;}

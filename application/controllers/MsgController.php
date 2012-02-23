@@ -8,6 +8,7 @@ Zend_Loader::loadClass("FriendModel");
 Zend_Loader::loadClass("UserModel");
 Zend_Loader::loadClass("MessageModel");
 Zend_Loader::loadClass("SendMsgForm");
+require_once 'Utility.php';
 
 class MsgController extends Zend_Controller_Action {
 
@@ -35,8 +36,8 @@ class MsgController extends Zend_Controller_Action {
     }
 
     public function showAction() {
-        if (isset($_GET['mid']) && is_numeric($_GET['mid'])) {
-            $mid = $_GET['mid'];
+        $mid = $this->_getParam("mid");
+        if (isset($mid) && is_numeric($mid)) {
             $message = new MessageModel();
             $tmp = $message->fetchRow("mid = $mid");
             if ($tmp['to_uid'] == $this->user['uid'] || $tmp['from_uid'] == $this->user['uid']) {
@@ -63,8 +64,8 @@ class MsgController extends Zend_Controller_Action {
         if ($this->_request->isPost()) {
             
         }
-        if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
-            $uid = $_GET['uid'];
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
             $user = new UserModel();
             $tmp = $user->fetchRow("uid = $uid");
             $this->view->user = $tmp->toArray();
@@ -102,8 +103,8 @@ class MsgController extends Zend_Controller_Action {
         $this->view->headTitle("发送站内信");
         $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
 
-        if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
-            $uid = $_GET['uid'];
+        $uid = $this->_getParam("uid");
+        if (isset($uid) && is_numeric($uid)) {
             $user = new UserModel();
             $tmp = $user->fetchRow("uid = $uid");
             $this->view->form = "<div>收件人：<a href='/user/profile?uid=$uid'>" . $tmp['name'] . "</a></div>";
@@ -179,8 +180,8 @@ class MsgController extends Zend_Controller_Action {
 
     //这里不会真删除站内信，只会标记为删除，以后可能需要该下
     public function deleteAction() {
-        if (isset($_GET['mid']) && is_numeric($_GET['mid'])) {
-            $mid = $_GET['mid'];
+        $mid = $this->_getParam("mid");
+        if (isset($mid) && is_numeric($mid)) {
             $message = new MessageModel();
             $tmp = $message->fetchRow("mid = $mid");
             if ($tmp['to_uid'] == $this->user['uid']) {//收信者

@@ -3,14 +3,14 @@
 <a href="/goods/add">添加</a>
 <div class="all_goods">
     <table>
-        <tr><th>ID</th><th>名称</th><th>价格</th><th>交换条件</th><th>详细描述</th><th>交易方式</th><th>状态</th><th>发布时间</th><th>删除</th><th>修改</th><th>详细</th></tr>
+        <tr><th>ID</th><th>名称</th><th>价格</th><th>交换条件</th><th>详细描述</th><th>交易方式</th><th>状态</th><th>发布时间</th><th>选项</th></tr>
         <?php foreach ($this->paginator as $tmp): ?>
             <tr><td><?= $tmp['id'] ?></td><td><?= $tmp['name'] ?></td><td><?= $tmp['price'] ?></td><td><?= $tmp['ex_cond'] ?></td>
                 <td><?= $tmp['detail'] ?>...</td><td><?= $tmp['sale_ways'] ?></td>
                 <td><?= $tmp['status'] ?></td><td><?= $tmp['publish_time'] ?></td>
-                <td><a href='/goods/delete?gid=<?= $tmp['id'] ?>'>删除</a></td>
-            <td><a href='/goods/modify?gid=<?= $tmp['id'] ?>'>修改</a></td>
-            <td><a href='/goods/detail?gid=<?= $tmp['id'] ?>'>详细</a></td></tr>
+                <td><a href='/goods/delete/gid/<?= $tmp['id'] ?>'>删除</a>
+            <a href='/goods/modify/gid/<?= $tmp['id'] ?>'>修改</a>
+            <a href='/goods/detail/gid/<?= $tmp['id'] ?>'>详细</a></td></tr>
        <?php endforeach; ?>	 
     </table>
     <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>

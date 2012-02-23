@@ -11,6 +11,7 @@
                     <div class="box" style="background-color: <?= $tmp['color'] ?>">                    
                         <div class="pic" style="display:none;">
                             <img src="<?= $tmp['pic_url'] ?>" title="<?= $tmp['name'] ?>"/>
+                            <div>标签：<?php foreach ($tmp['tags'] as $tag):?><a href="/goods/search/q/<?=$tag?>"><?=$tag?></a> <?php endforeach;?></div>
                             <div class="bottom"id ="<?= $tmp['id'] ?>" >
                                 <?php if (isset($tmp['taste_status']) && $tmp['taste_status'] == "喜爱"): ?>
                                     <a href="javascript:void(0);" class="like_red icon" title="I like it."></a>
@@ -29,8 +30,9 @@
                                 <div class="clear"></div>
                             </div></div>
                         <div class="text">
-                            <h3><?= $tmp['name'] ?></h3>
+                            <h3><?= $tmp['name_cut'] ?></h3>
                             <div>发布时间：<?= $tmp['publish_time'] ?></div>
+                            <div>过期时间：<?= $tmp['expire_date'] ?></div>
                             <div>点击：<?= $tmp['click'] ?></div>
                             <div><?= $tmp['detail'] ?>...</div>
                             <div class="small_pic"><img src="<?= $tmp['pic_url'] ?>"  title="<?= $tmp['name'] ?>" /></div></div>                        
@@ -44,13 +46,13 @@
 <script type="text/javascript">
     $(".sale").fancybox({
         'type':'iframe',
-        'height':600,
-        'width':800
+        'height':800,
+        'width':960
     });
     $(".exchange").fancybox({
         'type':'iframe',
-        'height':600,
-        'width':800
+        'height':800,
+        'width':960
     });
     $('.box').mouseover(function(){
         h = $(this).height();
@@ -79,6 +81,7 @@
             pro.animate({height:"700px"});
         });
     });
+        <?php if(isset($this->uid)):?>
     $(".like").click(function(){
         t = $(this);
         id = $(this).parent().attr("id");
@@ -106,4 +109,5 @@
             t.parent().parent().parent().hide();
         });
     });
+    <?php endif;?>
 </script>

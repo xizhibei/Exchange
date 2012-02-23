@@ -1,30 +1,36 @@
 <?php
 
-class TasteModel extends Zend_Db_Table {
+class TagModel extends Zend_Db_Table {
 
     protected function _setup() {
         $this->_name = 'tag';
         parent::_setup();
     }
 
-    public function getMostFrequently($limit) {
-        return $this->_db->fetchAll("select * from tag order by goods_count desc limit 0,$limit");
+    public function getMostFrequently($off,$limit) {
+        return $this->_db->fetchAll("select * from tag order by goods_count desc limit $off,$limit");
     }
 
     public function addTags($tags, $gid) {
         $tags = explode(',', $tags);
         foreach ($tags as $tag) {
-            if ($tmp == "")
+            if ($tag == "")
                 continue;
-            $tmp = $this->_db->fetchOne("select count(*) from tag where name = '$tag'");
-            if ($tag > 0) {
-                $this->_db->query("update tag set goods_count = goods_count + 1 where name = $tag");
-            } else {
-                $this->insert(array(
+            $tid = $this->_db->fetchOne("select tid from tag where name = :tag",array('tag' => $tag));
+            if (!$tid)
+                $tid = $this->insert(array(
                     'name' => $tag,
-                ));
-            }
+                        ));
+            $this->_db->insert('goods_tag', array(
+                'tid' => $tid,
+                'gid' => $gid,
+            ));
+            $this->_db->query("update tag set goods_count = goods_count + 1 where tid = :tid",array('tid' => $tid));
         }
+    }
+    
+    public function getTags($gid){
+        return $this->_db->fetchAll("select name from tag,goods_tag where tag.tid = goods_tag.tid and goods_tag.gid = $gid");
     }
 
     public function getStatus($status_id) {
@@ -38,6 +44,7 @@ class TasteModel extends Zend_Db_Table {
     const Normal = 1;
     const Like = 2;
     const Hate = 3;
+
 }
 
 ?>

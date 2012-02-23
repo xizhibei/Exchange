@@ -1,4 +1,5 @@
 <?php
+require_once 'Utility.php';
 
 class ImgController extends Zend_Controller_Action {
 
@@ -40,15 +41,15 @@ class ImgController extends Zend_Controller_Action {
 
     public function avatarAction() {
         $uid = $this->_getParam("uid");
+        $type = $this->_getParam("type","small");
         if ($uid != null && is_numeric($uid)) {
             Zend_Loader::loadClass("UserModel");
             $user = new UserModel();
             $tmp = $user->getAvatar($uid);
-            $img = fread(fopen($tmp['small_avatar'], "rb"), filesize($tmp['small_avatar']));
-            $info = getimagesize($tmp['small_avatar']);
-            $type = $info['mime'];
-            header("content-type:$type");
-            echo $img;
+            $path = ".".$tmp['small_avatar'];
+            
+            image_resize($path,150,150);
+            
             return;
         }
     }

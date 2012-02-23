@@ -1,0 +1,25 @@
+<div>
+    您确定将用户<a href="/user/profile/uid/<?= $tmp['uid'] ?>"><?= $tmp['name'] ?></a>升级为管理员？
+    <form action="#" method="post" enctype="multipart/form-data" class="forms" name="form" >
+        <ul>
+            <li>
+                <label  class="desc" for="pwd">
+                    初始密码
+                </label>
+                <div>
+                    <input type="password" tabindex="1" maxlength="255" value="" class="field text small" name="pwd" />
+                </div>
+            </li>
+            <li>
+                <label  class="desc" for="level">
+                    等级
+                </label>
+                <div>
+                    <select name="level" class="field select"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+                </div>
+            </li>
+        </ul>
+    </form>
+    <a href="/admin/userupgrade/uid/<?= $tmp['uid'] ?>?confirm=true">确定</a>
+    <a href="javascript:$.fancybox.close">取消</a>
+</div>

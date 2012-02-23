@@ -66,6 +66,7 @@ class SaleController extends Zend_Controller_Action {
     }
 
     public function saleAction() {
+        $this->_helper->layout->setLayout('clean');
         $this->view->headTitle("物品交易");
         if (isset($_POST['submit'])) {
             $sale = new SaleModel();
@@ -96,6 +97,7 @@ class SaleController extends Zend_Controller_Action {
     }
 
     public function exchangeAction() {
+        $this->_helper->layout->setLayout('clean');
         $this->view->headTitle("物品交换");
         if (!empty($_POST['my_gids']) && !empty($_POST['other_gids'])) {
             $my_req = "";

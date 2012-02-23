@@ -8,7 +8,7 @@ Zend_Loader::loadClass("GoodsPublishForm");
 Zend_Loader::loadClass("GoodsModel");
 Zend_Loader::loadClass("SaleModel");
 Zend_Loader::loadClass("UserModel");
-//Zend_Loader::loadClass("ClickModel");
+Zend_Loader::loadClass("TagModel");
 require_once 'Utility.php';
 
 class GoodsController extends Zend_Controller_Action {
@@ -22,11 +22,11 @@ class GoodsController extends Zend_Controller_Action {
         $this->user = (array) $auth->getStorage()->read();
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
-        $acl->allow('guest', $res, array('index', 'search', 'detail', 'default', 'ajaxdetail', 'like', 'hate'));
-        $acl->allow('user', $res, array('add', 'delete', 'modify', 'manage'));
+        $acl->allow('guest', $res, array('index', 'search', 'detail', 'default', 'ajaxdetail', 'moretag'));
+        $acl->allow('user', $res, array('add', 'delete', 'modify', 'manage', 'like', 'hate'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login", "请先登录!");
             exit;
         }
     }
@@ -42,11 +42,11 @@ class GoodsController extends Zend_Controller_Action {
 
         $all = $goods->getAllPublished();
         if (isset($this->user['uid'])) {
+            $this->view->uid = $this->user['uid'];
             Zend_Loader::loadClass("TasteModel");
             $t = new TasteModel();
             $all = $t->addStatus($all, $this->user['uid']);
         }
-
 
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
@@ -72,12 +72,24 @@ class GoodsController extends Zend_Controller_Action {
         $this->view->headLink()->appendStylesheet("/css/anytimec.css");
         $this->view->headScript()->appendFile("/js/jquery.scrollTo-min.js");
 
+        $tag = new TagModel();
+        $this->view->tags = $tag->getMostFrequently(0, 10);
+
         if ($this->getRequest()->isPost()) {
             Zend_Loader::loadClass("Custom_Controller_Plugin_FormValidate");
             $validater = new Custom_Controller_Plugin_FormValidate();
             $data = $this->getRequest()->getPost();
             if ($validater->isValid("goodsPublish", $data)) {
                 $goods = new GoodsModel();
+
+                if ($data['date'] == "")
+                    $expire_date = GoodsModel::NeverExpireDate;
+                else {
+                    $date = new DateTime($data['date']);
+                    $expire_date = $date->getTimestamp();
+                }
+
+                $data['detail'] = filter_bad_html($data['detail']);
 
                 $insertData = array(
                     'name' => $data['name'],
@@ -88,14 +100,39 @@ class GoodsController extends Zend_Controller_Action {
                     'sale_ways' => $data['sale_ways'],
                     'publish_time' => time(),
                     'uid' => $this->user['uid'],
-                    'status' => $goods->getStatusId("已发布"),
+                    'status' => GoodsModel::Published,
+                    'expire_date' => $expire_date,
                 );
-                $goods->insert($insertData);
-                redirect("/goods/manage","发布成功!");
+                $gid = $goods->insert($insertData);
+
+                $tag = new TagModel();
+                $tag->addTags($data['tags'], $gid);
+
+                redirect("/goods/manage", "发布成功!");
             } else {
                 $this->view->note = "发布失败！请检查输入！";
             }
         }
+    }
+
+    public function moretagAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $tag = new TagModel();
+
+        $off = $this->_getParam('off', 10);
+        if (!is_numeric($off))
+            $off = 10;
+        $limit = $this->_getParam('limit', 10);
+        if (!is_numeric($limit))
+            $limit = 10;
+        $all = $tag->getMostFrequently($off, $limit);
+        $json = array();
+        $i = 0;
+        foreach ($all as $tmp) {
+            $json[$i++] = $tmp['name'];
+        }
+        echo json_encode($json);
     }
 
     /**
@@ -106,9 +143,9 @@ class GoodsController extends Zend_Controller_Action {
         if (isset($gid) && is_numeric($gid)) {
             $goods = new GoodsModel();
             $goods->update(array('status' => $goods->getStatusId("已删除")), "id = " . $gid);
-            redirect("/goods/manage","删除成功!");
+            redirect("/goods/manage", "删除成功!");
         } else {
-            $this->_redirect("/index");
+            redirect("/index", "走错地方了吧!");
         }
     }
 
@@ -120,44 +157,73 @@ class GoodsController extends Zend_Controller_Action {
             $this->view->headScript()->appendFile("/fancybox/jquery.fancybox-1.3.4.pack.js");
             $this->view->headLink()->appendStylesheet("/fancybox/jquery.fancybox-1.3.4.css");
             $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
-            $this->view->headTitle("货物信息修改");
-            $form = new GoodsPublishForm();
+            $this->view->headScript()->appendFile("/js/languages/jquery.validationEngine-zh_CN.js");
+            $this->view->headScript()->appendFile("/js/jquery.validationEngine.js");
+            $this->view->headScript()->appendFile("/js/anytimec.js");
+            $this->view->headLink()->appendStylesheet("/css/validationEngine.jquery.css");
+            $this->view->headLink()->appendStylesheet("/css/anytimec.css");
+            $this->view->headScript()->appendFile("/js/jquery.scrollTo-min.js");
+
+            $this->view->headTitle("物品信息修改");
+            $tag = new TagModel();
+            $this->view->tags = $tag->getMostFrequently(0, 10);
             $goods = new GoodsModel();
+            
+            //load goods info
+            $tmp = $goods->fetchRow("id = " . $gid)->toArray();
+            if ($tmp['uid'] != $this->user['uid']) {//不是物品的主人
+                redirect("/goods/manage", "走错地方了吧！");
+                return;
+            }
+            $tmp['date'] = date("Y-m-d h:i:s A", $tmp['expire_date']);
+            $tags_array = $tag->getTags($gid);
+            $tags = "";
+            foreach ($tags_array as $t) {
+                $tags .= $t['name'] . ",";
+            }
+            if ($tags != "")
+                $tags = substr($tags, 0, strlen($tags) - 1);
+            $tmp['tags'] = $tags;
+            $this->view->goods = $tmp;
+            $this->render("add");
 
             if ($this->getRequest()->isPost()) {
-                $formData = $this->getRequest()->getPost();
-                if ($form->isValid($formData)) {
-                    $data = $form->getValues();
+                Zend_Loader::loadClass("Custom_Controller_Plugin_FormValidate");
+                $validater = new Custom_Controller_Plugin_FormValidate();
+                $data = $this->getRequest()->getPost();
+                if ($validater->isValid("goodsPublish", $data)) {
+
+
+                    if ($data['date'] == "")
+                        $expire_date = GoodsModel::NeverExpireDate;
+                    else {
+                        $date = new DateTime($data['date']);
+                        $expire_date = $date->getTimestamp();
+                    }
+
+                    $data['detail'] = filter_bad_html($data['detail']);
+
                     $insertData = array(
                         'name' => $data['name'],
-                        'price' => $data['price'],
                         'pic_url' => $data['pic'],
-                        'ex_cond' => $data['ex_cond'],
+                        'price' => $data['price'],
                         'detail' => $data['detail'],
+                        'ex_cond' => $data['ex_cond'],
                         'sale_ways' => $data['sale_ways'],
-                        'publish_time' => time(),
-                        'uid' => $this->user['uid'],
-                        'status' => $goods->getStatusId("已发布"),
+                        'expire_date' => $expire_date,
                     );
-                    $goods->update($insertData, "id = " . $gid);
-                    redirect("/goods/manage","更新成功!");
+                    $gid = $goods->insert($insertData);
+
+                    $tag = new TagModel();
+                    $tag->addTags($data['tags'], $gid);
+
+                    redirect("/goods/manage", "更新成功!");
                 } else {
-                    echo '<script>alert("更新失败！请检查输入！");</script>';
+                    $this->view->note = "更新失败！请检查输入！";
                 }
             }
-
-            $tmp = $goods->fetchRow("id = " . $gid);
-            $this->view->goods = $tmp;
-//            $form->setDefaults(array(
-//                'name' => $tmp['name'],
-//                'price' => $tmp['price'],
-//                'ex_cond' => $tmp['ex_cond'],
-//                'detail' => $tmp['detail'],
-//                'sale_ways' => $tmp['sale_ways'],
-//            ));
-//            $this->view->form = $form;
         } else {
-            redirect("/index","走错地方了吧!");
+            redirect("/index", "走错地方了吧!");
         }
     }
 
@@ -176,7 +242,7 @@ class GoodsController extends Zend_Controller_Action {
 
     public function searchAction() {
         $goods = new GoodsModel();
-        $q = isset($_GET['q']) ? $_GET['q'] : "";
+        $q = $this->_getParam("q", "");
         $all = $goods->search($q);
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
@@ -195,7 +261,7 @@ class GoodsController extends Zend_Controller_Action {
             $this->view->detail = $goods->fetchRow("id = " . $gid);
             $this->view->status = $goods->getStatus($this->view->detail['status']);
         } else
-            redirect("/index","走错地方了吧!");
+            redirect("/index", "走错地方了吧!");
     }
 
     public function ajaxdetailAction() {
@@ -209,7 +275,7 @@ class GoodsController extends Zend_Controller_Action {
 
             Zend_Loader::loadClass("ClickModel");
             $c = new ClickModel();
-            $c->updateClick(isset($this->user['uid']) ? $this->user['uid'] : null, $gid, getIp());
+            $c->updateClick(isset($this->user['uid']) ? $this->user['uid'] : null, getIp(), $gid);
         } else
             echo 'fail';
     }

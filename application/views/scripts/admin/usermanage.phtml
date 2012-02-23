@@ -1,56 +1,195 @@
 <div id="main-wrapper">
     <div id="main-content">
-        <div class="title">
-            <h3>用户列表</h3>
+        <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all form-container">
+            <div class="portlet-header ui-widget-header">用户列表</div>
+            <div class="portlet-content">
+                <div class="title">
+                    <h3>用户列表</h3>
+                </div>
+                <div class="hastable">
+                    <form name="myform" class="pager-form" method="post" action="">
+                        <table> 
+                            <thead> 
+                                <tr>
+                                    <th><input type="checkbox" value="check_none" onclick="this.value=check(this.form.list)" class="submit"/></th>
+                                    <th>UID</th> 
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>QQ</th>
+                                    <th>手机</th> 
+                                    <th>Email</th> 
+                                    <th>状态</th> 
+                                    <th>注册时间</th>
+                                    <th style="width:132px">Options</th> 
+                                </tr> 
+                            </thead> 
+                            <tbody>
+                                <?php foreach ($this->paginator as $tmp): ?>
+                                    <tr>
+                                        <td class="center"><input type="checkbox" value="1" name="list" class="checkbox"/></td> 
+                                        <td><?= $tmp['uid'] ?></td> 
+                                        <td><?= $tmp['name'] ?></td> 
+                                        <td><?= $tmp['sex'] ?></td> 
+                                        <td><?= $tmp['qq'] ?></td> 
+                                        <td><?= $tmp['cellphone'] ?></td>
+                                        <td><?= $tmp['email'] ?></td>
+                                        <td><?= $tmp['status'] ?></td>
+                                        <td><?= $tmp['regdate'] ?></td> 
+                                        <td  id="<?= $tmp['uid'] ?>">
+                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Edit this user" href="/admin/useredit/uid/<?= $tmp['uid'] ?>">
+                                                <span class="ui-icon ui-icon-wrench"></span>
+                                            </a>
+                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip delete" title="Delete this user" href="javascript:void(0);">
+                                                <span class="ui-icon ui-icon-circle-close"></span>
+                                            </a>
+                                            <?php if ($tmp['status'] == "管理员锁定"): ?>
+                                                <a class="btn_no_text btn ui-state-default ui-corner-all tooltip lock" title="Unlock this user" href="javascript:void(0);" >
+                                                    <span class="ui-icon ui-icon-unlocked"></span>
+                                                </a>
+                                            <?php else: ?>
+                                                <a class="btn_no_text btn ui-state-default ui-corner-all tooltip lock" title="Lock this user" href="javascript:void(0);" >
+                                                    <span class="ui-icon ui-icon-locked"></span>
+                                                </a>
+                                            <?php endif; ?>
+                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip upgrade" title="Upgrade this user" href="javascript:void(0);">
+                                                <span class="ui-icon ui-icon-arrowthick-1-n"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </form>
+                    <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list_admin.phtml'); ?>
+                </div>
+                <div class="clearfix"></div>
+            </div>
         </div>
-        <div class="hastable">
-            <form name="myform" class="pager-form" method="post" action="">
-                <table> 
-                    <thead> 
-                        <tr>
-                            <th><input type="checkbox" value="check_none" onclick="this.value=check(this.form.list)" class="submit"/></th>
-                            <th>UID</th> 
-                            <th>姓名</th>
-                            <th>性别</th>
-                            <th>QQ</th>
-                            <th>手机</th> 
-                            <th>Email</th> 
-                            <th>状态</th> 
-                            <th>注册时间</th>
-                            <th style="width:132px">Options</th> 
-                        </tr> 
-                    </thead> 
-                    <tbody>
-                        <?php foreach ($this->paginator as $tmp): ?>
-                            <tr>
-                                <td class="center"><input type="checkbox" value="1" name="list" class="checkbox"/></td> 
-                                <td><?= $tmp['uid'] ?></td> 
-                                <td><?= $tmp['name'] ?></td> 
-                                <td><?= $tmp['sex'] ?></td> 
-                                <td><?= $tmp['qq'] ?></td> 
-                                <td><?= $tmp['cellphone'] ?></td>
-                                <td><?= $tmp['email'] ?></td>
-                                <td><?= $tmp['status'] ?></td>
-                                <td><?= $tmp['regdate'] ?></td> 
-                                <td>
-                                    <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Edit this user" href="#">
-                                        <span class="ui-icon ui-icon-wrench"></span>
-                                    </a>
-                                    <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Delete this user" href="#">
-                                        <span class="ui-icon ui-icon-circle-close"></span>
-                                    </a>
-                                    <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Lock this user" href="#">
-                                        <span class="ui-icon ui-icon-locked"></span>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </form>
-            <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list_admin.phtml'); ?>
+    </div>
+    <div id="lock-confirm" title="Lock this user?">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>用户将被锁定， Are you sure?</p>
+    </div>
+    <div id="delete-confirm" title="Delete this user?">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>用户将被删除， Are you sure?</p>
+    </div>
+    <div id="upgradeuser" title="Upgrade user">
+        <div class="response-msg ui-corner-all" style="display:none;">
         </div>
-        <div class="clearfix"></div>
+        您确定将用户升级为管理员？
+        <form action="#" method="post" enctype="multipart/form-data" class="forms" id="upgrade_form">
+            <ul>
+                <li>
+                    <label  class="desc" for="pwd">
+                        初始密码
+                    </label>
+                    <div>
+                        <input type="password" tabindex="1" maxlength="255" value="" class="field text small" name="pwd" style="width:200px;"/>
+                    </div>
+                </li>
+                <li>
+                    <label  class="desc" for="level">
+                        等级
+                    </label>
+                    <div>
+                        <select name="level" class="field select"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+                    </div>
+                </li>
+            </ul>
+        </form>
     </div>
     <div class="clearfix"></div>
 </div>
+
+<script type="text/javascript">
+    var _this;
+    var cur_id;   
+    $("#upgradeuser").dialog({
+        autoOpen: false,
+        resizable: false,
+        modal: true,
+        buttons: {
+            "Upgrade this user": function() {
+                $.post("/admin/userupgrade/uid/"+cur_id, $("#upgrade_form").serialize(),function(data){
+                    t = $("#upgradeuser").find(".response-msg");
+                    if(data == "success"){   
+                        t.html("<span>升级成功</span>");
+                        t.removeClass("error");
+                        t.addClass("success");
+                        setTimeout( '$("#upgradeuser" ).dialog( "close" )',3000);
+                    }else if(data == "fail"){
+                        t.html("<span>升级失败</span>");
+                        t.removeClass("success");
+                        t.addClass("error");
+                    }
+                    t.show();
+                });
+                
+            },
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            }
+        }
+    });
+    
+    $(".upgrade").click(function(){
+        cur_id= $(this).parent().attr("id");
+        $( "#upgradeuser" ).dialog("open");
+    });
+    
+    $( "#lock-confirm" ).dialog({
+        autoOpen: false,
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: {
+            "Lock this user": function() {
+                $.get("/admin/userlock/uid/" + cur_id,null,function(data){
+                    if(data == "success"){
+                        _this.find("span").attr("class","ui-icon ui-icon-unlocked");
+                    }
+                });
+                $( this ).dialog( "close" );
+            },
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            }
+        }
+    });
+    
+    $( "#delete-confirm" ).dialog({
+        autoOpen: false,
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: {
+            "Delete this user": function() {
+                $.get("/admin/userdelete/uid/" + cur_id,null,function(data){
+                });
+                $( this ).dialog( "close" );
+            },
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            }
+        }
+    });
+    
+    $(".delete").click(function(){
+        cur_id= $(this).parent().attr("id");
+        $( "#delete-confirm" ).dialog("open");
+    });
+    
+    $('.lock').click(function(){
+        t = $(this);
+        cur_id= t.parent().attr("id");
+        if(t.find("span").attr("class") == "ui-icon ui-icon-locked"){
+            _this = t;
+            $( "#lock-confirm" ).dialog("open");
+        }else{
+            $.get("/admin/userunlock/uid/" + cur_id,null,function(data){
+                if(data == "success"){
+                    t.find("span").attr("class","ui-icon ui-icon-locked");
+                }
+            });
+        }
+    });
+</script>

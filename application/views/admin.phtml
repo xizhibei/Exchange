@@ -13,6 +13,7 @@
         <script type="text/javascript" src="/js/tablesorter-pager.js"></script>
         <script type="text/javascript" src="/js/cookie.js"></script>
         <script type="text/javascript" src="/js/custom.js"></script>     
+        <?= $this->headScript() ?>
         <style type="text/css">
             @import url('/css/reset.css');
             @import url('/css/general.css');
@@ -21,6 +22,7 @@
             @import url('/css/tables.css');
             @import url('/css/messages.css');
         </style>
+        <?= $this->headLink() ?>
         <link href="" rel="stylesheet" title="style" media="all" />
         <!--[if IE 6]>
         <link href="/css/ie6.css" rel="stylesheet" media="all" />
@@ -95,15 +97,22 @@
                         <li>
                             <a href="#">用户</a>
                             <ul>
-                                <li><a href="usermanage">列表</a></li>
+                                <li><a href="/admin/usermanage">列表</a></li>
                                 <li><a href="#">Subitem 2</a></li>
                             </ul>
                         </li>
                         <li>
-                            <a href="#">货物</a>
+                            <a href="#">物品</a>
                             <ul>
-                                <li><a href="goodsmanage">列表</a></li>
+                                <li><a href="/admin/goodsmanage">列表</a></li>
                                 <li><a href="#">Subitem 2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">新闻</a>
+                            <ul>
+                                <li><a href="/admin/newsmanage">列表</a></li>
+                                <li><a href="/admin/newspublish">发布</a></li>
                             </ul>
                         </li>
                         <li><a href="#">Menu item 2</a></li>
