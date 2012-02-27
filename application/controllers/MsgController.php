@@ -25,9 +25,10 @@ class MsgController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('index', 'message', 'send', 'inbox', 'outbox', 'show', 'quickmsg', 'draft', 'delete'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login","PleaseLogin");
             exit;
         }
+        $this->view->userinfo = $this->user;
     }
 
     public function indexAction() {
@@ -42,7 +43,7 @@ class MsgController extends Zend_Controller_Action {
             $tmp = $message->fetchRow("mid = $mid");
             if ($tmp['to_uid'] == $this->user['uid'] || $tmp['from_uid'] == $this->user['uid']) {
                 if ($tmp['status'] == MessageModel::Deleted) {
-                    redirect("index","消息不存在!");
+                    redirect("index","MsgNotExist");
                     return;
                 }
                 $user = new UserModel();
@@ -51,10 +52,10 @@ class MsgController extends Zend_Controller_Action {
                 if ($tmp['status'] == MessageModel::Sended)
                     $message->update(array('status' => MessageModel::Readed), "mid = $mid");
             } else {
-                redirect("/msg/index","有错误哦。。。");
+                redirect("/msg/index","UnknowError");
             }
         }else
-            redirect("/msg/index","走错地方了吧!");
+            redirect("/msg/index","WrongWay");
     }
 
     public function quickmsgAction() {
@@ -70,7 +71,7 @@ class MsgController extends Zend_Controller_Action {
             $tmp = $user->fetchRow("uid = $uid");
             $this->view->user = $tmp->toArray();
         }else
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
     }
 
     public function sendAction() {
@@ -127,10 +128,10 @@ class MsgController extends Zend_Controller_Action {
                         'date' => time(),
                     ));
                 }
-                redirect("index","成功!");
+                redirect("index","SendSuccess");
             }
         }else
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
     }
 
     public function inboxAction() {
@@ -188,11 +189,11 @@ class MsgController extends Zend_Controller_Action {
                 $this->view->confirm_link = "<a href='/msg/delete?mid=$mid&confirm=true'>确认</a>";
                 if (isset($_GET['confirm']) && $_GET['confirm'] == "true") {
                     if ($tmp['to_del'] == 1) {
-                        redirect("/msg/index","消息不存在!");
+                        redirect("/msg/index","MsgNotExist");
                         return;
                     }else
                         $message->update(array('to_del' => 1), "mid = $mid");
-                    redirect("/msg/index","删除成功");
+                    redirect("/msg/index","DeleteSuccess");
                 }
             } else if ($tmp['from_uid'] == $this->user['uid']) {//发信者
                 $this->view->confirm_link = "<a href='/msg/delete?mid=$mid&confirm=true'>确认</a>";
@@ -204,15 +205,15 @@ class MsgController extends Zend_Controller_Action {
                             'status' => MessageModel::Deleted
                                 ), "mid = $mid");
                     else if ($tmp['from_del'] == 1) {
-                        redirect("/msg/index","消息不存在!");
+                        redirect("/msg/index","MsgNotExist");
                         return;
                     }else
                         $message->update(array('from_del' => 1), "mid = $mid");
-                    redirect("/msg/index","删除成功");
+                    redirect("/msg/index","DeleteSuccess");
                 }
             }
         }else
-            redirect("/msg/index","走错地方了吧!");
+            redirect("/msg/index","WrongWay");
     }
 
 }

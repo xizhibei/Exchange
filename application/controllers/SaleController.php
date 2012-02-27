@@ -24,9 +24,10 @@ class SaleController extends Zend_Controller_Action {
         $acl->allow('user', $res); //, array('sale', 'exchange', 'chooseway', 'request', 'accept', 'refuse', 'detail', 'otherreq')
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login","PleaseLogin");
             exit;
         }
+        $this->view->userinfo = $this->user;
     }
 
     public function indexAction() {
@@ -78,7 +79,7 @@ class SaleController extends Zend_Controller_Action {
                 'buyerid' => $this->user['uid'],
                 'sellerid' => $_POST['target_id'],
             ));
-            redirect("/sale","请求已发送!");
+            redirect("/sale","SendSuccess");
             return;
         }
         $gid = $this->_getParam("gid");
@@ -93,7 +94,7 @@ class SaleController extends Zend_Controller_Action {
             $this->view->user_profile = $user_profile;
             $this->view->form = "<input type='hidden' name='target_id' value='" . $target_id . "'/>" . "<input type='hidden' name='gid' value='" . $gid . "'/>";
         }else
-            redirect("/sale","走错地方了吧!");
+            redirect("/sale","WrongWay");
     }
 
     public function exchangeAction() {
@@ -117,7 +118,7 @@ class SaleController extends Zend_Controller_Action {
                 'buyerid' => $this->user['uid'],
                 'sellerid' => $_POST['target_id'],
             ));
-            redirect("/sale","请求已发送!");
+            redirect("/sale","SendSuccess");
             return;
         }
         $gid = $this->_getParam("gid");
@@ -148,13 +149,13 @@ class SaleController extends Zend_Controller_Action {
                     $g['name'] = strlen($g['name']) < 60 ? $g['name'] : cutstr($g['name'], 0, 60);
                 }
             } else {
-                redirect("/goods", "出现错误了。。。可能物品已售");
+                redirect("/goods", "UnknowError");
                 return;
             }
             $this->view->other_goods = $all;
             $this->view->target_id = $target_id;
         }else
-            redirect("/sale","走错地方了吧!");
+            redirect("/sale","SendSuccess");
     }
 
     public function choosewayAction() {
@@ -167,7 +168,7 @@ class SaleController extends Zend_Controller_Action {
             }else
                 $this->view->tmp = $tmp;
         } else {
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
         }
     }
 
@@ -177,7 +178,7 @@ class SaleController extends Zend_Controller_Action {
             $sale = new SaleModel();
             $sale->update(array('status' => SaleModel::Rejecting), "sid = $sid");
         } else {
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
         }
     }
 
@@ -200,10 +201,10 @@ class SaleController extends Zend_Controller_Action {
                     if ($id != $sid)
                         $sale->update(array('status' => SaleModel::Rejecting), "sid = $id");
                 }
-                redirect("/sale/request","确认成功!");
+                redirect("/sale/request","ConfirmSuccess");
             }
         } else {
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
         }
     }
 
@@ -238,7 +239,7 @@ class SaleController extends Zend_Controller_Action {
                     ->setItemCountPerPage($numPerPage);
             $this->view->paginator = $paginator;
         } else {
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
         }
     }
 
@@ -249,7 +250,7 @@ class SaleController extends Zend_Controller_Action {
             $sale = new SaleModel();
             $this->view->tmp = $sale->getSingleDetail($sid, $this->user['uid']);
         } else {
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
         }
     }
 

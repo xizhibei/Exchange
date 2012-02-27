@@ -1,4 +1,5 @@
 <?php
+
 require_once 'Utility.php';
 
 class ImgController extends Zend_Controller_Action {
@@ -16,7 +17,7 @@ class ImgController extends Zend_Controller_Action {
         $acl->allow('user', $res);
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login", "PleaseLogin");
             exit;
         }
 
@@ -33,24 +34,42 @@ class ImgController extends Zend_Controller_Action {
     }
 
     public function indexAction() {
-        $img = $this->_getParam('file', 'img_not_found.jpg');
-        if (!file_exists("../img/$img"))
-            $img = "img_not_found.jpg";
-        header("Location:/img/$img");
+        $id = $this->_getParam("imgid");
+        if ($id != null && is_numeric($id)) {
+            Zend_Loader::loadClass("ImgModel");
+            $img = new ImgModel();
+            $img_info = $img->fetchRow("id = $id");
+            $file = "./upload/" . $img_info['uid'] . "/.thumbs/images/medium_" . $img_info['key'];
+            if (!file_exists($file))
+                $file = "./img/img_not_found.jpg";
+
+            $extend = pathinfo($file);
+            $extend = strtolower($extend["extension"]);
+
+            header("Content-Type: image/$extend");
+            $file = file_get_contents($file);
+            echo $file;
+        }
     }
 
     public function avatarAction() {
         $uid = $this->_getParam("uid");
-        $type = $this->_getParam("type","small");
+//        $type = $this->_getParam("type", "small");
         if ($uid != null && is_numeric($uid)) {
             Zend_Loader::loadClass("UserModel");
             $user = new UserModel();
             $tmp = $user->getAvatar($uid);
-            $path = ".".$tmp['small_avatar'];
-            
-            image_resize($path,150,150);
-            
-            return;
+            $file = "./upload/$uid/.thumbs/images/small_$tmp";
+
+            if (!file_exists($file))
+                $file = "./img/boy.jpg";
+
+            $extend = pathinfo($file);
+            $extend = strtolower($extend["extension"]);
+
+            header("Content-Type: image/$extend");
+            $file = file_get_contents($file);
+            echo $file;
         }
     }
 

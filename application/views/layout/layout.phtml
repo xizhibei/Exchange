@@ -1,0 +1,98 @@
+<?= $this->doctype('XHTML1_STRICT') ?>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="Description" content="HIT换客网" />
+        <meta name="Keywords" content="HIT,换客,二手交易，资源利用,以换会友" />
+        <?= $this->headTitle() ?>
+        <?php $this->headLink()->appendStylesheet("/css/style.css"); ?>
+        <?= $this->headLink() ?>
+        <?php $this->headScript()->appendFile("/js/jquery.js"); ?>
+        <?= $this->headScript() ?>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <?php if (isset($this->userinfo['uid'])): ?>
+                    <div class="personal">
+                        <div class="msgs">
+                            <a class="profile" href="/user/profile"><?= $this->userinfo['name'] ?></a>
+                            <a href="/msg/index" class="icon info" title="提醒" id="msg_info"></a>
+                            <a href="/sale/request" class="icon req" title="请求" id="msg_req"></a>
+                            <a href="/sale/unread" class="icon new" title="通知" id="msg_new"></a>                           
+                            <a class="logout" href="/user/logout" title="退出">退出</a></div></div>
+                    <script type="text/javascript">
+                        $.get("/index/unreadInfo",null,function(data){
+                            if(data > 0)
+                                $("#msg_info").html("<span>" + data + "</span>");
+                        });
+                        $.get("/index/unreadReq",null,function(data){
+                            if(data > 0)
+                                $("#msg_req").html("<span>" + data + "</span>");
+                        });
+                        $.get("/index/unreadNew",null,function(data){
+                            if(data > 0)
+                                $("#msg_new").html("<span>" + data + "</span>");
+                        });
+                    </script>
+                <?php else: ?>
+                    <div class="personal">
+                        <a class="login" href="/user/login" title="登录">登录</a>
+                        <a class="reg" href="/user/reg">注册</a></div>
+                <?php endif; ?>
+                <div class="clear"></div>
+            </div>
+            <div class="main">
+                <?php if (isset($this->note)): ?>
+                    <div id="note" ><?= $this->note ?><a id="close">[close]</a></div>
+                <?php else: ?>
+                    <div id="note" style="display: none;"><b></b><a id="close">[close]</a></div>
+                <?php endif; ?>
+                <script type="text/javascript">
+                    close = document.getElementById("close");
+                    close.addEventListener('click', function() {
+                        note = document.getElementById("note");
+                        note.style.display = 'none';
+                    }, false);
+                </script>
+
+                <?= $this->layout()->content ?>
+            </div>
+
+        </div>
+        <div class="footer">
+            <div class="boxes">
+                <div class="box">
+                    <h3>常用</h3>
+                    <ul>                                                                       
+                        <li><a href="/index">主页</a></li>
+                        <li><a href="/user/reg">注册</a></li>
+                        <li><a href="/user/login">登录</a></li>                      
+                        <li><a href="/friends/my">好友</a></li>
+                        <li><a href="/friends/search">交友</a></li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3>常用</h3>
+                    <ul>        
+                        <li><a href="/goods">最新物品</a></li>
+                        <li><a href="/goods/add">添加物品</a></li>
+                        <li><a href="/goods/manage">管理物品</a></li>
+                        <li><a href="/sale/seller">我的交易(卖家)</a></li>
+                        <li><a href="/sale/buyer">我的交易(买家)</a></li>
+                        <li><a href="/sale/request">交易请求</a></li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3>常用</h3>
+                    <ul>        
+                        <li><a href="/msg">留言</a></li>
+                        <li><a href="/msg/inbox">收件箱</a></li>
+                        <li><a href="/msg/outbox">发件箱</a></li>
+                        <li><a href="/msg/draft">草稿箱</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

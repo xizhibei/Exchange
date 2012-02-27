@@ -6,7 +6,7 @@
     var second = $('#remain_second').html();
     setInterval(function(){
         if (second < 0){
-            top.location = '<?php echo $this->url; ?>'; 
+            window.top.location = '<?php echo $this->url; ?>'; 
         } else{
             $('#remain_second').html(second--);
         }

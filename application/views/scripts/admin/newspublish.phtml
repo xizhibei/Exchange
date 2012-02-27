@@ -11,7 +11,7 @@
                                 标题
                             </label>
                             <div>
-                                <input type="text" tabindex="1" maxlength="255" value="" class="field text medium" name="title" />
+                                <input type="text" tabindex="1" maxlength="255" value="<?= isset($this->news['title']) ? $this->news['title'] : ""; ?>" class="field text medium" name="title" />
                             </div>
                         </li>
                         <li>
@@ -19,7 +19,8 @@
                                 内容：
                             </label>
                             <div>
-                                <textarea tabindex="2" cols="50" rows="5" class="field textarea small" id="content" name="content" ></textarea>
+                                <textarea tabindex="2" cols="50" rows="5" class="field textarea small" id="content" name="content" >
+                                    <?= isset($this->news['content']) ? $this->news['content'] : ""; ?></textarea>
                             </div>
                         </li>
                         <li>
@@ -28,9 +29,11 @@
                             </label>
                             <div class="col">
                                 <span>
-                                    <input type="radio" tabindex="3" value="news" class="field radio" name="type" />
+                                    <input type="radio" tabindex="3" value="news" class="field radio" name="type" 
+                                        <?= isset($this->news['type']) ? ($this->news['type'] == 1 ? "checked='checked'" : "") : ""; ?>/>
                                     <label  class="choice">新闻</label>
-                                    <input type="radio" tabindex="4" value="anno" class="field radio" name="type" />
+                                    <input type="radio" tabindex="4" value="anno" class="field radio" name="type" 
+                                           <?= isset($this->news['type']) ? ($this->news['type'] == 2 ? "checked='checked'" : "") : ""; ?>/>
                                     <label  class="choice">公告</label>
                                 </span>
                             </div>

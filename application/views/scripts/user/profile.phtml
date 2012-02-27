@@ -1,4 +1,10 @@
 <h1>用户资料</h1>
 <div class="proflie">
-    <?php echo $this->display;?>
+    <div><img src='/avatar/<?= $this->profile['uid'] ?>' /></div>
+    <div>用户名： <?= $this->profile['name'] ?> </div>
+    <div>性别： <?= $this->profile['sex'] ?> </div>
+    <?php if ($this->display == true): ?>
+        <div>Email：<?= $this->profile['email'] ?></div>
+        <div>手机：<?= $this->profile['cellphone'] ?></div>
+    <?php endif; ?>
 </div>

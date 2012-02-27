@@ -7,7 +7,7 @@
 Zend_Loader::loadClass("SaleModel");
 Zend_Loader::loadClass("GoodsModel");
 Zend_Loader::loadClass("MessageModel");
-
+Zend_Loader::loadClass("NewsModel");
 class IndexController extends Zend_Controller_Action {
 
     private $user;
@@ -22,26 +22,59 @@ class IndexController extends Zend_Controller_Action {
         $acl->allow('user', $res);
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login", "PleaseLogin");
             exit;
         }
+        $this->view->userinfo = $this->user;
     }
 
     public function indexAction() {
         if (isset($this->user['uid'])) {
-            $this->view->content = "Hello Mr." . $this->user['name'] . "<br />Your ID is " . $this->user['uid'] . "<br /><a href='/user/logout'>退出</a>";
-            $message = new MessageModel();
-            $msg_count = $message->getUnreadedNum($this->user['uid']);
-            $this->view->msg = "<a href=\"/msg/index\">您有" . $msg_count . "条未读站内信</a>";
-            $sale = new SaleModel();
-            $msg_count = $sale->getUnreadReqNum($this->user['uid']);
-            $this->view->sale_msg = "<a href=\"/sale/request\">您有" . $msg_count . "条未处理交易请求</a>";
-            
-            $msg_count = $sale->getUnreadReqOutcomeNum($this->user['uid']);
-            $this->view->sale_outcome_msg = "<a href=\"/sale/unread\">您有" . $msg_count . "条未读交易请求处理结果信息</a>";
+            $this->view->content = "Hello Mr." . $this->user['name'] . "<br />Your ID is " . $this->user['uid'];
+//            $message = new MessageModel();
+//            $msg_count = $message->getUnreadedNum($this->user['uid']);
+//            $this->view->msg = "<a href=\"/msg/index\">您有" . $msg_count . "条未读站内信</a>";
+//            $sale = new SaleModel();
+//            $msg_count = $sale->getUnreadReqNum($this->user['uid']);
+//            $this->view->sale_msg = "<a href=\"/sale/request\">您有" . $msg_count . "条未处理交易请求</a>";
+//
+//            $msg_count = $sale->getUnreadReqOutcomeNum($this->user['uid']);
+//            $this->view->sale_outcome_msg = "<a href=\"/sale/unread\">您有" . $msg_count . "条未读交易请求处理结果信息</a>";
         }
         else
             $this->view->content = "Hello " . $this->user['name'];
+        $news = new NewsModel();
+        $this->view->news = $news->getHotNewsTitle(10);
+    }
+
+    public function unreadnewAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        if (isset($this->user['uid'])) {
+            $message = new MessageModel();
+            echo $message->getUnreadedNum($this->user['uid']);
+        }else
+            echo "-1";
+    }
+
+    public function unreadreqAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        if (isset($this->user['uid'])) {
+            $sale = new SaleModel();
+            echo $sale->getUnreadReqNum($this->user['uid']);
+        }else
+            echo "-1";
+    }
+
+    public function unreadinfoAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        if (isset($this->user['uid'])) {
+            $sale = new SaleModel();
+            echo $sale->getUnreadReqOutcomeNum($this->user['uid']);
+        }else
+            echo "-1";
     }
 
     public function imgcodeAction() {

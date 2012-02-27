@@ -12,19 +12,25 @@ class UserModel extends Zend_Db_Table {
         $this->_primary = 'uid';
         parent::_setup();
     }
-    
-    /**********       for admin          ********/
-    public function getAllUser(){
-        $all = $this->fetchAll()->toArray();
-        foreach($all as &$tmp){
+
+    /*     * ********       for admin          ******* */
+
+    public function getAllUser($show_delete = false) {
+        if ($show_delete)
+            $all = $this->fetchAll()->toArray();
+        else
+            $all = $this->fetchAll("status <> " . self::Deleted)->toArray();
+        foreach ($all as &$tmp) {
             $tmp['regdate'] = date("Y-m-d H:i:s", $tmp['regdate']);
             $tmp['status'] = self::getStatus($tmp['status']);
         }
         return $all;
     }
-    /**********         end        ****************/
+
+    /*     * ********         end        *************** */
+
     public function getAvatar($uid) {
-        return $this->_db->fetchRow("select big_avatar,small_avatar from user where uid = $uid");
+        return $this->_db->fetchOne("select img.key from img,user where user.uid = $uid and img.id = user.avatar_id");
     }
 
     public function authenticateValid(array $user, array $data) {
@@ -65,17 +71,22 @@ class UserModel extends Zend_Db_Table {
             return false;
     }
 
-    public function getUser($email, $pwd) {
-        $select = parent::select()->where("email = ?", $email)->where("pwd = ?", $pwd);
-        return $this->getAdapter()->fetchRow($select);
+    public function getUserWithAvavtar($uid) {
+        $u = $this->_db->fetchRow("select user.*,img.key from user,img where user.avatar_id = img.id and user.uid = $uid");
+        $u['avatar_path'] = $u['key'];
+        return $u;
     }
     
-    
+    public function getUser($uid) {
+        $u = $this->_db->fetchRow("select * from user where uid = $uid");
+        return $u;
+    }
+
     public function getActivationCode() {
         return sha1(md5(rand()) . "xizhibei" . time());
     }
-    
-    public function activeOrUnlockUser(){
+
+    public function activeOrUnlockUser() {
         
     }
 

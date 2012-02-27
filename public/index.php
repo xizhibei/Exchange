@@ -8,14 +8,10 @@ defined('APPLICATION_PATH')
 defined('APPLICATION_ENV')
         || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
 
-date_default_timezone_set('Asia/Shanghai');
-
 // Ensure library/ is on include_path
 set_include_path(implode(PATH_SEPARATOR, array(
             realpath(APPLICATION_PATH . '/../library'),
             get_include_path(),
-            realpath(APPLICATION_PATH . '/forms'),
-            realpath(APPLICATION_PATH . '/models'),
         )));
 
 require_once 'Zend/Registry.php';
@@ -26,22 +22,22 @@ require_once 'Zend/Log/Writer/Stream.php';
 $log = new Zend_Log(new Zend_Log_Writer_Stream('../logs/errors_' . date("Y-m-d") . '.log', 'a+'));
 Zend_Registry::set('error_log', $log);
 
-require_once 'Zend/Config/Ini.php';
-$config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'staging');
-Zend_Registry::set('config', $config);
+//require_once 'Zend/Config/Ini.php';
+//$config = new Zend_Config_Ini(APPLICATION_PATH . '/configs/application.ini', 'staging');
+//Zend_Registry::set('config', $config);
 
-require_once 'Zend/Db.php';
-$params = $config->database->params->toArray();
-$params['driver_options'] = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES UTF8');
-$db = Zend_Db::factory('PDO_MYSQL', $params);
+//require_once 'Zend/Db.php';
+//$params = $config->database->params->toArray();
+//$params['driver_options'] = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES UTF8');
+//$db = Zend_Db::factory('PDO_MYSQL', $params);
 
 
-require_once 'Zend/Db/Table.php';
-Zend_Db_Table::setDefaultAdapter($db);
+//require_once 'Zend/Db/Table.php';
+//Zend_Db_Table::setDefaultAdapter($db);
 
 /** Setup layout */
-require_once 'Zend/Layout.php';
-Zend_Layout::startMvc(APPLICATION_PATH . '/views');
+//require_once 'Zend/Layout.php';
+//Zend_Layout::startMvc(APPLICATION_PATH . '/views');
 
 
 /** Zend_Application */
@@ -71,12 +67,8 @@ if ($auth->hasIdentity()) {
         if (!is_dir($dir)) {
             mkdir($dir);
             touch($dir . "index.html");
-            mkdir($dir . "images/");
-            touch($dir . "images/index.html");
             mkdir($dir . ".thumbs/");
             touch($dir . ".thumbs/index.html");
-            mkdir($dir . ".thumbs/images/");
-            touch($dir . ".thumbs/images/index.html");
         }
     } else {//guest
         $_SESSION['KCFINDER']['disabled'] = true;

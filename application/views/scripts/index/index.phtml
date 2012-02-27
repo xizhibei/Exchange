@@ -1,14 +1,11 @@
 <div id="welcome">
-    <h1>主页</h1>
-    <?php echo $this->infoNotify?>
-    <p><?php echo $this->msg?></p>
+    <h1>Dashboard</h1>
+    <?php echo $this->infoNotify ?>
     <div id="more-information">
-        <p><?php echo $this->content;?></p>
+        <p><?php echo $this->content; ?></p>
     </div>
-    <div><h2>交易信息：</h2><div><?php echo $this->sale_msg;?></div>
-        <div><?php echo $this->sale_outcome_msg;?></div></div>
-    <div>
-        <a href="/user/reg">注册</a>
-        <a href="/user/modify">更改个人资料</a>
-    </div>
+    <div>最近Hot新闻
+        <ul><?php foreach ($this->news as $tmp): ?>
+                <li><a href="/news/show/nid/<?= $tmp['nid'] ?>"><?= $tmp['title'] ?></a></li>
+            <?php endforeach; ?></ul></div>
 </div>

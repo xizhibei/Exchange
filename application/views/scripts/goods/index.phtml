@@ -10,7 +10,7 @@
                 <?php if ($i++ % 4 == $k): ?>
                     <div class="box" style="background-color: <?= $tmp['color'] ?>">                    
                         <div class="pic" style="display:none;">
-                            <img src="<?= $tmp['pic_url'] ?>" title="<?= $tmp['name'] ?>"/>
+                            <img src="/img/<?= $tmp['pic_id'] ?>" title="<?= $tmp['name'] ?>"/>
                             <div>标签：<?php foreach ($tmp['tags'] as $tag):?><a href="/goods/search/q/<?=$tag?>"><?=$tag?></a> <?php endforeach;?></div>
                             <div class="bottom"id ="<?= $tmp['id'] ?>" >
                                 <?php if (isset($tmp['taste_status']) && $tmp['taste_status'] == "喜爱"): ?>
@@ -35,7 +35,7 @@
                             <div>过期时间：<?= $tmp['expire_date'] ?></div>
                             <div>点击：<?= $tmp['click'] ?></div>
                             <div><?= $tmp['detail'] ?>...</div>
-                            <div class="small_pic"><img src="<?= $tmp['pic_url'] ?>"  title="<?= $tmp['name'] ?>" /></div></div>                        
+                            <div class="small_pic"><img src="/img/<?= $tmp['pic_id'] ?>"  title="<?= $tmp['name'] ?>" /></div></div>                        
                     </div><?php endif; ?>
             <?php endforeach; ?>
         </div>

@@ -14,12 +14,12 @@
             <?php foreach ($this->paginator as $tmp): ?><?php if ($tmp['friend_status'] == FriendModel::BLACK_LIST || $tmp['friend_status'] == FriendModel::UserUnnormal)
                 continue; ?>
                 <div>
-                    <div><img src='<?= $tmp['small_avatar'] ?>' alt='<?= $tmp['name'] ?>' class='avater'/></div>
-                    <div><a href='/user/profile?uid=<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a></div>
+                    <div><img src='/avatar/<?= $tmp['uid'] ?>' alt='<?= $tmp['name'] ?>' class='avater'/></div>
+                    <div><a href='/user/profile/uid/<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a></div>
                     <?php if ($tmp['friend_status'] == FriendModel::NoRelated || $tmp['friend_status'] == FriendModel::Rejected): ?>
-                        <div><a href='/friends/add?uid=<?= $tmp['uid'] ?>'>添加好友</a></div>
+                        <div><a href='/friends/add/uid/<?= $tmp['uid'] ?>'>添加好友</a></div>
                     <?php endif ?>
-                    <div><a href='/msg/message?uid=<?= $tmp['uid'] ?>'>给TA留言</a></div>
+                    <div><a href='/msg/message/uid/<?= $tmp['uid'] ?>'>给TA留言</a></div>
                 </div>
             <?php endforeach; ?>
             <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>

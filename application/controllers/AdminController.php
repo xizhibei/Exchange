@@ -25,13 +25,18 @@ class AdminController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('login', 'logincheck'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login", "请先登录!");
+            redirect("/user/login", "PleaseLogin");
             exit;
         }
         $this->_helper->layout->setLayout('admin');
+        $this->view->userinfo = $this->user;
     }
 
     public function indexAction() {
+        
+    }
+    
+    public function serverinfoAction() {
         
     }
 
@@ -121,7 +126,11 @@ class AdminController extends Zend_Controller_Action {
     public function usermanageAction() {
         $this->view->headTitle("用户列表");
         $user = new UserModel();
-        $all = $user->getAllUser();
+        $show_delete = $this->_getParam('show_delete', "false");
+        if ($show_delete == "true")
+            $all = $user->getAllUser(true);
+        else
+            $all = $user->getAllUser(false);
 
         $page = $this->_getParam('page', 1); //高置默认页
         $page_num = $this->_getParam("num", 10);
@@ -204,9 +213,9 @@ class AdminController extends Zend_Controller_Action {
     }
 
     public function goodsmanageAction() {
-        $this->view->headTitle("货物列表");
-        $user = new GoodsModel();
-        $all = $user->getAllGoods();
+        $this->view->headTitle("物品列表");
+        $goods = new GoodsModel();
+        $all = $goods->getAllGoods();
 
         $page = $this->_getParam('page', 1); //高置默认页
         $page_num = $this->_getParam("num", 10);
@@ -226,7 +235,15 @@ class AdminController extends Zend_Controller_Action {
     }
 
     public function goodsdeleteAction() {
-        
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $gid = $this->_getParam("gid");
+        if (isset($gid) && is_numeric($gid)) {
+            $goods = new GoodsModel();
+            $goods->update(array('status' => GoodsModel::Deleted), "id = $gid");
+            echo 'success';
+        }else
+            echo 'fail';
     }
 
     public function newspublishAction() {
@@ -252,7 +269,44 @@ class AdminController extends Zend_Controller_Action {
     }
 
     public function newsmanageAction() {
-        
+        $this->view->headTitle("新闻公告列表");
+        $news = new NewsModel();
+        $all = $news->getAllNews();
+
+        $page = $this->_getParam('page', 1); //高置默认页
+        $page_num = $this->_getParam("num", 10);
+        if (!is_numeric($page))
+            $page = 1;
+        if (!is_numeric($page_num))
+            $page_num = 10;
+        $numPerPage = $page_num; //每页显示的条数
+        $paginator = Zend_Paginator::factory($all);
+        $paginator->setCurrentPageNumber($page)
+                ->setItemCountPerPage($numPerPage);
+        $this->view->paginator = $paginator;
+    }
+
+    public function newsdeleteAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $nid = $this->_getParam("nid");
+        if (isset($nid) && is_numeric($nid)) {
+            $news = new NewsModel();
+            $news->update(array('status' => NewsModel::Deleted), "nid = $nid");
+            echo 'success';
+        }else
+            echo 'fail';
+    }
+    
+    public function newseditAction() {
+        $this->view->headTitle("新闻编辑");
+        $this->view->headScript()->appendFile("/ckeditor/ckeditor.js");
+        $nid = $this->_getParam("nid");
+        if (isset($nid) && is_numeric($nid)) {
+            $news = new NewsModel();
+            $this->view->news = $news->fetchRow("nid = $nid")->toArray();
+            $this->render("newspublish");
+        }
     }
 
 }

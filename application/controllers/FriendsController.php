@@ -24,9 +24,10 @@ class FriendsController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('search', 'add', 'my', 'delete'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login","请先登录!");
+            redirect("/user/login","PleaseLogin");
             exit;
         }
+        $this->view->userinfo = $this->user;
     }
 
     public function indexAction() {
@@ -85,7 +86,7 @@ class FriendsController extends Zend_Controller_Action {
             }
             $this->view->outcome = $outcome;
         }else
-            redirect("/index","走错地方了吧!");
+            redirect("/index","WrongWay");
     }
 
     public function dealaddAction() {//ajax
@@ -138,9 +139,9 @@ class FriendsController extends Zend_Controller_Action {
                         'date' => time(),
                     );
                     $friend->update($data, "(app_uid = " . $this->user['uid'] . " and rec_uid = $uid) or (app_uid = $uid and rec_uid = " . $this->user['uid'] . ")");
-                    redirect("my","删除成功!");
+                    redirect("/friends/my","DeleteSuccess");
                 }else
-                    redirect("my","出现错误了...");
+                    redirect("/friedns/my","UnknowError");
             }
         }
     }

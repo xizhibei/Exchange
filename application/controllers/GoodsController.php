@@ -9,6 +9,7 @@ Zend_Loader::loadClass("GoodsModel");
 Zend_Loader::loadClass("SaleModel");
 Zend_Loader::loadClass("UserModel");
 Zend_Loader::loadClass("TagModel");
+Zend_Loader::loadClass("ImgModel");
 require_once 'Utility.php';
 
 class GoodsController extends Zend_Controller_Action {
@@ -26,9 +27,10 @@ class GoodsController extends Zend_Controller_Action {
         $acl->allow('user', $res, array('add', 'delete', 'modify', 'manage', 'like', 'hate'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
-            redirect("/user/login", "请先登录!");
+            redirect("/user/login", "PleaseLogin");
             exit;
         }
+        $this->view->userinfo = $this->user;
     }
 
     public function indexAction() {
@@ -91,9 +93,13 @@ class GoodsController extends Zend_Controller_Action {
 
                 $data['detail'] = filter_bad_html($data['detail']);
 
+                $img = new ImgModel();
+                $img_id = $img->addImg($data['pic_url'], $this->user['uid']);
+                $data['detail'] = $img->addImgFromHtml($data['detail'], $this->user['uid']);
+
                 $insertData = array(
                     'name' => $data['name'],
-                    'pic_url' => $data['pic'],
+                    'pic_id' => $img_id,
                     'price' => $data['price'],
                     'detail' => $data['detail'],
                     'ex_cond' => $data['ex_cond'],
@@ -108,7 +114,7 @@ class GoodsController extends Zend_Controller_Action {
                 $tag = new TagModel();
                 $tag->addTags($data['tags'], $gid);
 
-                redirect("/goods/manage", "发布成功!");
+                redirect("/goods/manage", "PublihsSuccess");
             } else {
                 $this->view->note = "发布失败！请检查输入！";
             }
@@ -143,9 +149,9 @@ class GoodsController extends Zend_Controller_Action {
         if (isset($gid) && is_numeric($gid)) {
             $goods = new GoodsModel();
             $goods->update(array('status' => $goods->getStatusId("已删除")), "id = " . $gid);
-            redirect("/goods/manage", "删除成功!");
+            redirect("/goods/manage", "DeleteSuccess");
         } else {
-            redirect("/index", "走错地方了吧!");
+            redirect("/index", "WrongWay");
         }
     }
 
@@ -168,24 +174,24 @@ class GoodsController extends Zend_Controller_Action {
             $tag = new TagModel();
             $this->view->tags = $tag->getMostFrequently(0, 10);
             $goods = new GoodsModel();
-            
+
             //load goods info
             $tmp = $goods->fetchRow("id = " . $gid)->toArray();
             if ($tmp['uid'] != $this->user['uid']) {//不是物品的主人
-                redirect("/goods/manage", "走错地方了吧！");
+                redirect("/goods/manage", "WrongWay");
                 return;
             }
             $tmp['date'] = date("Y-m-d h:i:s A", $tmp['expire_date']);
             $tags_array = $tag->getTags($gid);
-            $tags = "";
+            $tags = array();
             foreach ($tags_array as $t) {
-                $tags .= $t['name'] . ",";
+                array_push($tags, $t['name']);
             }
-            if ($tags != "")
-                $tags = substr($tags, 0, strlen($tags) - 1);
-            $tmp['tags'] = $tags;
+//            if ($tags != "")
+//                $tags = substr($tags, 0, strlen($tags) - 1);
+            $tmp['tags'] = implode(",", $tags);
             $this->view->goods = $tmp;
-            $this->render("add");
+            $this->render("add"); //用add的文件来渲染，能保持和发布的时候一致
 
             if ($this->getRequest()->isPost()) {
                 Zend_Loader::loadClass("Custom_Controller_Plugin_FormValidate");
@@ -203,27 +209,33 @@ class GoodsController extends Zend_Controller_Action {
 
                     $data['detail'] = filter_bad_html($data['detail']);
 
+                    $img = new ImgModel();
+                    $img_id = $img->addImg($data['pic_url'], $this->user['uid']);
+
+                    $data['detail'] = $img->addImgFromHtml($data['detail'], $this->user['uid']);
+
                     $insertData = array(
                         'name' => $data['name'],
-                        'pic_url' => $data['pic'],
+                        'pic_id' => $img_id,
+                        'pic_url' => $data['pic_url'],
                         'price' => $data['price'],
                         'detail' => $data['detail'],
                         'ex_cond' => $data['ex_cond'],
                         'sale_ways' => $data['sale_ways'],
                         'expire_date' => $expire_date,
                     );
-                    $gid = $goods->insert($insertData);
+                    $gid = $goods->update($insertData, "id = " . $tmp['id']);
 
                     $tag = new TagModel();
                     $tag->addTags($data['tags'], $gid);
 
-                    redirect("/goods/manage", "更新成功!");
+                    redirect("/goods/manage", "UpdateSuccess");
                 } else {
-                    $this->view->note = "更新失败！请检查输入！";
+                    $this->view->note = "更新失败！请检查输入！" . $validater->getMsg();
                 }
             }
         } else {
-            redirect("/index", "走错地方了吧!");
+            redirect("/index", "WrongWay");
         }
     }
 
@@ -261,7 +273,7 @@ class GoodsController extends Zend_Controller_Action {
             $this->view->detail = $goods->fetchRow("id = " . $gid);
             $this->view->status = $goods->getStatus($this->view->detail['status']);
         } else
-            redirect("/index", "走错地方了吧!");
+            redirect("/index", "WrongWay");
     }
 
     public function ajaxdetailAction() {

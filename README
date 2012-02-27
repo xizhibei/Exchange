@@ -3,3 +3,8 @@ Xu Zhipei<xuzhipei@gmail.com>
 Based on Zend Framework
 Use jQuery,fanybox,scrollTo,ckedit and kcfinder
 
+
+注意：
+一些固定渲染变量，即，直接在layout中使用，注意避免：
+	note:用来显示消息，代替alert
+	userinfo:用来在header中显示用户信息，如果没有设置的话，将显示登录注册等信息

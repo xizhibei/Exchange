@@ -60,6 +60,7 @@
                             </tbody>
                         </table>
                     </form>
+                    <div class="op"></div>
                     <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list_admin.phtml'); ?>
                 </div>
                 <div class="clearfix"></div>
@@ -67,14 +68,15 @@
         </div>
     </div>
     <div id="lock-confirm" title="Lock this user?">
+        <div class="response-msg ui-corner-all" style="display:none;"></div>
         <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>用户将被锁定， Are you sure?</p>
     </div>
     <div id="delete-confirm" title="Delete this user?">
+        <div class="response-msg ui-corner-all" style="display:none;"></div>
         <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>用户将被删除， Are you sure?</p>
     </div>
     <div id="upgradeuser" title="Upgrade user">
-        <div class="response-msg ui-corner-all" style="display:none;">
-        </div>
+        <div class="response-msg ui-corner-all" style="display:none;"></div>
         您确定将用户升级为管理员？
         <form action="#" method="post" enctype="multipart/form-data" class="forms" id="upgrade_form">
             <ul>
@@ -115,7 +117,7 @@
                         t.html("<span>升级成功</span>");
                         t.removeClass("error");
                         t.addClass("success");
-                        setTimeout( '$("#upgradeuser" ).dialog( "close" )',3000);
+                        setTimeout( '$("#upgradeuser" ).dialog( "close" );',3000);
                     }else if(data == "fail"){
                         t.html("<span>升级失败</span>");
                         t.removeClass("success");
@@ -139,16 +141,24 @@
     $( "#lock-confirm" ).dialog({
         autoOpen: false,
         resizable: false,
-        height:140,
         modal: true,
         buttons: {
             "Lock this user": function() {
                 $.get("/admin/userlock/uid/" + cur_id,null,function(data){
-                    if(data == "success"){
+                    t = $("#lock-confirm").find(".response-msg");
+                    if(data == "success"){   
+                        t.html("<span>锁定成功</span>");
+                        t.removeClass("error");
+                        t.addClass("success");
                         _this.find("span").attr("class","ui-icon ui-icon-unlocked");
+                        setTimeout( '$("#lock-confirm" ).dialog( "close" );',3000);
+                    }else if(data == "fail"){
+                        t.html("<span>锁定失败</span>");
+                        t.removeClass("success");
+                        t.addClass("error");
                     }
+                    t.show();
                 });
-                $( this ).dialog( "close" );
             },
             "Cancel": function() {
                 $( this ).dialog( "close" );
@@ -159,13 +169,23 @@
     $( "#delete-confirm" ).dialog({
         autoOpen: false,
         resizable: false,
-        height:140,
         modal: true,
         buttons: {
             "Delete this user": function() {
                 $.get("/admin/userdelete/uid/" + cur_id,null,function(data){
+                    t = $("#delete-confirm").find(".response-msg");
+                    if(data == "success"){   
+                        t.html("<span>删除成功</span>");
+                        t.removeClass("error");
+                        t.addClass("success");
+                        setTimeout( '$("#delete-confirm" ).dialog( "close" );',3000);
+                    }else if(data == "fail"){
+                        t.html("<span>删除失败</span>");
+                        t.removeClass("success");
+                        t.addClass("error");
+                    }
+                    t.show();
                 });
-                $( this ).dialog( "close" );
             },
             "Cancel": function() {
                 $( this ).dialog( "close" );

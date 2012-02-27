@@ -55,7 +55,31 @@ a:hover{text-decoration:underline;}
 .pagination li:hover{background-color: #0059F6;}
 
 .title_name{font-size: 40px;color:white;padding-top: 45px;}
-.header{height: 50px;}
+.header{height: 60px;}
+.header .personal {margin: 10px;font-size: 25px;color: white;float: right;list-style: none;text-align: right;line-height: 38px;}
+.header .personal a{text-decoration: none;}
+.header .personal .login{background: url("images/login.png") top right no-repeat;padding-right: 32px;}
+.header .personal .reg,
+.header .personal .reg:hover,
+.header .personal .reg:visited{background-color: blue;color: white;padding: 10px;
+-moz-border-radius-topleft: 0px;
+-moz-border-radius-topright: 0px;
+-moz-border-radius-bottomright: 10px;
+-moz-border-radius-bottomleft: 10px;
+-webkit-border-radius: 0px 0px 10px 10px;
+border-radius: 0px 0px 10px 10px;
+-webkit-box-shadow: 2px 2px 10px 5px #999;
+-moz-box-shadow: 2px 2px 10px 5px #999;
+box-shadow: 2px 2px 10px 5px #999;}
+
+.header .personal .msgs .icon{float: left;width: 32px;height: 32px;margin: 3px;color: white;}
+.header .personal .msgs .icon span{background: url("images/new_msg.png") center left no-repeat;font-size: 10px;padding: 0 4px;}
+.header .personal .msgs .info{background: url("images/info.png") center left no-repeat;}
+.header .personal .msgs .req{background: url("images/bell.png") center left no-repeat;}
+.header .personal .msgs .new{background: url("images/new.png") center left no-repeat;}
+
+.header .personal .msgs .logout{background: url("images/logout.png") top right no-repeat;padding-right: 32px;margin-left: 10px;}
+.header .personal .msgs .profile{float: left;margin-right: 10px;}
 
 .main{font-size: 16px;min-height: 400px;margin: 10px 0}
 .container{width: 960px;margin:0px auto;}
@@ -148,3 +172,6 @@ a:hover{text-decoration:underline;}
 .all_sale table tr.odd {background: #F0F2F4;}
 .all_sale table tr:hover {background: #EAECEE; color: #111;}
 
+.show_news .title{margin: 20px 0;text-align: center;}
+.show_news .content{margin: 10px;}
+.show_news .author{font-style: italic;text-align: right;}

@@ -49,8 +49,13 @@ function getIp() {
 }
 
 function redirect($url, $msg) {
-    $url = urlencode($url);
-    $msg = urlencode($msg);
+
+    if ($msg == "PleaseLogin") {
+        $tmp = urlencode($_SERVER['REQUEST_URI']);
+        $url = urlencode($url . "?return_url=" . $tmp);
+    }
+    else
+        $url = urlencode($url);
     header("Location:/redirect?url=$url&msg=$msg");
 }
 

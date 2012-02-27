@@ -13,8 +13,8 @@
             <input type="text" name="date" id="date" class="step1 validate[custom[dateTimeFormat],future[NOW]]"  value="<?= isset($this->goods['date']) ? $this->goods['date'] : ""; ?>">
         </div>
         <div class="element">
-            <div id="pic-label"><label for="pic" class="label optional">图片(在物品展示作为主要图片)<a href="/kcfinder/browse.php?type=images" id="upload">上传</a>:</label></div>
-            <input type="text" name="pic" id="pic_url" class="step1 validate[required]"  value="<?= isset($this->goods['pic_url']) ? $this->goods['pic_url'] : ""; ?>"></div>
+            <div id="pic-label"><label for="pic" class="label optional">图片(在物品展示作为主要图片)<a href="/kcfinder/browse.php?type=images&lang=zh-cn" id="upload">上传</a>:</label></div>
+            <input type="text" name="pic_url" id="pic_url" class="step1 validate[required]"  value="<?= isset($this->goods['pic_url']) ? $this->goods['pic_url'] : ""; ?>"></div>
         <div id="sale_ways-label">
             <label class="required">交易方式:</label></div>
         <div class="element">
@@ -46,14 +46,15 @@
                     <a href="javascript:void(0);" id="moretag">更多</a></ul>
                 <label for="tags" class="label optional">标签：</label></div>
             <input type="text" name="tags" id="tags" class="validate[required]" style="width:800px;"  value="<?= isset($this->goods['tags']) ? $this->goods['tags'] : ""; ?>"></div>
-                   <div class="submit more2" style="display: none;">
-                   <input type="submit" name="发布" value="发布" class="button"></div></div>
+        <div class="submit more2" style="display: none;">
+            <input type="submit" name="发布" value="发布" class="button"></div></div>
 </form> 
 <script type="text/javascript">
     window.KCFinder = {
         callBack: function(url) {
-            window.KCFinder = null;
-            $('#pic').val(url);
+            var pos = url.lastIndexOf("/");
+            var filename = url.substr(pos +1)
+            $('#pic_url').val(filename);
             $.fancybox.close();
         }
     };

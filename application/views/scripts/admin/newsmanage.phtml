@@ -1,10 +1,10 @@
 <div id="main-wrapper">
     <div id="main-content">
         <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all form-container">
-            <div class="portlet-header ui-widget-header">物品列表</div>
+            <div class="portlet-header ui-widget-header">新闻列表</div>
             <div class="portlet-content">
                 <div class="title">
-                    <h3>物品列表</h3>
+                    <h3>新闻列表</h3>
                 </div>
                 <div class="hastable">
                     <form name="myform" class="pager-form" method="post" action="">
@@ -12,16 +12,15 @@
                             <thead> 
                                 <tr>
                                     <th><input type="checkbox" value="check_none" onclick="this.value=check(this.form.list)" class="submit"/></th>
-                                    <th>GID</th> 
-                                    <th>价格</th>
-                                    <th>交换条件</th>
-                                    <th>名称</th>
-                                    <th>细节</th> 
-                                    <th>状态</th> 
+                                    <th>NID</th> 
+                                    <th>标题</th>
+                                    <th>类型</th>
+                                    <th>内容</th>
+                                    <th>作者</th> 
                                     <th>发布时间</th>
-                                    <th>卖家</th>
-                                    <th>方式</th>
-                                    <th>截止时间</th>
+                                    <th>更新时间</th>
+                                    <th>点击量</th>
+                                    <th>状态</th>
                                     <th style="width:132px">Options</th> 
                                 </tr> 
                             </thead> 
@@ -29,22 +28,24 @@
                                 <?php foreach ($this->paginator as $tmp): ?>
                                     <tr>
                                         <td class="center"><input type="checkbox" value="1" name="list" class="checkbox"/></td> 
-                                        <td><?= $tmp['id'] ?></td> 
-                                        <td><?= $tmp['price'] ?></td> 
-                                        <td><?= $tmp['ex_cond'] ?></td> 
-                                        <td><?= $tmp['name'] ?></td> 
-                                        <td title="<?= $tmp['detail'] ?>" class="tooltip"><?= $tmp['detail_cut'] ?></td>
-                                        <td><?= $tmp['status'] ?></td>
+                                        <td><?= $tmp['nid'] ?></td> 
+                                        <td><?= $tmp['title'] ?></td> 
+                                        <td><?= $tmp['type'] ?></td> 
+                                        <td title="<?= $tmp['content'] ?>" class="tooltip"><?= $tmp['content_cut'] ?></td> 
+                                        <td><a href="/user/profile/uid/<?= $tmp['aid'] ?>"><?= $tmp['name'] ?></a></td>
                                         <td><?= $tmp['publish_time'] ?></td>
-                                        <td><a href="/user/profile/uid/<?= $tmp['uid'] ?>" target="_blank" title="UID:<?= $tmp['uid'] ?>" class="tooltip"><?= $tmp['uname'] ?></td> 
-                                        <td><?= $tmp['sale_ways'] ?></td>
-                                        <td><?= $tmp['expire_date'] ?></td> 
-                                        <td id="<?= $tmp['id'] ?>">
-                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Edit this goods" href="#">
+                                        <td><?= $tmp['update_time'] ?></td> 
+                                        <td><?= $tmp['click'] ?></td>
+                                        <td><?= $tmp['status'] ?></td> 
+                                        <td id="<?= $tmp['nid'] ?>">
+                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="Edit this news" href="/admin/newsedit/nid/<?= $tmp['nid'] ?>">
                                                 <span class="ui-icon ui-icon-wrench"></span>
                                             </a>
-                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip delete" title="Delete this goods" href="javascript:void(0);">
+                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip delete" title="Delete this news" href="javascript:void(0);">
                                                 <span class="ui-icon ui-icon-circle-close"></span>
+                                            </a>
+                                            <a class="btn_no_text btn ui-state-default ui-corner-all tooltip" title="More about this news" href="/news/show/nid/<?= $tmp['nid'] ?>" target="_blank">
+                                                <span class="ui-icon ui-icon-extlink"></span>
                                             </a>
                                         </td>
                                     </tr>
@@ -58,9 +59,9 @@
             </div>
         </div>
     </div>
-    <div id="delete-confirm" title="Delete this goods?">
+    <div id="delete-confirm" title="Delete this news?">
         <div class="response-msg ui-corner-all" style="display:none;"></div>
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Goods will be deleted， Are you sure?</p>
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>News will be deleted， Are you sure?</p>
     </div>
     <div class="clearfix"></div>
 </div>
@@ -72,8 +73,8 @@
         resizable: false,
         modal: true,
         buttons: {
-            "Delete this goods": function() {
-                $.get("/admin/goodsdelete/gid/" + cur_id,null,function(data){
+            "Delete this news": function() {
+                $.get("/admin/newsdelete/gid/" + cur_id,null,function(data){
                     t = $("#delete-confirm").find(".response-msg");
                     if(data == "success"){   
                         t.html("<span>删除成功</span>");

@@ -19,11 +19,11 @@ class GoodsModel extends Zend_Db_Table {
     /*     * **********    for admin ************************ */
 
     public function getAllGoods() {
-        $all = $this->fetchAll(null, "publish_time desc")->toArray();
+        $all = $this->_db->fetchAll("select goods.*,user.name as uname from goods,user where goods.uid = user.uid order by goods.publish_time desc");
         foreach ($all as &$tmp) {
             $tmp['name'] = strlen($tmp['name']) <= 30 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
             $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);
-            $tmp['detail'] = strlen($tmp['detail']) <= 100 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 100);
+            $tmp['detail_cut'] = strlen($tmp['detail']) <= 100 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 100);
             $tmp['publish_time'] = date("Y-m-d H:i:s", $tmp['publish_time']);
             $tmp['status'] = self::getStatus($tmp['status']);
             if ($tmp['expire_date'] == self::NeverExpireDate)
@@ -42,7 +42,7 @@ class GoodsModel extends Zend_Db_Table {
         if (($all = $cache->load('all_published')) == false) {
             $color = array('#FF4D4D', '#469AE9', '#333333', '#05183e', '#B6B986', '#666699', '#ff8a00', '#de312b', '#63a716');
             $num = count($color) - 1;
-            $all = $this->fetchAll("status =" . GoodsModel::Published, "publish_time desc")->toArray();
+            $all = $this->fetchAll("expire_date > " . time() . " and status =" . GoodsModel::Published, "publish_time desc")->toArray();
             foreach ($all as &$tmp) {
                 $tmp['name_cut'] = strlen($tmp['name']) <= 30 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
                 $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);
@@ -80,6 +80,7 @@ class GoodsModel extends Zend_Db_Table {
         $all = $this->fetchAll("status <> 0 and uid = $uid", "publish_time desc")->toArray();
         foreach ($all as &$tmp) {
             $tmp['name'] = strlen($tmp['name']) <= 40 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
+            $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);
             $tmp['detail'] = strlen($tmp['detail']) <= 40 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 40);
             $tmp['publish_time'] = date("Y-m-d H:i:s", $tmp['publish_time']);
             $tmp['status'] = self::getStatus($tmp['status']);

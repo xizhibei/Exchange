@@ -1,18 +1,18 @@
 <?php
 
 /** This file is part of KCFinder project
-  *
-  *      @desc Browser actions class
-  *   @package KCFinder
-  *   @version 2.51
-  *    @author Pavel Tzonkov <pavelc@users.sourceforge.net>
-  * @copyright 2010, 2011 KCFinder Project
-  *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
-  *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
-  *      @link http://kcfinder.sunhater.com
-  */
-
+ *
+ *      @desc Browser actions class
+ *   @package KCFinder
+ *   @version 2.51
+ *    @author Pavel Tzonkov <pavelc@users.sourceforge.net>
+ * @copyright 2010, 2011 KCFinder Project
+ *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
+ *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
+ *      @link http://kcfinder.sunhater.com
+ */
 class browser extends uploader {
+
     protected $action;
     protected $thumbsDir;
     protected $thumbsTypeDir;
@@ -22,13 +22,15 @@ class browser extends uploader {
 
         if (isset($this->post['dir'])) {
             $dir = $this->checkInputDir($this->post['dir'], true, false);
-            if ($dir === false) unset($this->post['dir']);
+            if ($dir === false)
+                unset($this->post['dir']);
             $this->post['dir'] = $dir;
         }
 
         if (isset($this->get['dir'])) {
             $dir = $this->checkInputDir($this->get['dir'], true, false);
-            if ($dir === false) unset($this->get['dir']);
+            if ($dir === false)
+                unset($this->get['dir']);
             $this->get['dir'] = $dir;
         }
 
@@ -36,14 +38,13 @@ class browser extends uploader {
         if ((
                 !is_dir($thumbsDir) &&
                 !@mkdir($thumbsDir, $this->config['dirPerms'])
-            ) ||
-
-            !is_readable($thumbsDir) ||
-            !dir::isWritable($thumbsDir) ||
-            (
+                ) ||
+                !is_readable($thumbsDir) ||
+                !dir::isWritable($thumbsDir) ||
+                (
                 !is_dir("$thumbsDir/{$this->type}") &&
                 !@mkdir("$thumbsDir/{$this->type}", $this->config['dirPerms'])
-            )
+                )
         )
             $this->errorMsg("Cannot access or create thumbnails folder.");
 
@@ -52,9 +53,9 @@ class browser extends uploader {
 
         // Remove temporary zip downloads if exists
         $files = dir::content($this->config['uploadDir'], array(
-            'types' => "file",
-            'pattern' => '/^.*\.zip$/i'
-        ));
+                    'types' => "file",
+                    'pattern' => '/^.*\.zip$/i'
+                ));
 
         if (is_array($files) && count($files)) {
             $time = time();
@@ -64,8 +65,8 @@ class browser extends uploader {
         }
 
         if (isset($this->get['theme']) &&
-            ($this->get['theme'] == basename($this->get['theme'])) &&
-            is_dir("themes/{$this->get['theme']}")
+                ($this->get['theme'] == basename($this->get['theme'])) &&
+                is_dir("themes/{$this->get['theme']}")
         )
             $this->config['theme'] = $this->get['theme'];
     }
@@ -80,7 +81,7 @@ class browser extends uploader {
         if ($this->config['disabled']) {
             $message = $this->label("You don't have permissions to browse server.");
             if (in_array($act, array("browser", "upload")) ||
-                (substr($act, 0, 8) == "download")
+                    (substr($act, 0, 8) == "download")
             )
                 $this->backMsg($message);
             else {
@@ -103,21 +104,19 @@ class browser extends uploader {
             header("X-UA-Compatible: chrome=1");
             header("Content-Type: text/html; charset={$this->charset}");
         } elseif (
-            (substr($act, 0, 8) != "download") &&
-            !in_array($act, array("thumb", "upload"))
+                (substr($act, 0, 8) != "download") &&
+                !in_array($act, array("thumb", "upload"))
         )
             header("Content-Type: text/plain; charset={$this->charset}");
 
         $return = $this->$method();
-        echo ($return === true)
-            ? '{}'
-            : $return;
+        echo ($return === true) ? '{}' : $return;
     }
 
     protected function act_browser() {
         if (isset($this->get['dir']) &&
-            is_dir("{$this->typeDir}/{$this->get['dir']}") &&
-            is_readable("{$this->typeDir}/{$this->get['dir']}")
+                is_dir("{$this->typeDir}/{$this->get['dir']}") &&
+                is_readable("{$this->typeDir}/{$this->get['dir']}")
         )
             $this->session['dir'] = path::normalize("{$this->type}/{$this->get['dir']}");
 
@@ -156,12 +155,12 @@ class browser extends uploader {
                 $this->sendDefaultThumb($file);
             $browsable = array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG);
             if (in_array($image->type, $browsable) &&
-                ($image->get_width() <= $this->config['thumbWidth']) &&
-                ($image->get_height() <= $this->config['thumbHeight'])
+                    ($image->get_width() <= $this->config['thumbWidth']) &&
+                    ($image->get_height() <= $this->config['thumbHeight'])
             ) {
                 $type =
-                    ($image->type == IMAGETYPE_GIF) ? "gif" : (
-                    ($image->type == IMAGETYPE_PNG) ? "png" : "jpeg");
+                        ($image->type == IMAGETYPE_GIF) ? "gif" : (
+                        ($image->type == IMAGETYPE_PNG) ? "png" : "jpeg");
                 $type = "image/$type";
                 httpCache::file($file, $type);
             } else
@@ -179,15 +178,15 @@ class browser extends uploader {
         $this->session['dir'] = $this->type . "/" . $this->post['dir'];
         $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}");
         return json_encode(array(
-            'files' => $this->getFiles($this->session['dir']),
-            'dirWritable' => $dirWritable
-        ));
+                    'files' => $this->getFiles($this->session['dir']),
+                    'dirWritable' => $dirWritable
+                ));
     }
 
     protected function act_newDir() {
         if (!$this->config['access']['dirs']['create'] ||
-            !isset($this->post['dir']) ||
-            !isset($this->post['newDir'])
+                !isset($this->post['dir']) ||
+                !isset($this->post['newDir'])
         )
             $this->errorMsg("Unknown error.");
 
@@ -208,8 +207,8 @@ class browser extends uploader {
 
     protected function act_renameDir() {
         if (!$this->config['access']['dirs']['rename'] ||
-            !isset($this->post['dir']) ||
-            !isset($this->post['newName'])
+                !isset($this->post['dir']) ||
+                !isset($this->post['newName'])
         )
             $this->errorMsg("Unknown error.");
 
@@ -231,8 +230,8 @@ class browser extends uploader {
 
     protected function act_deleteDir() {
         if (!$this->config['access']['dirs']['delete'] ||
-            !isset($this->post['dir']) ||
-            !strlen(trim($this->post['dir']))
+                !isset($this->post['dir']) ||
+                !strlen(trim($this->post['dir']))
         )
             $this->errorMsg("Unknown error.");
 
@@ -242,16 +241,16 @@ class browser extends uploader {
             $this->errorMsg("Cannot delete the folder.");
         $result = !dir::prune($dir, false);
         if (is_array($result) && count($result))
-            $this->errorMsg("Failed to delete {count} files/folders.",
-                array('count' => count($result)));
+            $this->errorMsg("Failed to delete {count} files/folders.", array('count' => count($result)));
         $thumbDir = "$this->thumbsTypeDir/{$this->post['dir']}";
-        if (is_dir($thumbDir)) dir::prune($thumbDir);
+        if (is_dir($thumbDir))
+            dir::prune($thumbDir);
         return true;
     }
 
     protected function act_upload() {
         if (!$this->config['access']['files']['upload'] ||
-            !isset($this->post['dir'])
+                !isset($this->post['dir'])
         )
             $this->errorMsg("Unknown error.");
 
@@ -263,25 +262,30 @@ class browser extends uploader {
         if (is_array($this->file['name'])) {
             $return = array();
             foreach ($this->file['name'] as $i => $name) {
-				if($this->file['size'][$i] /1024 > $this->config['maxImageSize'])
-					$this->errorMsg("File size out of range.");
+                if ($this->file['size'][$i] / 1024 > $this->config['maxImageSize'])
+                    $this->errorMsg("File size out of range.");
+                $pos = strpos($name, ".");
+                $name = md5(substr($name, 0, $pos)) . substr($name, $pos);
                 $return[] = $this->moveUploadFile(array(
                     'name' => $name,
                     'tmp_name' => $this->file['tmp_name'][$i],
                     'error' => $this->file['error'][$i]
-                ), $dir);
+                        ), $dir);
             }
             return implode("\n", $return);
-        } else
+        } else {
+            $pos = strpos($this->file['name'], ".");
+            $this->file['name'] = md5(substr($this->file['name'], 0, $pos)) . substr($this->file['name'], $pos);
             return $this->moveUploadFile($this->file, $dir);
+        }
     }
 
     protected function act_download() {
         $dir = $this->postDir();
         if (!isset($this->post['dir']) ||
-            !isset($this->post['file']) ||
-            (false === ($file = "$dir/{$this->post['file']}")) ||
-            !file_exists($file) || !is_readable($file)
+                !isset($this->post['file']) ||
+                (false === ($file = "$dir/{$this->post['file']}")) ||
+                !file_exists($file) || !is_readable($file)
         )
             $this->errorMsg("Unknown error.");
 
@@ -300,19 +304,19 @@ class browser extends uploader {
     protected function act_rename() {
         $dir = $this->postDir();
         if (!$this->config['access']['files']['rename'] ||
-            !isset($this->post['dir']) ||
-            !isset($this->post['file']) ||
-            !isset($this->post['newName']) ||
-            (false === ($file = "$dir/{$this->post['file']}")) ||
-            !file_exists($file) || !is_readable($file) || !file::isWritable($file)
+                !isset($this->post['dir']) ||
+                !isset($this->post['file']) ||
+                !isset($this->post['newName']) ||
+                (false === ($file = "$dir/{$this->post['file']}")) ||
+                !file_exists($file) || !is_readable($file) || !file::isWritable($file)
         )
             $this->errorMsg("Unknown error.");
 
         if (isset($this->config['denyExtensionRename']) &&
-            $this->config['denyExtensionRename'] &&
-            (file::getExtension($this->post['file'], true) !==
+                $this->config['denyExtensionRename'] &&
+                (file::getExtension($this->post['file'], true) !==
                 file::getExtension($this->post['newName'], true)
-            )
+                )
         )
             $this->errorMsg("You cannot rename the extension of files!");
 
@@ -343,36 +347,39 @@ class browser extends uploader {
     protected function act_delete() {
         $dir = $this->postDir();
         if (!$this->config['access']['files']['delete'] ||
-            !isset($this->post['dir']) ||
-            !isset($this->post['file']) ||
-            (false === ($file = "$dir/{$this->post['file']}")) ||
-            !file_exists($file) || !is_readable($file) || !file::isWritable($file) ||
-            !@unlink($file)
+                !isset($this->post['dir']) ||
+                !isset($this->post['file']) ||
+                (false === ($file = "$dir/{$this->post['file']}")) ||
+                !file_exists($file) || !is_readable($file) || !file::isWritable($file) ||
+                !@unlink($file)
         )
             $this->errorMsg("Unknown error.");
 
         $thumb = "{$this->thumbsTypeDir}/{$this->post['dir']}/{$this->post['file']}";
-        if (file_exists($thumb)) @unlink($thumb);
+        if (file_exists($thumb))
+            @unlink($thumb);
         return true;
     }
 
     protected function act_cp_cbd() {
         $dir = $this->postDir();
         if (!$this->config['access']['files']['copy'] ||
-            !isset($this->post['dir']) ||
-            !is_dir($dir) || !is_readable($dir) || !dir::isWritable($dir) ||
-            !isset($this->post['files']) || !is_array($this->post['files']) ||
-            !count($this->post['files'])
+                !isset($this->post['dir']) ||
+                !is_dir($dir) || !is_readable($dir) || !dir::isWritable($dir) ||
+                !isset($this->post['files']) || !is_array($this->post['files']) ||
+                !count($this->post['files'])
         )
             $this->errorMsg("Unknown error.");
 
         $error = array();
-        foreach($this->post['files'] as $file) {
+        foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
-            if (substr($file, 0, 1) == ".") continue;
+            if (substr($file, 0, 1) == ".")
+                continue;
             $type = explode("/", $file);
             $type = $type[0];
-            if ($type != $this->type) continue;
+            if ($type != $this->type)
+                continue;
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
             $replace = array('file' => $base);
@@ -410,20 +417,22 @@ class browser extends uploader {
     protected function act_mv_cbd() {
         $dir = $this->postDir();
         if (!$this->config['access']['files']['move'] ||
-            !isset($this->post['dir']) ||
-            !is_dir($dir) || !is_readable($dir) || !dir::isWritable($dir) ||
-            !isset($this->post['files']) || !is_array($this->post['files']) ||
-            !count($this->post['files'])
+                !isset($this->post['dir']) ||
+                !is_dir($dir) || !is_readable($dir) || !dir::isWritable($dir) ||
+                !isset($this->post['files']) || !is_array($this->post['files']) ||
+                !count($this->post['files'])
         )
             $this->errorMsg("Unknown error.");
 
         $error = array();
-        foreach($this->post['files'] as $file) {
+        foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
-            if (substr($file, 0, 1) == ".") continue;
+            if (substr($file, 0, 1) == ".")
+                continue;
             $type = explode("/", $file);
             $type = $type[0];
-            if ($type != $this->type) continue;
+            if ($type != $this->type)
+                continue;
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
             $replace = array('file' => $base);
@@ -460,19 +469,21 @@ class browser extends uploader {
 
     protected function act_rm_cbd() {
         if (!$this->config['access']['files']['delete'] ||
-            !isset($this->post['files']) ||
-            !is_array($this->post['files']) ||
-            !count($this->post['files'])
+                !isset($this->post['files']) ||
+                !is_array($this->post['files']) ||
+                !count($this->post['files'])
         )
             $this->errorMsg("Unknown error.");
 
         $error = array();
-        foreach($this->post['files'] as $file) {
+        foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
-            if (substr($file, 0, 1) == ".") continue;
+            if (substr($file, 0, 1) == ".")
+                continue;
             $type = explode("/", $file);
             $type = $type[0];
-            if ($type != $this->type) continue;
+            if ($type != $this->type)
+                continue;
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
             $replace = array('file' => $base);
@@ -482,7 +493,8 @@ class browser extends uploader {
                 $error[] = $this->label("Cannot delete '{file}'.", $replace);
             else {
                 $thumb = "{$this->thumbsDir}/$file";
-                if (is_file($thumb)) @unlink($thumb);
+                if (is_file($thumb))
+                    @unlink($thumb);
             }
         }
         if (count($error))
@@ -511,9 +523,9 @@ class browser extends uploader {
     protected function act_downloadSelected() {
         $dir = $this->postDir();
         if (!isset($this->post['dir']) ||
-            !isset($this->post['files']) ||
-            !is_array($this->post['files']) ||
-            $this->config['denyZipDownload']
+                !isset($this->post['files']) ||
+                !is_array($this->post['files']) ||
+                $this->config['denyZipDownload']
         )
             $this->errorMsg("Unknown error.");
 
@@ -550,8 +562,8 @@ class browser extends uploader {
 
     protected function act_downloadClipboard() {
         if (!isset($this->post['files']) ||
-            !is_array($this->post['files']) ||
-            $this->config['denyZipDownload']
+                !is_array($this->post['files']) ||
+                $this->config['denyZipDownload']
         )
             $this->errorMsg("Unknown error.");
 
@@ -596,8 +608,8 @@ class browser extends uploader {
 
         // Caching HTTP request for 6 hours
         if (isset($this->session['checkVersion']) &&
-            isset($this->session['checkVersionTime']) &&
-            ((time() - $this->session['checkVersionTime']) < 21600)
+                isset($this->session['checkVersionTime']) &&
+                ((time() - $this->session['checkVersionTime']) < 21600)
         )
             return json_encode(array('version' => $this->session['checkVersion']));
 
@@ -612,43 +624,49 @@ class browser extends uploader {
 
         // file_get_contents()
         if (ini_get("allow_url_fopen") &&
-            (false !== ($ver = file_get_contents($url))) &&
-            preg_match($pattern, $ver)
+                (false !== ($ver = file_get_contents($url))) &&
+                preg_match($pattern, $ver)
 
         // HTTP extension
-        ) {} elseif (
-            function_exists("http_get") &&
-            (false !== ($ver = @http_get($url))) &&
-            (
+        ) {
+            
+        } elseif (
+                function_exists("http_get") &&
+                (false !== ($ver = @http_get($url))) &&
                 (
-                    preg_match($responsePattern, $ver, $match) &&
-                    false !== ($ver = $match[2])
+                (
+                preg_match($responsePattern, $ver, $match) &&
+                false !== ($ver = $match[2])
                 ) || true
-            ) &&
-            preg_match($pattern, $ver)
+                ) &&
+                preg_match($pattern, $ver)
 
         // Curl extension
-        ) {} elseif (
-            function_exists("curl_init") &&
-            (false !== (   $curl = @curl_init($url)                                    )) &&
-            (              @ob_start()                 ||  (@curl_close($curl) && false)) &&
-            (              @curl_exec($curl)           ||  (@curl_close($curl) && false)) &&
-            ((false !== (  $ver = @ob_get_clean()   )) ||  (@curl_close($curl) && false)) &&
-            (              @curl_close($curl)          ||  true                         ) &&
-            preg_match($pattern, $ver)
+        ) {
+            
+        } elseif (
+                function_exists("curl_init") &&
+                (false !== ( $curl = @curl_init($url) )) &&
+                ( @ob_start() || (@curl_close($curl) && false)) &&
+                ( @curl_exec($curl) || (@curl_close($curl) && false)) &&
+                ((false !== ( $ver = @ob_get_clean() )) || (@curl_close($curl) && false)) &&
+                ( @curl_close($curl) || true ) &&
+                preg_match($pattern, $ver)
 
         // Socket extension
-        ) {} elseif (function_exists('socket_create')) {
+        ) {
+            
+        } elseif (function_exists('socket_create')) {
             $cmd =
-                "GET $path " . strtoupper($protocol) . "/1.1\r\n" .
-                "Host: $host\r\n" .
-                "Connection: Close\r\n\r\n";
+                    "GET $path " . strtoupper($protocol) . "/1.1\r\n" .
+                    "Host: $host\r\n" .
+                    "Connection: Close\r\n\r\n";
 
-            if ((false !== (  $socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP)  )) &&
-                (false !==    @socket_connect($socket, $host, $port)                    ) &&
-                (false !==    @socket_write($socket, $cmd, strlen($cmd))                ) &&
-                (false !== (  $ver = @socket_read($socket, 2048)                       )) &&
-                preg_match($responsePattern, $ver, $match)
+            if ((false !== ( $socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP) )) &&
+                    (false !== @socket_connect($socket, $host, $port) ) &&
+                    (false !== @socket_write($socket, $cmd, strlen($cmd)) ) &&
+                    (false !== ( $ver = @socket_read($socket, 2048) )) &&
+                    preg_match($responsePattern, $ver, $match)
             )
                 $ver = $match[2];
 
@@ -677,8 +695,8 @@ class browser extends uploader {
         $target = "$dir/" . file::getInexistantFilename($filename, $dir);
 
         if (!@move_uploaded_file($file['tmp_name'], $target) &&
-            !@rename($file['tmp_name'], $target) &&
-            !@copy($file['tmp_name'], $target)
+                !@rename($file['tmp_name'], $target) &&
+                !@copy($file['tmp_name'], $target)
         ) {
             @unlink($file['tmp_name']);
             return "{$file['name']}: " . $this->label("Cannot move uploaded file to target folder.");
@@ -689,7 +707,7 @@ class browser extends uploader {
         return "/" . basename($target);
     }
 
-    protected function sendDefaultThumb($file=null) {
+    protected function sendDefaultThumb($file = null) {
         if ($file !== null) {
             $ext = file::getExtension($file);
             $thumb = "themes/{$this->config['theme']}/img/files/big/$ext.png";
@@ -716,14 +734,15 @@ class browser extends uploader {
                 if (!is_file($thumb_file))
                     $this->makeThumb($file, false);
                 $smallThumb =
-                    ($size[0] <= $this->config['thumbWidth']) &&
-                    ($size[1] <= $this->config['thumbHeight']) &&
-                    in_array($size[2], array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG));
+                        ($size[0] <= $this->config['thumbWidth']) &&
+                        ($size[1] <= $this->config['thumbHeight']) &&
+                        in_array($size[2], array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG));
             } else
                 $smallThumb = false;
 
             $stat = stat($file);
-            if ($stat === false) continue;
+            if ($stat === false)
+                continue;
             $name = basename($file);
             $ext = file::getExtension($file);
             $bigIcon = file_exists("themes/{$this->config['theme']}/img/files/big/$ext.png");
@@ -745,7 +764,7 @@ class browser extends uploader {
         return $return;
     }
 
-    protected function getTree($dir, $index=0) {
+    protected function getTree($dir, $index = 0) {
         $path = explode("/", $dir);
 
         $pdir = "";
@@ -762,10 +781,10 @@ class browser extends uploader {
 
             foreach ($dirs as $i => $cdir) {
                 if ($cdir['hasDirs'] &&
-                    (
+                        (
                         ($index == count($path) - 1) ||
                         ($cdir['name'] == $path[$index + 1])
-                    )
+                        )
                 ) {
                     $dirs[$i]['dirs'] = $this->getTree($dir, $index + 1);
                     if (!is_array($dirs[$i]['dirs']) || !count($dirs[$i]['dirs'])) {
@@ -780,7 +799,7 @@ class browser extends uploader {
         return $dirs;
     }
 
-    protected function postDir($existent=true) {
+    protected function postDir($existent = true) {
         $dir = $this->typeDir;
         if (isset($this->post['dir']))
             $dir .= "/" . $this->post['dir'];
@@ -789,7 +808,7 @@ class browser extends uploader {
         return $dir;
     }
 
-    protected function getDir($existent=true) {
+    protected function getDir($existent = true) {
         $dir = $this->typeDir;
         if (isset($this->get['dir']))
             $dir .= "/" . $this->get['dir'];
@@ -805,7 +824,8 @@ class browser extends uploader {
             $writable = dir::isWritable($dir);
             foreach ($dirs as $cdir) {
                 $info = $this->getDirInfo($cdir);
-                if ($info === false) continue;
+                if ($info === false)
+                    continue;
                 $info['removable'] = $writable && $info['writable'];
                 $return[] = $info;
             }
@@ -813,7 +833,7 @@ class browser extends uploader {
         return $return;
     }
 
-    protected function getDirInfo($dir, $removable=false) {
+    protected function getDirInfo($dir, $removable = false) {
         if ((substr(basename($dir), 0, 1) == ".") || !is_dir($dir) || !is_readable($dir))
             return false;
         $dirs = dir::content($dir, array('types' => "dir"));
@@ -840,8 +860,9 @@ class browser extends uploader {
         return $info;
     }
 
-    protected function output($data=null, $template=null) {
-        if (!is_array($data)) $data = array();
+    protected function output($data = null, $template = null) {
+        if (!is_array($data))
+            $data = array();
         if ($template === null)
             $template = $this->action;
 
@@ -860,7 +881,7 @@ class browser extends uploader {
         return "";
     }
 
-    protected function errorMsg($message, array $data=null) {
+    protected function errorMsg($message, array $data = null) {
         if (in_array($this->action, array("thumb", "upload", "download", "downloadDir")))
             die($this->label($message, $data));
         if (($this->action === null) || ($this->action == "browser"))
@@ -870,6 +891,7 @@ class browser extends uploader {
             die(json_encode(array('error' => $message)));
         }
     }
+
 }
 
 ?>

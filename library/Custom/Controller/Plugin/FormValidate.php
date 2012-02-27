@@ -40,7 +40,7 @@ class Custom_Controller_Plugin_FormValidate extends Zend_Controller_Plugin_Abstr
             $this->msg = "价格不正确";
             return false;
         }
-        $n = array('name', 'pic', 'detail', 'ex_cond',);
+        $n = array('name', 'pic_url', 'detail', 'ex_cond',);
         $validater = new Zend_Validate_NotEmpty();
         foreach ($n as $a) {
             if (!$validater->isValid($data[$a])) {
@@ -48,8 +48,13 @@ class Custom_Controller_Plugin_FormValidate extends Zend_Controller_Plugin_Abstr
                 return false;
             }
         }
-        
-        
+
+        if (!preg_match("/[\d\w]+\.\w+/i", $data['pic_url'])) {
+            $this->msg = "图片链接非法！";
+            return false;
+        }
+
+
         if (!in_array($data['sale_ways'], array('交易', '交换', '均可'))) {
             $this->msg = "交易方式不合法";
             return false;

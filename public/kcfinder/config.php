@@ -35,16 +35,16 @@ $_CONFIG = array(
 
         'files' => array(
             'upload' => true,
-            'delete' => true,
-            'copy' => true,
-            'move' => true,
-            'rename' => true
+            'delete' => false,
+            'copy' => false,
+            'move' => false,
+            'rename' => false
         ),
 
         'dirs' => array(
-            'create' => true,
-            'delete' => true,
-            'rename' => true
+            'create' => false,
+            'delete' => false,
+            'rename' => false
         )
     ),
 
@@ -83,10 +83,23 @@ $_CONFIG = array(
 	
     'thumbWidth' => 100,
     'thumbHeight' => 100,
-
     'thumbsDir' => ".thumbs",
-
-    'jpegQuality' => 90,
+	
+	
+	
+	'tinyWidth' => 50,
+	'tinyHeight' => 50,
+	
+	'smallWidth' => 200,
+	'smallHeight' => 200,
+	
+	'mediumWidth' => 400,
+	'mediumHeight' => 400,
+	
+	'normalWidth' => 800,
+	'normalHeight' => 600,
+    
+	'jpegQuality' => 90,
 
     'cookieDomain' => "",
     'cookiePath' => "",

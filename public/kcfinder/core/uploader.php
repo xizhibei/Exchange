@@ -1,104 +1,103 @@
 <?php
 
 /** This file is part of KCFinder project
-  *
-  *      @desc Uploader class
-  *   @package KCFinder
-  *   @version 2.51
-  *    @author Pavel Tzonkov <pavelc@users.sourceforge.net>
-  * @copyright 2010, 2011 KCFinder Project
-  *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
-  *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
-  *      @link http://kcfinder.sunhater.com
-  */
-
+ *
+ *      @desc Uploader class
+ *   @package KCFinder
+ *   @version 2.51
+ *    @author Pavel Tzonkov <pavelc@users.sourceforge.net>
+ * @copyright 2010, 2011 KCFinder Project
+ *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
+ *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
+ *      @link http://kcfinder.sunhater.com
+ */
 class uploader {
+    /** Release version */
 
-/** Release version */
     const VERSION = "2.51";
 
-/** Config session-overrided settings
-  * @var array */
+    /** Config session-overrided settings
+     * @var array */
     protected $config = array();
 
-/** Opener applocation properties
-  *   $opener['name']                 Got from $_GET['opener'];
-  *   $opener['CKEditor']['funcNum']  CKEditor function number (got from $_GET)
-  *   $opener['TinyMCE']              Boolean
-  * @var array */
+    /** Opener applocation properties
+     *   $opener['name']                 Got from $_GET['opener'];
+     *   $opener['CKEditor']['funcNum']  CKEditor function number (got from $_GET)
+     *   $opener['TinyMCE']              Boolean
+     * @var array */
     protected $opener = array();
 
-/** Got from $_GET['type'] or first one $config['types'] array key, if inexistant
-  * @var string */
+    /** Got from $_GET['type'] or first one $config['types'] array key, if inexistant
+     * @var string */
     protected $type;
 
-/** Helper property. Local filesystem path to the Type Directory
-  * Equivalent: $config['uploadDir'] . "/" . $type
-  * @var string */
+    /** Helper property. Local filesystem path to the Type Directory
+     * Equivalent: $config['uploadDir'] . "/" . $type
+     * @var string */
     protected $typeDir;
 
-/** Helper property. Web URL to the Type Directory
-  * Equivalent: $config['uploadURL'] . "/" . $type
-  * @var string */
+    /** Helper property. Web URL to the Type Directory
+     * Equivalent: $config['uploadURL'] . "/" . $type
+     * @var string */
     protected $typeURL;
 
-/** Linked to $config['types']
-  * @var array */
+    /** Linked to $config['types']
+     * @var array */
     protected $types = array();
 
-/** Settings which can override default settings if exists as keys in $config['types'][$type] array
-  * @var array */
+    /** Settings which can override default settings if exists as keys in $config['types'][$type] array
+     * @var array */
     protected $typeSettings = array('disabled', 'theme', 'dirPerms', 'filePerms', 'denyZipDownload', 'maxImageWidth', 'maxImageHeight', 'thumbWidth', 'thumbHeight', 'jpegQuality', 'access', 'filenameChangeChars', 'dirnameChangeChars', 'denyExtensionRename', 'deniedExts');
 
-/** Got from language file
-  * @var string */
+    /** Got from language file
+     * @var string */
     protected $charset;
 
-/** The language got from $_GET['lng'] or $_GET['lang'] or... Please see next property
-  * @var string */
+    /** The language got from $_GET['lng'] or $_GET['lang'] or... Please see next property
+     * @var string */
     protected $lang = 'en';
 
-/** Possible language $_GET keys
-  * @var array */
+    /** Possible language $_GET keys
+     * @var array */
     protected $langInputNames = array('lang', 'langCode', 'lng', 'language', 'lang_code');
 
-/** Uploaded file(s) info. Linked to first $_FILES element
-  * @var array */
+    /** Uploaded file(s) info. Linked to first $_FILES element
+     * @var array */
     protected $file;
 
-/** Next three properties are got from the current language file
-  * @var string */
+    /** Next three properties are got from the current language file
+     * @var string */
     protected $dateTimeFull;   // Currently not used
     protected $dateTimeMid;    // Currently not used
     protected $dateTimeSmall;
 
-/** Contain Specified language labels
-  * @var array */
+    /** Contain Specified language labels
+     * @var array */
     protected $labels = array();
 
-/** Contain unprocessed $_GET array. Please use this instead of $_GET
-  * @var array */
+    /** Contain unprocessed $_GET array. Please use this instead of $_GET
+     * @var array */
     protected $get;
 
-/** Contain unprocessed $_POST array. Please use this instead of $_POST
-  * @var array */
+    /** Contain unprocessed $_POST array. Please use this instead of $_POST
+     * @var array */
     protected $post;
 
-/** Contain unprocessed $_COOKIE array. Please use this instead of $_COOKIE
-  * @var array */
+    /** Contain unprocessed $_COOKIE array. Please use this instead of $_COOKIE
+     * @var array */
     protected $cookie;
 
-/** Session array. Please use this property instead of $_SESSION
-  * @var array */
+    /** Session array. Please use this property instead of $_SESSION
+     * @var array */
     protected $session;
 
-/** CMS integration attribute (got from $_GET['cms'])
-  * @var string */
+    /** CMS integration attribute (got from $_GET['cms'])
+     * @var string */
     protected $cms = "";
 
-/** Magic method which allows read-only access to protected or private class properties
-  * @param string $property
-  * @return mixed */
+    /** Magic method which allows read-only access to protected or private class properties
+     * @param string $property
+     * @return mixed */
     public function __get($property) {
         return property_exists($this, $property) ? $this->$property : null;
     }
@@ -117,12 +116,12 @@ class uploader {
 
         // SET CMS INTEGRATION ATTRIBUTE
         if (isset($this->get['cms']) &&
-            in_array($this->get['cms'], array("drupal"))
+                in_array($this->get['cms'], array("drupal"))
         )
             $this->cms = $this->get['cms'];
 
-		// LINKING UPLOADED FILE
-        if (count($_FILES)){
+        // LINKING UPLOADED FILE
+        if (count($_FILES)) {
             $this->file = &$_FILES[key($_FILES)];
         }
         // LOAD DEFAULT CONFIGURATION
@@ -137,7 +136,8 @@ class uploader {
             ini_set('session.cookie_domain', $_CONFIG['_sessionDomain']);
         switch ($this->cms) {
             case "drupal": break;
-            default: session_start(); break;
+            default: session_start();
+                break;
         }
 
         // RELOAD DEFAULT CONFIGURATION
@@ -146,7 +146,7 @@ class uploader {
 
         // LOAD SESSION CONFIGURATION IF EXISTS
         if (isset($_CONFIG['_sessionVar']) &&
-            is_array($_CONFIG['_sessionVar'])
+                is_array($_CONFIG['_sessionVar'])
         ) {
             foreach ($_CONFIG['_sessionVar'] as $key => $val)
                 if ((substr($key, 0, 1) != "_") && isset($_CONFIG[$key]))
@@ -162,25 +162,23 @@ class uploader {
         $firstType = array_keys($this->types);
         $firstType = $firstType[0];
         $this->type = (
-            isset($this->get['type']) &&
-            isset($this->types[$this->get['type']])
-        )
-            ? $this->get['type'] : $firstType;
+                isset($this->get['type']) &&
+                isset($this->types[$this->get['type']])
+                ) ? $this->get['type'] : $firstType;
 
         // LOAD TYPE DIRECTORY SPECIFIC CONFIGURATION IF EXISTS
         if (is_array($this->types[$this->type])) {
             foreach ($this->types[$this->type] as $key => $val)
                 if (in_array($key, $this->typeSettings))
                     $this->config[$key] = $val;
-            $this->types[$this->type] = isset($this->types[$this->type]['type'])
-                ? $this->types[$this->type]['type'] : "";
+            $this->types[$this->type] = isset($this->types[$this->type]['type']) ? $this->types[$this->type]['type'] : "";
         }
 
         // COOKIES INIT
         $ip = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
         $ip = '/^' . implode('\.', array($ip, $ip, $ip, $ip)) . '$/';
         if (preg_match($ip, $_SERVER['HTTP_HOST']) ||
-            preg_match('/^[^\.]+$/', $_SERVER['HTTP_HOST'])
+                preg_match('/^[^\.]+$/', $_SERVER['HTTP_HOST'])
         )
             $this->config['cookieDomain'] = "";
         elseif (!strlen($this->config['cookieDomain']))
@@ -189,36 +187,26 @@ class uploader {
             $this->config['cookiePath'] = "/";
 
         // UPLOAD FOLDER INIT
-
         // FULL URL
-        if (preg_match('/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)\/?$/',
-                $this->config['uploadURL'], $patt)
+        if (preg_match('/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)\/?$/', $this->config['uploadURL'], $patt)
         ) {
             list($unused, $protocol, $domain, $unused, $port, $path) = $patt;
             $path = path::normalize($path);
             $this->config['uploadURL'] = "$protocol://$domain" . (strlen($port) ? ":$port" : "") . "/$path";
-            $this->config['uploadDir'] = strlen($this->config['uploadDir'])
-                ? path::normalize($this->config['uploadDir'])
-                : path::url2fullPath("/$path");
+            $this->config['uploadDir'] = strlen($this->config['uploadDir']) ? path::normalize($this->config['uploadDir']) : path::url2fullPath("/$path");
             $this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
             $this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
 
-        // SITE ROOT
+            // SITE ROOT
         } elseif ($this->config['uploadURL'] == "/") {
-            $this->config['uploadDir'] = strlen($this->config['uploadDir'])
-                ? path::normalize($this->config['uploadDir'])
-                : path::normalize($_SERVER['DOCUMENT_ROOT']);
+            $this->config['uploadDir'] = strlen($this->config['uploadDir']) ? path::normalize($this->config['uploadDir']) : path::normalize($_SERVER['DOCUMENT_ROOT']);
             $this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
             $this->typeURL = "/{$this->type}";
 
-        // ABSOLUTE & RELATIVE
+            // ABSOLUTE & RELATIVE
         } else {
-            $this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
-                ? path::normalize($this->config['uploadURL'])
-                : path::rel2abs_url($this->config['uploadURL']);
-            $this->config['uploadDir'] = strlen($this->config['uploadDir'])
-                ? path::normalize($this->config['uploadDir'])
-                : path::url2fullPath($this->config['uploadURL']);
+            $this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/") ? path::normalize($this->config['uploadURL']) : path::rel2abs_url($this->config['uploadURL']);
+            $this->config['uploadDir'] = strlen($this->config['uploadDir']) ? path::normalize($this->config['uploadDir']) : path::url2fullPath($this->config['uploadURL']);
             $this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
             $this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
         }
@@ -229,17 +217,17 @@ class uploader {
         if (isset($this->get['CKEditorFuncNum']))
             $this->opener['CKEditor']['funcNum'] = $this->get['CKEditorFuncNum'];
         if (isset($this->get['opener']) &&
-            (strtolower($this->get['opener']) == "tinymce") &&
-            isset($this->config['_tinyMCEPath']) &&
-            strlen($this->config['_tinyMCEPath'])
+                (strtolower($this->get['opener']) == "tinymce") &&
+                isset($this->config['_tinyMCEPath']) &&
+                strlen($this->config['_tinyMCEPath'])
         )
             $this->opener['TinyMCE'] = true;
 
         // LOCALIZATION
         foreach ($this->langInputNames as $key)
             if (isset($this->get[$key]) &&
-                preg_match('/^[a-z][a-z\._\-]*$/i', $this->get[$key]) &&
-                file_exists("lang/" . strtolower($this->get[$key]) . ".php")
+                    preg_match('/^[a-z][a-z\._\-]*$/i', $this->get[$key]) &&
+                    file_exists("lang/" . strtolower($this->get[$key]) . ".php")
             ) {
                 $this->lang = $this->get[$key];
                 break;
@@ -248,7 +236,7 @@ class uploader {
 
         // CHECK & MAKE DEFAULT .htaccess
         if (isset($this->config['_check4htaccess']) &&
-            $this->config['_check4htaccess']
+                $this->config['_check4htaccess']
         ) {
             $htaccess = "{$this->config['uploadDir']}/.htaccess";
             if (!file_exists($htaccess)) {
@@ -276,16 +264,17 @@ class uploader {
         $url = $message = "";
 
         if ($config['disabled'] || !$config['access']['files']['upload']) {
-            if (isset($file['tmp_name'])) @unlink($file['tmp_name']);
+            if (isset($file['tmp_name']))
+                @unlink($file['tmp_name']);
             $message = $this->label("You don't have permissions to upload files.");
-        }elseif ($file['size'] /1024 > $config['maxImageSize']){
-                $message = $this->label("File size out of range.");
+        }elseif ($file['size'] / 1024 > $config['maxImageSize']) {
+            $message = $this->label("File size out of range.");
         } elseif (true === ($message = $this->checkUploadedFile())) {
             $message = "";
 
             $dir = "{$this->typeDir}/";
             if (isset($this->get['dir']) &&
-                (false !== ($gdir = $this->checkInputDir($this->get['dir'])))
+                    (false !== ($gdir = $this->checkInputDir($this->get['dir'])))
             ) {
                 $udir = path::normalize("$dir$gdir");
                 if (substr($udir, 0, strlen($dir)) !== $dir)
@@ -305,8 +294,8 @@ class uploader {
                 $target = file::getInexistantFilename($dir . $filename);
 
                 if (!@move_uploaded_file($file['tmp_name'], $target) &&
-                    !@rename($file['tmp_name'], $target) &&
-                    !@copy($file['tmp_name'], $target)
+                        !@rename($file['tmp_name'], $target) &&
+                        !@copy($file['tmp_name'], $target)
                 )
                     $message = $this->label("Cannot move uploaded file to target folder.");
                 else {
@@ -314,7 +303,8 @@ class uploader {
                         @chmod($target, $this->config['filePerms']);
                     $this->makeThumb($target);
                     $url = $this->typeURL;
-                    if (isset($udir)) $url .= "/$udir";
+                    if (isset($udir))
+                        $url .= "/$udir";
                     $url .= "/" . basename($target);
                     if (preg_match('/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)$/', $url, $patt)) {
                         list($unused, $protocol, $domain, $unused, $port, $path) = $patt;
@@ -327,8 +317,8 @@ class uploader {
         }
 
         if (strlen($message) &&
-            isset($this->file['tmp_name']) &&
-            file_exists($this->file['tmp_name'])
+                isset($this->file['tmp_name']) &&
+                file_exists($this->file['tmp_name'])
         )
             @unlink($this->file['tmp_name']);
 
@@ -339,7 +329,7 @@ class uploader {
 
     protected function normalizeFilename($filename) {
         if (isset($this->config['filenameChangeChars']) &&
-            is_array($this->config['filenameChangeChars'])
+                is_array($this->config['filenameChangeChars'])
         )
             $filename = strtr($filename, $this->config['filenameChangeChars']);
         return $filename;
@@ -347,13 +337,13 @@ class uploader {
 
     protected function normalizeDirname($dirname) {
         if (isset($this->config['dirnameChangeChars']) &&
-            is_array($this->config['dirnameChangeChars'])
+                is_array($this->config['dirnameChangeChars'])
         )
             $dirname = strtr($dirname, $this->config['dirnameChangeChars']);
         return $dirname;
     }
 
-    protected function checkUploadedFile(array $aFile=null) {
+    protected function checkUploadedFile(array $aFile = null) {
         $config = &$this->config;
         $file = ($aFile === null) ? $this->file : $aFile;
 
@@ -366,7 +356,7 @@ class uploader {
                     'name' => $name,
                     'tmp_name' => $file['tmp_name'][$i],
                     'error' => $file['error'][$i]
-                ));
+                        ));
                 if ($return !== true)
                     return "$name: $return";
             }
@@ -375,28 +365,26 @@ class uploader {
 
         $extension = file::getExtension($file['name']);
         $typePatt = strtolower(text::clearWhitespaces($this->types[$this->type]));
-        
-        
+
+
         // CHECK FOR UPLOAD ERRORS
         if ($file['error'])
             return
-                ($file['error'] == UPLOAD_ERR_INI_SIZE) ?
-                    $this->label("The uploaded file exceeds {size} bytes.",
-                        array('size' => ini_get('upload_max_filesize'))) : (
-                ($file['error'] == UPLOAD_ERR_FORM_SIZE) ?
-                    $this->label("The uploaded file exceeds {size} bytes.",
-                        array('size' => $this->get['MAX_FILE_SIZE'])) : (
-                ($file['error'] == UPLOAD_ERR_PARTIAL) ?
-                    $this->label("The uploaded file was only partially uploaded.") : (
-                ($file['error'] == UPLOAD_ERR_NO_FILE) ?
-                    $this->label("No file was uploaded.") : (
-                ($file['error'] == UPLOAD_ERR_NO_TMP_DIR) ?
-                    $this->label("Missing a temporary folder.") : (
-                ($file['error'] == UPLOAD_ERR_CANT_WRITE) ?
-                    $this->label("Failed to write file.") :
-                    $this->label("Unknown error.")
-            )))));
-		
+                    ($file['error'] == UPLOAD_ERR_INI_SIZE) ?
+                    $this->label("The uploaded file exceeds {size} bytes.", array('size' => ini_get('upload_max_filesize'))) : (
+                    ($file['error'] == UPLOAD_ERR_FORM_SIZE) ?
+                            $this->label("The uploaded file exceeds {size} bytes.", array('size' => $this->get['MAX_FILE_SIZE'])) : (
+                            ($file['error'] == UPLOAD_ERR_PARTIAL) ?
+                                    $this->label("The uploaded file was only partially uploaded.") : (
+                                    ($file['error'] == UPLOAD_ERR_NO_FILE) ?
+                                            $this->label("No file was uploaded.") : (
+                                            ($file['error'] == UPLOAD_ERR_NO_TMP_DIR) ?
+                                                    $this->label("Missing a temporary folder.") : (
+                                                    ($file['error'] == UPLOAD_ERR_CANT_WRITE) ?
+                                                            $this->label("Failed to write file.") :
+                                                            $this->label("Unknown error.")
+                                                    )))));
+
         // HIDDEN FILENAMES CHECK
         elseif (substr($file['name'], 0, 1) == ".")
             return $this->label("File name shouldn't begins with '.'");
@@ -430,7 +418,7 @@ class uploader {
         return true;
     }
 
-    protected function checkInputDir($dir, $inclType=true, $existing=true) {
+    protected function checkInputDir($dir, $inclType = true, $existing = true) {
         $dir = path::normalize($dir);
         if (substr($dir, 0, 1) == "/")
             $dir = substr($dir, 1);
@@ -482,19 +470,18 @@ class uploader {
     }
 
     protected function getTypeFromPath($path) {
-        return preg_match('/^([^\/]*)\/.*$/', $path, $patt)
-            ? $patt[1] : $path;
+        return preg_match('/^([^\/]*)\/.*$/', $path, $patt) ? $patt[1] : $path;
     }
 
     protected function removeTypeFromPath($path) {
-        return preg_match('/^[^\/]*\/(.*)$/', $path, $patt)
-            ? $patt[1] : "";
+        return preg_match('/^[^\/]*\/(.*)$/', $path, $patt) ? $patt[1] : "";
     }
 
-    protected function imageResize($image, $file=null) {
+    protected function imageResize($image, $file = null) {
         if (!($image instanceof gd)) {
             $gd = new gd($image);
-            if ($gd->init_error) return false;
+            if ($gd->init_error)
+                return false;
             $file = $image;
         } elseif ($file === null)
             return false;
@@ -502,10 +489,10 @@ class uploader {
             $gd = $image;
 
         if ((!$this->config['maxImageWidth'] && !$this->config['maxImageHeight']) ||
-            (
+                (
                 ($gd->get_width() <= $this->config['maxImageWidth']) &&
                 ($gd->get_height() <= $this->config['maxImageHeight'])
-            )
+                )
         )
             return true;
 
@@ -523,16 +510,17 @@ class uploader {
             }
             if (!$gd->resize($width, $height))
                 return false;
-
         } elseif (!$gd->resize_fit(
-            $this->config['maxImageWidth'], $this->config['maxImageHeight']
+                        $this->config['maxImageWidth'], $this->config['maxImageHeight']
         ))
             return false;
 
         return $gd->imagejpeg($file, $this->config['jpegQuality']);
     }
 
-    protected function makeThumb($file, $overwrite=true) {
+    protected function makeThumb($file, $overwrite = true) {
+        $this->makeOtherSize($file);
+
         $gd = new gd($file);
 
         // Drop files which are not GD handled images
@@ -551,19 +539,61 @@ class uploader {
 
         // Images with smaller resolutions than thumbnails
         if (($gd->get_width() <= $this->config['thumbWidth']) &&
-            ($gd->get_height() <= $this->config['thumbHeight'])
+                ($gd->get_height() <= $this->config['thumbHeight'])
         ) {
             $browsable = array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG);
             // Drop only browsable types
             if (in_array($gd->type, $browsable))
                 return true;
 
-        // Resize image
+            // Resize image
         } elseif (!$gd->resize_fit($this->config['thumbWidth'], $this->config['thumbHeight']))
             return false;
 
         // Save thumbnail
         return $gd->imagejpeg($thumb, $this->config['jpegQuality']);
+    }
+
+    protected function makeOtherSize($file, $overwrite = true) {
+        $types = array('tiny', 'small', 'medium', 'normal');
+        foreach ($types as $type) {
+            $gd = new gd($file);
+            // Drop files which are not GD handled images
+            if ($gd->init_error)
+                return true;
+
+            $thumb = substr($file, strlen($this->config['uploadDir']));
+            $thumb = $this->config['uploadDir'] . "/" . $this->config['thumbsDir'] . "/" . $thumb;
+            $thumb = path::normalize($thumb);
+            $thumbDir = dirname($thumb);
+            $thumb_name = basename($thumb);
+            if (!is_dir($thumbDir) && !@mkdir($thumbDir, $this->config['dirPerms'], true))
+                return false;
+
+            if (substr($thumbDir, -1) == ".")
+                $thumb = substr($thumbDir, 0, strlen($thumbDir) - 1) . $type . "_" . $thumb_name;
+            else
+                $thumb = $thumbDir . "/" . $type . "_" . $thumb_name;
+            if (!$overwrite && is_file($thumb))
+                return true;
+
+            // Images with smaller resolutions than thumbnails
+            if (($gd->get_width() <= $this->config[$type.'Width']) &&
+                    ($gd->get_height() <= $this->config[$type .'Height'])
+            ) {
+                $browsable = array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG);
+                // Drop only browsable types
+                if (in_array($gd->type, $browsable))
+                    return true;
+
+                // Resize image
+            } elseif (!$gd->resize_fit($this->config[$type.'Width'], $this->config[$type.'Height']))
+                return false;
+
+            // Save thumbnail
+            $gd->imagejpeg($thumb, $this->config['jpegQuality']);
+        }
+        return true;
     }
 
     protected function localize($langCode) {
@@ -581,7 +611,7 @@ class uploader {
         $this->labels = $lang;
     }
 
-    protected function label($string, array $data=null) {
+    protected function label($string, array $data = null) {
         $return = isset($this->labels[$string]) ? $this->labels[$string] : $string;
         if (is_array($data))
             foreach ($data as $key => $val)
@@ -589,7 +619,7 @@ class uploader {
         return $return;
     }
 
-    protected function backMsg($message, array $data=null) {
+    protected function backMsg($message, array $data = null) {
         $message = $this->label($message, $data);
         if (isset($this->file['tmp_name']) && file_exists($this->file['tmp_name']))
             @unlink($this->file['tmp_name']);
@@ -597,45 +627,43 @@ class uploader {
         die;
     }
 
-    protected function callBack($url, $message="") {
+    protected function callBack($url, $message = "") {
         $message = text::jsValue($message);
-        $CKfuncNum = isset($this->opener['CKEditor']['funcNum'])
-            ? $this->opener['CKEditor']['funcNum'] : 0;
-        if (!$CKfuncNum) $CKfuncNum = 0;
+        $CKfuncNum = isset($this->opener['CKEditor']['funcNum']) ? $this->opener['CKEditor']['funcNum'] : 0;
+        if (!$CKfuncNum)
+            $CKfuncNum = 0;
         header("Content-Type: text/html; charset={$this->charset}");
-
-?><html>
-<body>
-<script type='text/javascript'>
-var kc_CKEditor = (window.parent && window.parent.CKEDITOR)
-    ? window.parent.CKEDITOR.tools.callFunction
-    : ((window.opener && window.opener.CKEDITOR)
-        ? window.opener.CKEDITOR.tools.callFunction
-        : false);
-var kc_FCKeditor = (window.opener && window.opener.OnUploadCompleted)
-    ? window.opener.OnUploadCompleted
-    : ((window.parent && window.parent.OnUploadCompleted)
-        ? window.parent.OnUploadCompleted
-        : false);
-var kc_Custom = (window.parent && window.parent.KCFinder)
-    ? window.parent.KCFinder.callBack
-    : ((window.opener && window.opener.KCFinder)
-        ? window.opener.KCFinder.callBack
-        : false);
-if (kc_CKEditor)
-    kc_CKEditor(<?php echo $CKfuncNum ?>, '<?php echo $url ?>', '<?php echo $message ?>');
-if (kc_FCKeditor)
-    kc_FCKeditor(<?php echo strlen($message) ? 1 : 0 ?>, '<?php echo $url ?>', '', '<?php echo $message ?>');
-if (kc_Custom) {
-    if (<?php echo strlen($message) ?>) alert('<?php echo $message ?>');
-    kc_Custom('<?php echo $url ?>');
-}
-if (!kc_CKEditor && !kc_FCKeditor && !kc_Custom)
-    alert("<?php echo $message ?>");
-</script>
-</body>
-</html><?php
-
+        ?><html>
+            <body>
+                <script type='text/javascript'>
+                    var kc_CKEditor = (window.parent && window.parent.CKEDITOR)
+                        ? window.parent.CKEDITOR.tools.callFunction
+                    : ((window.opener && window.opener.CKEDITOR)
+                        ? window.opener.CKEDITOR.tools.callFunction
+                    : false);
+                    var kc_FCKeditor = (window.opener && window.opener.OnUploadCompleted)
+                        ? window.opener.OnUploadCompleted
+                    : ((window.parent && window.parent.OnUploadCompleted)
+                        ? window.parent.OnUploadCompleted
+                    : false);
+                    var kc_Custom = (window.parent && window.parent.KCFinder)
+                        ? window.parent.KCFinder.callBack
+                    : ((window.opener && window.opener.KCFinder)
+                        ? window.opener.KCFinder.callBack
+                    : false);
+                    if (kc_CKEditor)
+                        kc_CKEditor(<?php echo $CKfuncNum ?>, '<?php echo $url ?>', '<?php echo $message ?>');
+                    if (kc_FCKeditor)
+                        kc_FCKeditor(<?php echo strlen($message) ? 1 : 0 ?>, '<?php echo $url ?>', '', '<?php echo $message ?>');
+                    if (kc_Custom) {
+                        if (<?php echo strlen($message) ?>) alert('<?php echo $message ?>');
+                        kc_Custom('<?php echo $url ?>');
+                    }
+                    if (!kc_CKEditor && !kc_FCKeditor && !kc_Custom)
+                        alert("<?php echo $message ?>");
+                </script>
+            </body>
+        </html><?php
     }
 
     protected function get_htaccess() {
@@ -647,6 +675,6 @@ if (!kc_CKEditor && !kc_FCKeditor && !kc_Custom)
 </IfModule>
 ";
     }
-}
 
+}
 ?>

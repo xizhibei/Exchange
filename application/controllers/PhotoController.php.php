@@ -1,7 +1,7 @@
 <?php
-Zend_Loader::loadClass("NewsModel");
+Zend_Loader::loadClass("ImgModel");
 require_once 'Utility.php';
-class NewsController extends Zend_Controller_Action {
+class PhotoController extends Zend_Controller_Action {
 
     private $user;
     private $page_num = 5;
@@ -12,7 +12,7 @@ class NewsController extends Zend_Controller_Action {
         $this->user = (array) $auth->getStorage()->read();
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
-        $acl->allow('guest', $res, array('index', 'search', 'show'));
+        $acl->allow('guest', $res, array('index'));
         $acl->allow('user', $res, array('add', 'delete', 'modify', 'manage', 'like', 'hate'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
@@ -26,7 +26,7 @@ class NewsController extends Zend_Controller_Action {
         
     }
     
-    public function showAction(){
+    public function manageAction(){
         $nid = $this->_getParam("nid");
         if (isset($nid) && is_numeric($nid)) {
             $news = new NewsModel();
