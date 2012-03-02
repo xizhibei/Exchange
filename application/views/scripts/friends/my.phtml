@@ -3,7 +3,7 @@
     <?php if (count($this->paginator)): ?>
         <?php foreach ($this->paginator as $tmp): ?>
             <div><div><img src='/avatar/<?= $tmp['uid'] ?>' title='<?= $tmp['name'] ?>'/></div>
-                <a href='/user/profile/uid/<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a>
+                <a href='/profile/<?= $tmp['uid'] ?>'><?= $tmp['name'] ?></a>
                 <div><a href='/msg/quickmsg/uid/<?= $tmp['uid'] ?>' class='msg'>给TA留言</a></div>
                 <a href='/friends/delete/uid/<?= $tmp['uid'] ?>'>删除</a>
             </div>

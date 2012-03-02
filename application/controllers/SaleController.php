@@ -173,8 +173,8 @@ class SaleController extends Zend_Controller_Action {
     }
 
     public function refuseAction() {
-        $gid = $this->_getParam("gid");
-        if (isset($gid) && is_numeric($gid)) {
+        $sid = $this->_getParam("sid");
+        if (isset($sid) && is_numeric($sid)) {
             $sale = new SaleModel();
             $sale->update(array('status' => SaleModel::Rejecting), "sid = $sid");
         } else {
@@ -183,14 +183,14 @@ class SaleController extends Zend_Controller_Action {
     }
 
     public function acceptAction() {
-        $gid = $this->_getParam("gid");
-        if (isset($gid) && is_numeric($gid)) {
+        $sid = $this->_getParam("sid");
+        if (isset($sid) && is_numeric($sid)) {
             $sale = new SaleModel();
             $friend = new FriendModel();
             $others = $sale->getOtherReqNum($sid, false);
             $this->view->other_req_num = count($others);
             $this->view->sid = $sid;
-            $sale_info = $sale->fetchRow("sid = $sid");
+//            $sale_info = $sale->fetchRow("sid = $sid");
             if (isset($_GET["confirm"]) && $_GET['confirm'] == "true") {
                 $sale->update(array('status' => SaleModel::Accepting), "sid = $sid");
                 //set all goods status saled
@@ -259,7 +259,7 @@ class SaleController extends Zend_Controller_Action {
         $this->view->headTitle("未读交易请求处理结果");
         $sale = new SaleModel();
 
-        $all = $sale->getUnreadReqOutcome($this->user['uid']); //除了已删除
+        $all = $sale->getUnreadReqOutcome($this->user['uid']);
         $page = $this->_getParam('page', 1); //高置默认页
         if (!is_numeric($page))
             $page = 1;
@@ -270,8 +270,34 @@ class SaleController extends Zend_Controller_Action {
         $this->view->paginator = $paginator;
     }
 
+    public function successAction(){
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $sid = $this->_getParam("sid");
+        if (isset($sid) && is_numeric($sid)) {
+            $sale = new SaleModel();
+            if($sale->setSuccess($sid, $this->user['uid']))
+                echo 'success';
+            else
+                echo 'fail';
+        } else {
+            echo 'fail';
+        }
+    }
+    
     public function failAction() {
-        
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        $sid = $this->_getParam("sid");
+        if (isset($sid) && is_numeric($sid)) {
+            $sale = new SaleModel();
+            if($sale->setFailed($sid, $this->user['uid']))
+                echo 'success';
+            else
+                echo 'fail';
+        } else {
+            echo 'fail';
+        }
     }
 
 //    function __call($action, $arguments) {

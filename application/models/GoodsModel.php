@@ -36,6 +36,35 @@ class GoodsModel extends Zend_Db_Table {
 
     /*     * ************  end  ********************** */
 
+    private function writeSearchCache(array $all) {
+        Zend_Loader::loadClass("Custom_Controller_Plugin_CNLuceneAnalyzer");
+        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8());//new Custom_Controller_Plugin_CNLuceneAnalyzer()
+        $index = new Zend_Search_Lucene('../data/search_cache/goods', true);
+        Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
+
+        foreach ($all as $tmp) {
+            $query = Zend_Search_Lucene_Search_QueryParser::parse("key:" . md5($tmp['id']), 'utf-8');
+            $hits = $index->find($query);
+            foreach ($hits as $hit) {
+                $index->delete($hit->id);
+            }
+
+            $doc = new Zend_Search_Lucene_Document();
+
+            $doc->addField(Zend_Search_Lucene_Field::UnStored('key', md5($tmp['id'])));
+            $doc->addField(Zend_Search_Lucene_Field::UnIndexed('url', "/goods/detail/gid/" . $tmp['id'], 'utf-8'));
+            $doc->addField(Zend_Search_Lucene_Field::Text('name', strtolower($tmp['name']), 'utf-8'));
+//            $doc->addField(Zend_Search_Lucene_Field::Text('time', strtolower($addtime), 'utf-8'));
+//            $doc->addField(Zend_Search_Lucene_Field::Text('author', strtolower($author), 'utf-8'));
+            $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);
+            $doc->addField(Zend_Search_Lucene_Field::UnStored('detail', strtolower($tmp['detail']), 'utf-8'));
+
+            $index->addDocument($doc);
+            $index->commit();
+        }
+        $index->optimize();
+    }
+
     public function getAllPublished() {
         $cache = Zend_Cache::factory('Core', 'File', $this->config->front->toArray(), $this->config->back->toArray());
         $cache->clean(); ///////////
@@ -43,6 +72,9 @@ class GoodsModel extends Zend_Db_Table {
             $color = array('#FF4D4D', '#469AE9', '#333333', '#05183e', '#B6B986', '#666699', '#ff8a00', '#de312b', '#63a716');
             $num = count($color) - 1;
             $all = $this->fetchAll("expire_date > " . time() . " and status =" . GoodsModel::Published, "publish_time desc")->toArray();
+
+            $this->writeSearchCache($all);
+
             foreach ($all as &$tmp) {
                 $tmp['name_cut'] = strlen($tmp['name']) <= 30 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
                 $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);

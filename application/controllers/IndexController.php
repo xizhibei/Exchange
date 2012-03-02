@@ -46,7 +46,7 @@ class IndexController extends Zend_Controller_Action {
         $news = new NewsModel();
         $this->view->news = $news->getHotNewsTitle(10);
     }
-
+    
     public function unreadnewAction() {
         $this->_helper->layout->disableLayout();
         $this->_helper->viewRenderer->setNoRender();

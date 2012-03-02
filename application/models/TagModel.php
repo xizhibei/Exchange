@@ -13,6 +13,7 @@ class TagModel extends Zend_Db_Table {
 
     public function addTags($tags, $gid) {
         $tags = explode(',', $tags);
+        array_unique($tags);//移除相同的标签
         foreach ($tags as $tag) {
             if ($tag == "")
                 continue;

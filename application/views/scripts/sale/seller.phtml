@@ -1,20 +1,21 @@
 <h1>交易信息</h1>
 <div class="all_sale">
-    <table>
-        <tr><th>ID</th><th>完成时间</th><th>买家</th><th>发送时间</th><th>状态</th><th>删除</th><th>修改</th><th>详细</th></tr>
-        <?php foreach ($this->paginator as $tmp): ?>
-             <?php if ($tmp['is_read']): ?>
-                <tr><?php else: ?>
-                <tr class="unread">
-                <?php endif; ?><td><?= $tmp['sid'] ?></td>        
-                <td><?= isset ($tmp['deal_time'])?$tmp['deal_time']:"未完成" ?></td>
-                <td><a href="/user/profile?uid=<?=$tmp['uid'] ?>"><?= $tmp['name'] ?></a></td>
-                <td><?= $tmp['req_time'] ?></td>
-                <td><?= $tmp['status'] ?></td>
-                <td><a href='/sale/delete?sid=<?= $tmp['sid'] ?>'>删除</a></td>
-            <td><a href=''>修改</a></td>
-            <td><a href='/sale/detail?sid=<?= $tmp['sid'] ?>'>详细</a></td></tr>
-       <?php endforeach; ?>	 
-    </table>
-    <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+    <?php if (count($this->paginator)): ?>
+        <table>
+            <tr><th>ID</th><th>完成时间</th><th>买家</th><th>发送时间</th><th>状态</th><th>选项</th></tr>
+            <?php foreach ($this->paginator as $tmp): ?>
+                <tr><td><?= $tmp['sid'] ?></td>        
+                    <td><?= isset($tmp['finish_time']) ? $tmp['finish_time'] : "未完成" ?></td>
+                    <td><a href="/profile/<?= $tmp['uid'] ?>"  target="_blank"><?= $tmp['name'] ?></a></td>
+                    <td><?= $tmp['req_time'] ?></td>
+                    <td><?= $tmp['status'] ?></td>
+                    <td><a href='/sale/delete/sid/<?= $tmp['sid'] ?>'>删除</a>
+                        <a href=''>修改</a>
+                        <a href='/sale/detail/sid/<?= $tmp['sid'] ?>'>详细</a></td></tr>
+            <?php endforeach; ?>	 
+        </table>
+        <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+    <?php else: ?>
+        你还没有作为<b>卖家</b>交易过哦~
+    <?php endif; ?>
 </div>

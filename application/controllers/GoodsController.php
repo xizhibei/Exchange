@@ -175,7 +175,7 @@ class GoodsController extends Zend_Controller_Action {
             $this->view->tags = $tag->getMostFrequently(0, 10);
             $goods = new GoodsModel();
 
-            //load goods info
+//load goods info
             $tmp = $goods->fetchRow("id = " . $gid)->toArray();
             if ($tmp['uid'] != $this->user['uid']) {//不是物品的主人
                 redirect("/goods/manage", "WrongWay");
@@ -253,17 +253,59 @@ class GoodsController extends Zend_Controller_Action {
     }
 
     public function searchAction() {
-        $goods = new GoodsModel();
-        $q = $this->_getParam("q", "");
-        $all = $goods->search($q);
-        $page = $this->_getParam('page', 1); //高置默认页
-        if (!is_numeric($page))
-            $page = 1;
-        $numPerPage = $this->page_num; //每页显示的条数
-        $paginator = Zend_Paginator::factory($all);
-        $paginator->setCurrentPageNumber($page)
-                ->setItemCountPerPage($numPerPage);
-        $this->view->paginator = $paginator;
+        
+
+        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8());
+
+        $index = new Zend_Search_Lucene('../data/search_cache/goods');
+        $keywords = $this->_getParam("q", "");
+
+        $stopWords = array('a', 'an', 'at', 'the', 'and', 'or', 'is', 'am');
+//        $cnStopWords = array('的');
+        $stopWordsFilter = new Zend_Search_Lucene_Analysis_TokenFilter_StopWords($stopWords);
+
+        if (!empty($keywords)) {
+            $analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
+
+            //$analyzer->setCnStopWords($cnStopWords);
+            $analyzer->addFilter($stopWordsFilter);
+
+            $analyzer->setInput($keywords, 'utf-8');
+
+            $tokenCounter = 0;
+            while (($token = $analyzer->nextToken() ) !== null) {
+                $tokens[$tokenCounter++] = $token;
+            }
+//print_r( $tokens ); 
+
+            $count = 0;
+            $all_search_outcome = array();
+            foreach ($tokens as $tokenObject) {
+                $keyword = $tokenObject->getTermText();
+
+                $query = Zend_Search_Lucene_Search_QueryParser::parse($keyword, 'utf-8');
+                $hits = $index->find($query);
+
+                foreach ($hits as $hit) {
+                    $tmp = array();
+                    $tmp['url'] = $hit->url;
+                    $tmp['name'] = $hit->name;
+                    $all_search_outcome[$count++] = $tmp;
+                }
+            }
+        }
+
+        $this->view->count = $count;
+        if ($count) {
+            $page = $this->_getParam('page', 1); //高置默认页
+            if (!is_numeric($page))
+                $page = 1;
+            $numPerPage = $this->page_num; //每页显示的条数
+            $paginator = Zend_Paginator::factory($all_search_outcome);
+            $paginator->setCurrentPageNumber($page)
+                    ->setItemCountPerPage($numPerPage);
+            $this->view->paginator = $paginator;
+        }
     }
 
     public function detailAction() {

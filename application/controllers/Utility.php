@@ -92,6 +92,40 @@ function filter_bad_html($str) {
     return $str;
 }
 
+function _filter_bad_html($str) {
+
+    $str = preg_replace("/\s+/", " ", $str); //过滤多余回车
+    $str = preg_replace("/<[ ]+/si", "<", $str); //过滤<__("<"号后面带空格)
+    $str = preg_replace("/cookie/si", "COOKIE", $str); //过滤COOKIE标签
+    $str = preg_replace("/javascript/si", "Javascript", $str); //过滤script标签
+    $str = preg_replace("/vbscript/si", "Vbscript", $str); //过滤script标签
+    $str = preg_replace("/on([a-z]+)\s*=/si", "On\\1=", $str); //过滤script标签
+    $str = preg_replace("/&#/si", "&＃", $str); //过滤script标签，如javAsCript:alert(
+    $patterns = array("/<\!–.*?–>/si",
+        "/<(\!.*?)>/si", "/<(\/?html.*?)>/si",
+        "/<(\/?head.*?)>/si",
+        "/<(\/?meta.*?)>/si",
+        "/<(\/?body.*?)>/si",
+        "/<(\/?link.*?)>/si",
+        "/<(\/?form.*?)>/si",
+        "/<(applet.*?)>(.*?)<(\/applet.*?)>/si",
+        "/<(\/?applet.*?)>/si",
+        "/<(style.*?)>(.*?)<(\/style.*?)>/si",
+        "/<(\/?style.*?)>/si",
+        "/<(title.*?)>(.*?)<(\/title.*?)>/si",
+        "/<(\/?title.*?)>/si",
+        "/<(object.*?)>(.*?)<(\/object.*?)>/si",
+        "/<(\/?objec.*?)>/si", "",
+        "/<(noframes.*?)>(.*?)<(\/noframes.*?)>/si",
+        "/<(\/?noframes.*?)>/si",
+        "/<(i?frame.*?)>(.*?)<(\/i?frame.*?)>/si",
+        "/<(\/?i?frame.*?)>/si",
+        "/<(script.*?)>(.*?)<(\/script.*?)>/si",
+        "/<(\/?script.*?)>/si",);
+    $str = preg_replace($patterns, "", $str);
+    return $str;
+}
+
 function image_resize($src_file, $dst_width = 32, $dst_height = 32) {
     if ($dst_width < 1 || $dst_height < 1) {
         return null;

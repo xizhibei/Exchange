@@ -17,9 +17,9 @@
                     <div class="personal">
                         <div class="msgs">
                             <a class="profile" href="/user/profile"><?= $this->userinfo['name'] ?></a>
-                            <a href="/msg/index" class="icon info" title="提醒" id="msg_info"></a>
-                            <a href="/sale/request" class="icon req" title="请求" id="msg_req"></a>
-                            <a href="/sale/unread" class="icon new" title="通知" id="msg_new"></a>                           
+                            <a href="/sale/request" class="icon req" title="请求" id="msg_req"></a> 
+                            <a href="" class="icon info" title="提醒" id="msg_info"></a>
+                            <a href="/msg" class="icon bell" title="通知" id="msg_new"></a>                                                    
                             <a class="logout" href="/user/logout" title="退出">退出</a></div></div>
                     <script type="text/javascript">
                         $.get("/index/unreadInfo",null,function(data){

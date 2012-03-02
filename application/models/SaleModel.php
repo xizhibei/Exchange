@@ -13,9 +13,13 @@ class SaleModel extends Zend_Db_Table {
         parent::_setup();
     }
 
+    public function setReaded($uid) {
+        $this->_db->query("update sale set status = status + 1 where buyerid = $uid and (status =  " . self::Rejecting . " or status = " . self::Accepting . ")");
+    }
+
     /**
      *
-     * @param type $uid 取得他人对用户的交易请求您数
+     * @param type $uid 取得他人对用户的交易请求数
      * @return type int
      */
     public function getUnreadReqNum($uid) {
@@ -25,7 +29,7 @@ class SaleModel extends Zend_Db_Table {
     public function getUnreadReqOutcomeNum($uid) {
         return $this->_db->fetchOne("select count(*) from sale where buyerid = $uid and (status =  " . self::Rejecting . " or status = " . self::Accepting . ")");
     }
-    
+
     /**
      *
      * @param type $uid
@@ -35,18 +39,21 @@ class SaleModel extends Zend_Db_Table {
     public function getUnreadReqOutcome($uid, $set_readed = true) {
         $all = $this->_db->fetchAll("select *,sale.status as status from sale,user where uid = sellerid and buyerid = $uid and (sale.status =  " . self::Rejecting . " or sale.status = " . self::Accepting . ")");
         foreach ($all as &$tmp) {
-            if ($set_readed)
-                $this->_db->query("update sale set status = status + 1 where sid = " . $tmp['sid']);
+//            if ($set_readed)
+//                $this->_db->query("update sale set status = status + 1 where sid = " . $tmp['sid']);
             $tmp['req_time'] = date("Y-m-d H:i:s", $tmp['req_time']);
-            if (isset($tmp['deal_time']) && $tmp['deal_time'] != "")
-                $tmp['deal_time'] = $date("Y-m-d H:i:s", $tmp['deal_time_time']);
+            if (isset($tmp['finish_time']) && $tmp['finish_time'] != "")
+                $tmp['finish_time'] = $date("Y-m-d H:i:s", $tmp['finish_time']);
             $tmp['status'] = $this->getStatus($tmp['status']);
+        }
+        if ($set_readed) {
+            $this->setReaded($uid);
         }
         return $all;
     }
 
     /**
-     * 取得用户的所有交易请求
+     * 取得用户的所有交易请求(卖家)
      * @param type $uid
      * @return type 
      */
@@ -54,33 +61,42 @@ class SaleModel extends Zend_Db_Table {
         $all = $this->_db->fetchAll("select *,sale.status as status from sale,user where uid = buyerid and sellerid = $uid and sale.status <> " . self::Deleted);
         foreach ($all as &$tmp) {
             $tmp['req_time'] = date("Y-m-d H:i:s", $tmp['req_time']);
-            if (isset($tmp['deal_time']) && $tmp['deal_time'] != "")
-                $tmp['deal_time'] = $date("Y-m-d H:i:s", $tmp['deal_time_time']);
-            if ($tmp['status'] == self::Accepting || $tmp['status'] == self::Rejecting)
-                $tmp['is_read'] = false;
-            else {
-                $tmp['is_read'] = true;
-            }
+            if (isset($tmp['finish_time']) && $tmp['finish_time'] != "")
+                $tmp['finish_time'] = $date("Y-m-d H:i:s", $tmp['finish_time']);
+//            if ($tmp['status'] == self::Accepting || $tmp['status'] == self::Rejecting)
+//                $tmp['is_read'] = false;
+//            else {
+//                $tmp['is_read'] = true;
+//            }
             $tmp['status'] = $this->getStatus($tmp['status']);
         }
         return $all;
     }
 
     /**
-     * 取得用户向他人提交的请求处理结果,有被拒绝或同意两种状态
+     * 取得用户向他人提交的请求处理结果（买家）
+     * 这里如果有未读消息的话，会将交易标记为已读
+     * 另外，用is_read标记是否已读
      * @param type $uid 
      */
     public function getReqOutcome($uid) {
         $all = $this->_db->fetchAll("select *,sale.status as status from sale,user where uid = sellerid and buyerid = $uid and sale.status >  " . self::Sended);
+        $need_mark_readed = false;
         foreach ($all as &$tmp) {
             $tmp['req_time'] = date("Y-m-d H:i:s", $tmp['req_time']);
-            if (isset($tmp['deal_time']) && $tmp['deal_time'] != "")
-                $tmp['deal_time'] = $date("Y-m-d H:i:s", $tmp['deal_time_time']);
-            if ($tmp['status'] == self::Accepting || $tmp['status'] == self::Rejecting)
+            if (isset($tmp['finish_time']) && $tmp['finish_time'] != "")
+                $tmp['finish_time'] = $date("Y-m-d H:i:s", $tmp['finish_time']);
+            if ($tmp['status'] == self::Accepting || $tmp['status'] == self::Rejecting) {
+                $need_mark_readed = true;
                 $tmp['is_read'] = false;
+            }
             else
                 $tmp['is_read'] = true;
             $tmp['status'] = $this->getStatus($tmp['status']);
+        }
+
+        if ($need_mark_readed) {
+            $this->setReaded($uid);
         }
         return $all;
     }
@@ -189,13 +205,59 @@ class SaleModel extends Zend_Db_Table {
         }
     }
 
+    /**
+     * 设置交易失败，操作前，需检查交易的一些信息
+     * @param type $sid
+     * @param type $uid
+     * @return boolean 
+     */
+    public function setFailed($sid, $uid) {
+        $tmp = $this->_db->fetchRow("select * from sale where sid = $sid");
+        if ($uid != $tmp['buyerid'])
+            return false;
+        if ($tmp['status'] != SaleModel::Accepted || $tmp['status'] != SaleModel::Accepting)
+            return false;
+        $this->update(array('status' => SaleModel::Failed, 'finish_time' => time()), "sid = $sid");
+        return true;
+    }
+
+    /**
+     * 设置交易成功，操作前，需检查交易的一些信息
+     * 最后还需将所有参与交易的物品状态设置为已交易
+     * @param type $sid
+     * @param type $uid
+     * @return boolean 
+     */
+    public function setSuccess($sid, $uid) {
+        $tmp = $this->_db->fetchRow("select * from sale where sid = $sid");
+        if ($uid != $tmp['buyerid'])
+            return false;
+        if ($tmp['status'] != SaleModel::Accepted || $tmp['status'] != SaleModel::Accepting)
+            return false;
+        $this->update(array('status' => SaleModel::Success, 'finish_time' => time()), "sid = $sid");
+
+        $gids = $this->goodsToArray($tmp['ask_goods']);
+        if ($tmp['use_goods'] != "money") {
+            $gids2 = $this->goodsToArray($tmp['use_goods']);
+            $gids = array_merge($gids, $gids2);
+        }
+
+        foreach ($gids as &$gid) {
+            $gids = "id = $gid";
+        }
+
+        $this->_db->update("goods", array('status' => GoodsModel::Saled), implode(" or ", $gids));
+        return true;
+    }
+
     const Deleted = 0;
     const Sended = 1;
     const Accepting = 2;
     const Accepted = 3;
-    const Saled = 4;
+    const Success = 4;
     const Rejecting = 5;
     const Rejected = 6;
+    const Failed = 7;
 
     public function getStatus($status_id) {
         switch ($status_id) {
@@ -203,9 +265,10 @@ class SaleModel extends Zend_Db_Table {
             case 1:return "已发送";
             case 2:return "已同意"; //已读的话，转为3
             case 3:return "已同意";
-            case 4:return "已交易";
+            case 4:return "交易成功";
             case 5:return "已拒绝"; //已读。转为6
             case 6:return "已拒绝";
+            case 7:return "交易失败";
         }
     }
 

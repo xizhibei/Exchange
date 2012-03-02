@@ -3,7 +3,7 @@
     您要交换的物品：
     <a href='/goods/detail/gid/<?= $this->exchange['id'] ?>'><?= $this->exchange['name'] ?></a>
     来自于用户：
-    <a href='/user/profile/uid/<?= $this->user_profile['uid'] ?>'><?= $this->user_profile['name'] ?></a>
+    <a href='/profile/<?= $this->user_profile['uid'] ?>'><?= $this->user_profile['name'] ?></a>
 </div>
 <form method="post" class="goods_exchange_form">
     <div class="floatleft goods_box">

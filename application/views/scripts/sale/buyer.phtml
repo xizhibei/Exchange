@@ -1,20 +1,53 @@
 <h1>交易信息</h1>
 <div class="all_sale">
-    <table>
-        <tr><th>ID</th><th>完成时间</th><th>卖家</th><th>发送时间</th><th>状态</th><th>删除</th><th>修改</th><th>详细</th></tr>
-        <?php foreach ($this->paginator as $tmp): ?>
-            <?php if ($tmp['is_read']): ?>
-                <tr><?php else: ?>
-                <tr class="unread">
-                <?php endif; ?><td><?= $tmp['sid'] ?></td>        
-                <td><?= isset($tmp['deal_time']) ? $tmp['deal_time'] : "未完成" ?></td>
-                <td><a href="/user/profile?uid=<?=$tmp['uid'] ?>"><?= $tmp['name'] ?></a></td>
-                <td><?= $tmp['req_time'] ?></td>
-                <td><?= $tmp['status'] ?></td>
-                <td><a href='/sale/delete?sid=<?= $tmp['sid'] ?>'>删除</a></td>
-                <td><a href=''>修改</a></td>
-                <td><a href='/sale/detail?sid=<?= $tmp['sid'] ?>'>详细</a></td></tr>
-        <?php endforeach; ?>	 
-    </table>
-    <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+    <?php if (count($this->paginator)): ?>
+        <table>
+            <tr><th>ID</th><th>完成时间</th><th>卖家</th><th>发送时间</th><th>状态</th><th>选项</th><th>交易操作</th></tr>
+            <?php foreach ($this->paginator as $tmp): ?>
+                <?php if ($tmp['is_read']): ?>
+                    <tr><?php else: ?>
+                    <tr class="unread">
+                    <?php endif; ?><td><?= $tmp['sid'] ?></td>        
+                    <td><?= isset($tmp['finish_time']) ? $tmp['finish_time'] : "未完成" ?></td>
+                    <td><a href="/profile/<?= $tmp['uid'] ?>" target="_blank"><?= $tmp['name'] ?></a></td>
+                    <td><?= $tmp['req_time'] ?></td>
+                    <td><?= $tmp['status'] ?></td>
+                    <td><a href='/sale/delete/sid/<?= $tmp['sid'] ?>'>删除</a>
+                        <a href=''>修改</a>
+                        <a href='/sale/detail/sid/<?= $tmp['sid'] ?>'>详细</a></td>
+                    <td><a href="javascript:void(0);" class="set_success" data="<?= $tmp['sid'] ?>">成功</a>                  
+                        <a href="javascript:void(0);" class="set_fail"  data="<?= $tmp['sid'] ?>">失败</a></td></tr>
+            <?php endforeach; ?>	 
+        </table>
+        <?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+    <?php else: ?>
+        你还没有作为<b>买家</b>交易过哦~
+    <?php endif; ?>
 </div>
+
+<script type="text/javascript">
+    $(".set_success").click(function(){
+        id = $(this).attr("data");
+        $.get("/sale/success/sid/"+id,null,function(data){
+            note = $("#note");
+            if(data == "success"){
+                note.find("b").html("设置成功！");    
+            }else{
+                note.find("b").html("设置失败！");  
+            }
+            note.show();
+        });
+    });
+    $(".set_fail").click(function(){
+        id = $(this).attr("data");
+        $.get("/sale/fail/sid/"+id,null,function(data){
+            note = $("#note");
+            if(data == "success"){
+                note.find("b").html("设置成功！");               
+            }else{
+                note.find("b").html("设置失败！");  
+            }
+            note.show();
+        });
+    });
+</script>
