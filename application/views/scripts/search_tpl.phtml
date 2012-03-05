@@ -1,0 +1,28 @@
+<div class="search">
+    <form method="get" action="/goods/search" id="search_from">
+        <div class="search_area">
+            <div class="q"><input type="text" name="q" id ="q_input" value="<?= $this->q == null ? "请输入关键字" : $this->q; ?>"/></div>
+            <div class="submit"><input type="submit"  value="搜索" class="button"/></div>
+            <div class="clear"></div></div>
+    </form>
+    <script type="text/javascript">
+        $("#q_input").click(function(){
+            if($(this).val() == "请输入关键字"){
+                $(this).val("");
+            }
+        });
+        $("#q_input").blur(function(){
+            if($(this).val() == ""){
+                $(this).val("请输入关键字");
+            }
+        });
+        $("#search_from").submit(function(){
+            if($(this).val() == "请输入关键字" || $(this).val() == ""){
+                $("#q_input").focus();
+                return false;
+            }else{
+                return true;
+            }
+        });
+    </script>
+</div>

@@ -197,6 +197,11 @@ class UserController extends Zend_Controller_Action {
                     'avatar_id' => $img_id,
                 );
                 $user->update($updateData, "uid = " . $this->user['uid']);
+                //更新当前认证信息
+                $tmp = $user->fetchRow($this->user['uid'])->toArray();
+                $tmp['role'] = $this->user['role'];
+                $auth = Zend_Registry::get("auth");
+                $auth->getStorage()->write((object) $tmp);
                 redirect("/user/modify", "UpdateSuccess");
             } else {
                 js_alert("更新失败！请检查输入！");

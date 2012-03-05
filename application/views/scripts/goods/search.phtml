@@ -1,13 +1,5 @@
-<h1>商品搜索：</h1>
-<div class="search">
-    <form method="get">
-        <div>请输入关键字：</div>
-        <div class="search_area">
-            <input type="text" name="q"/>
-            <br/>
-            <input type="submit" name="submit" value="搜索" class="button"/></div>
-    </form>
-</div>
+<h1>物品搜索：</h1>
+<?= $this->render('search_tpl.phtml') ?>
 <div class="searchoutcome">
     <?php if ($this->count > 0): ?>
         <ul>

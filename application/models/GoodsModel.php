@@ -38,7 +38,8 @@ class GoodsModel extends Zend_Db_Table {
 
     private function writeSearchCache(array $all) {
         Zend_Loader::loadClass("Custom_Controller_Plugin_CNLuceneAnalyzer");
-        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8());//new Custom_Controller_Plugin_CNLuceneAnalyzer()
+        //Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8());
+        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Custom_Controller_Plugin_CNLuceneAnalyzer());
         $index = new Zend_Search_Lucene('../data/search_cache/goods', true);
         Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
 
@@ -54,15 +55,14 @@ class GoodsModel extends Zend_Db_Table {
             $doc->addField(Zend_Search_Lucene_Field::UnStored('key', md5($tmp['id'])));
             $doc->addField(Zend_Search_Lucene_Field::UnIndexed('url', "/goods/detail/gid/" . $tmp['id'], 'utf-8'));
             $doc->addField(Zend_Search_Lucene_Field::Text('name', strtolower($tmp['name']), 'utf-8'));
-//            $doc->addField(Zend_Search_Lucene_Field::Text('time', strtolower($addtime), 'utf-8'));
+            $doc->addField(Zend_Search_Lucene_Field::Text('tags', implode(" ", $tmp['tags']), 'utf-8'));
 //            $doc->addField(Zend_Search_Lucene_Field::Text('author', strtolower($author), 'utf-8'));
             $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);
-            $doc->addField(Zend_Search_Lucene_Field::UnStored('detail', strtolower($tmp['detail']), 'utf-8'));
+            $doc->addField(Zend_Search_Lucene_Field::UnStored('detail', strtolower($tmp['detail_notcut']), 'utf-8'));
 
             $index->addDocument($doc);
             $index->commit();
         }
-        $index->optimize();
     }
 
     public function getAllPublished() {
@@ -73,11 +73,10 @@ class GoodsModel extends Zend_Db_Table {
             $num = count($color) - 1;
             $all = $this->fetchAll("expire_date > " . time() . " and status =" . GoodsModel::Published, "publish_time desc")->toArray();
 
-            $this->writeSearchCache($all);
-
             foreach ($all as &$tmp) {
                 $tmp['name_cut'] = strlen($tmp['name']) <= 30 ? $tmp['name'] : cutstr($tmp['name'], 0, 30);
                 $tmp['detail'] = filter_var($tmp['detail'], FILTER_SANITIZE_STRING);
+                $tmp['detail_notcut'] = $tmp['detail'];
                 $tmp['detail'] = strlen($tmp['detail']) <= 400 ? $tmp['detail'] : cutstr($tmp['detail'], 0, 400);
                 $tmp['publish_time'] = date("Y-m-d H:i:s", $tmp['publish_time']);
                 if ($tmp['expire_date'] == self::NeverExpireDate)
@@ -87,8 +86,8 @@ class GoodsModel extends Zend_Db_Table {
                 $tmp['status'] = self::getStatus($tmp['status']);
                 $tmp['color'] = $color[mt_rand(0, $num - 1)];
                 $tmp['click'] = $this->_db->fetchOne("select count(*) from click where gid = " . $tmp['id']);
-                $tmp['like'] = $this->_db->fetchOne("select count(*) from taste where status = 2 and gid = " . $tmp['id']);
-                $tmp['hate'] = $this->_db->fetchOne("select count(*) from taste where status = 3 and gid = " . $tmp['id']);
+                $tmp['like_num'] = $this->_db->fetchOne("select count(*) from taste where status = 2 and gid = " . $tmp['id']);
+                $tmp['hate_num'] = $this->_db->fetchOne("select count(*) from taste where status = 3 and gid = " . $tmp['id']);
                 $tags = $this->_db->fetchAll("select name from tag,goods_tag where tag.tid = goods_tag.tid and gid = " . $tmp['id']);
                 $t = array();
                 foreach ($tags as $tag) {
@@ -96,6 +95,9 @@ class GoodsModel extends Zend_Db_Table {
                 }
                 $tmp['tags'] = $t;
             }
+            
+            $this->writeSearchCache($all);
+            
             $cache->save($all, 'all_published');
         }
         return $all;

@@ -23,7 +23,7 @@ class GoodsController extends Zend_Controller_Action {
         $this->user = (array) $auth->getStorage()->read();
         $res = $this->getRequest()->getControllerName();
         $acl->add(new Zend_Acl_Resource($res));
-        $acl->allow('guest', $res, array('index', 'search', 'detail', 'default', 'ajaxdetail', 'moretag'));
+        $acl->allow('guest', $res, array('index', 'search', 'detail', 'default', 'ajaxdetail', 'moretag', 'ajaxindex'));
         $acl->allow('user', $res, array('add', 'delete', 'modify', 'manage', 'like', 'hate'));
         $acl->allow('admin');
         if (!$acl->isAllowed($this->user['role'], $res, $this->getRequest()->getActionName())) {
@@ -33,31 +33,55 @@ class GoodsController extends Zend_Controller_Action {
         $this->view->userinfo = $this->user;
     }
 
-    public function indexAction() {
-        $this->view->headTitle("最新货物");
-        $this->view->headScript()->appendFile("/js/jquery.js");
-        $this->view->headScript()->appendFile("/js/jquery.scrollTo-min.js");
-        $this->view->headScript()->appendFile("/fancybox/jquery.mousewheel-3.0.4.pack.js");
-        $this->view->headScript()->appendFile("/fancybox/jquery.fancybox-1.3.4.pack.js");
-        $this->view->headLink()->appendStylesheet("/fancybox/jquery.fancybox-1.3.4.css");
+    public function ajaxindexAction() {
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
         $goods = new GoodsModel();
+        $numPerPage = $this->page_num; //每页显示的条数
 
         $all = $goods->getAllPublished();
+        $page_num = count($all) / $numPerPage;
+
+        $page = $this->_getParam('page', 1); //高置默认页
+        if (!is_numeric($page) || $page < 0)
+            $page = 1;
+        if (($page - $page_num == 1 && count($all) % $numPerPage == 0) || $page - $page_num > 1) {
+            echo json_encode(array());
+            return;
+        }
+        $all = array_slice($all, ($page - 1) * $numPerPage, 10, true);
         if (isset($this->user['uid'])) {
-            $this->view->uid = $this->user['uid'];
             Zend_Loader::loadClass("TasteModel");
             $t = new TasteModel();
             $all = $t->addStatus($all, $this->user['uid']);
         }
+        $json = array();
+        $need_field = array('id', 'name', 'detail', 'like_num', 'hate_num', 'click', 'expire_date', 'publish_time', 'pic_id', 'color', 'tags');
+        foreach ($all as $tmp) {
+            $json_tmp = array();
+            if (isset($tmp['taste_status']) && $tmp['taste_status'] == "喜爱")
+                $json_tmp['like_class'] = "like_red";
+            else
+                $json_tmp['like_class'] = "like";
+            foreach ($need_field as $field)
+                $json_tmp[$field] = $tmp[$field];
+            $json[] = $json_tmp;
+        }
+        echo json_encode($json);
+    }
 
-        $page = $this->_getParam('page', 1); //高置默认页
-        if (!is_numeric($page))
-            $page = 1;
-        $numPerPage = $this->page_num; //每页显示的条数
-        $paginator = Zend_Paginator::factory($all);
-        $paginator->setCurrentPageNumber($page)
-                ->setItemCountPerPage($numPerPage);
-        $this->view->paginator = $paginator;
+    public function indexAction() {
+        $this->view->headTitle("最新发布");
+        $this->view->headScript()->appendFile("/js/jquery.js");
+        $this->view->headScript()->appendFile("/js/jquery.masonry.min.js");
+        $this->view->headScript()->appendFile("/js/jquery.scrollTo-min.js");
+        $this->view->headScript()->appendFile("/fancybox/jquery.mousewheel-3.0.4.pack.js");
+        $this->view->headScript()->appendFile("/fancybox/jquery.fancybox-1.3.4.pack.js");
+        $this->view->headLink()->appendStylesheet("/fancybox/jquery.fancybox-1.3.4.css");
+
+        if (isset($this->user['uid'])) {
+            $this->view->uid = $this->user['uid'];
+        }
     }
 
     public function addAction() {
@@ -253,21 +277,26 @@ class GoodsController extends Zend_Controller_Action {
     }
 
     public function searchAction() {
-        
-
-        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8());
+        Zend_Loader::loadClass("Custom_Controller_Plugin_CNLuceneAnalyzer");
+        //Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8());
+        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Custom_Controller_Plugin_CNLuceneAnalyzer());
 
         $index = new Zend_Search_Lucene('../data/search_cache/goods');
-        $keywords = $this->_getParam("q", "");
+        $keywords = $this->_getParam("q");
+        $this->view->q = $keywords;
+        if ($keywords == null) {
+            $this->view->count = 0;
+            return;
+        }
 
         $stopWords = array('a', 'an', 'at', 'the', 'and', 'or', 'is', 'am');
-//        $cnStopWords = array('的');
+        $cnStopWords = array('的');
         $stopWordsFilter = new Zend_Search_Lucene_Analysis_TokenFilter_StopWords($stopWords);
 
         if (!empty($keywords)) {
             $analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
 
-            //$analyzer->setCnStopWords($cnStopWords);
+            $analyzer->setCnStopWords($cnStopWords);
             $analyzer->addFilter($stopWordsFilter);
 
             $analyzer->setInput($keywords, 'utf-8');
@@ -280,23 +309,26 @@ class GoodsController extends Zend_Controller_Action {
 
             $count = 0;
             $all_search_outcome = array();
-            foreach ($tokens as $tokenObject) {
-                $keyword = $tokenObject->getTermText();
+            if ($tokenCounter > 0)
+                foreach ($tokens as $tokenObject) {
+                    $keyword = $tokenObject->getTermText();
 
-                $query = Zend_Search_Lucene_Search_QueryParser::parse($keyword, 'utf-8');
-                $hits = $index->find($query);
+                    $query = Zend_Search_Lucene_Search_QueryParser::parse($keyword, 'utf-8');
+                    $hits = $index->find($query);
 
-                foreach ($hits as $hit) {
-                    $tmp = array();
-                    $tmp['url'] = $hit->url;
-                    $tmp['name'] = $hit->name;
-                    $all_search_outcome[$count++] = $tmp;
+                    foreach ($hits as $hit) {
+                        $tmp = array();
+                        $tmp['id'] = $hit->id;
+                        $tmp['url'] = $hit->url;
+                        $tmp['name'] = $hit->name;
+                        $all_search_outcome[$count++] = $tmp;
+                    }
                 }
-            }
         }
 
         $this->view->count = $count;
         if ($count) {
+            $all_search_outcome = array_unique($all_search_outcome);
             $page = $this->_getParam('page', 1); //高置默认页
             if (!is_numeric($page))
                 $page = 1;

@@ -1,0 +1,113 @@
+<h1>最新发布</h1>
+<a id="top"></a>
+<div class="show_goods" id="show_goods"><div class="animate"></div></div>
+<div class="goods_container">
+    <?php for ($k = 0; $k < 4; $k++): ?>
+        <div class="col">
+            <?php $i = 0;
+            foreach ($this->paginator as $tmp): ?>
+                <?php if (isset($tmp['taste_status']) && $tmp['taste_status'] == "讨厌")continue; ?>
+                <?php if ($i++ % 4 == $k): ?>
+                    <div class="box" style="background-color: <?= $tmp['color'] ?>">                    
+                        <div class="pic" style="display:none;">
+                            <img src="/img/<?= $tmp['pic_id'] ?>" title="<?= $tmp['name'] ?>"/>
+                            <div>标签：<?php foreach ($tmp['tags'] as $tag):?><a href="/goods/search/q/<?=$tag?>"><?=$tag?></a> <?php endforeach;?></div>
+                            <div class="bottom"id ="<?= $tmp['id'] ?>" >
+                                <?php if (isset($tmp['taste_status']) && $tmp['taste_status'] == "喜爱"): ?>
+                                    <a href="javascript:void(0);" class="like_red icon" title="I like it."></a>
+                                <?php else: ?>
+                                    <a href="javascript:void(0);" class="like icon" title="I like it."></a>
+                                <?php endif; ?>
+                                <div class="icon" title="I like it.">(<?= $tmp['like'] ?>)</div>
+                                <a href="javascript:void(0);" class="hate icon" title="I hate it."></a>
+                                <div class="icon" title="I hate it.">(<?= $tmp['hate'] ?>)</div>
+                                <?php if ($tmp['sale_ways'] == "交换" || $tmp['sale_ways'] == "均可"): ?>
+                                    <a href="/sale/exchange/gid/<?= $tmp['id'] ?>" class="exchange icon" title="交换"></a><?php endif; ?>
+                                <?php if ($tmp['sale_ways'] == "交易" || $tmp['sale_ways'] == "均可"): ?>
+                                    <a href="/sale/sale/gid/<?= $tmp['id'] ?>" class="sale icon" title="交易"></a><?php endif; ?>
+                                <a href="javascript:void(0);" class="detail icon" title="more detail"></a>
+                                <label style="display:none;"><?= $tmp['id'] ?></label>
+                                <div class="clear"></div>
+                            </div></div>
+                        <div class="text">
+                            <h3><?= $tmp['name_cut'] ?></h3>
+                            <div>发布时间：<?= $tmp['publish_time'] ?></div>
+                            <div>过期时间：<?= $tmp['expire_date'] ?></div>
+                            <div>点击：<?= $tmp['click'] ?></div>
+                            <div><?= $tmp['detail'] ?>...</div>
+                            <div class="small_pic"><img src="/img/<?= $tmp['pic_id'] ?>"  title="<?= $tmp['name'] ?>" /></div></div>                        
+                    </div><?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    <?php endfor; ?> 
+</div>
+<div class="clear"></div>
+<?= $this->paginationControl($this->paginator, 'Sliding', 'page_list.phtml'); ?>
+<script type="text/javascript">
+    $(".sale").fancybox({
+        'type':'iframe',
+        'height':800,
+        'width':960
+    });
+    $(".exchange").fancybox({
+        'type':'iframe',
+        'height':800,
+        'width':960
+    });
+    $('.box').mouseover(function(){
+        h = $(this).height();
+        $(this).find('.pic').show();
+        $(this).find('.text').hide();
+        h = $(this).height()> h?h = $(this).height():h;
+        $(this).height(h);
+    });
+    $('.box').mouseleave(function(){
+        h = $(this).height();
+        $(this).find('.pic').hide();
+        $(this).find('.text').show();
+        h = $(this).height() > h?h = $(this).height():h;
+        $(this).height(h);
+    });
+    $('.detail').click(function(){
+        $.scrollTo($("#top"),800);
+        pro = $('#show_goods');
+        pro.css("background-color","red");
+        pro.find(".animate").css("background-color","black");
+        pro.find(".animate").animate({width:"960px"},500);
+        id = $(this).parent().find("label").html();
+        color = $(this).parent().parent().parent().css("background-color");
+        pro.load("/goods/ajaxdetail?gid=" + id,null,function(){  
+            pro.css("background-color",color);
+            pro.animate({height:"700px"});
+        });
+    });
+        <?php if(isset($this->uid)):?>
+    $(".like").click(function(){
+        t = $(this);
+        id = $(this).parent().attr("id");
+        $.get('/goods/like/gid/' + id,null,function(data){           
+            if(data == 'success'){
+                t.removeClass("like");
+                t.addClass("like_red");
+            }
+        });
+    });
+    $(".like_red").click(function(){
+        t = $(this);
+        id = $(this).parent().attr("id");
+        $.get('/goods/like/gid/' + id,null,function(data){
+            if(data == 'success'){
+                t.removeClass("like_red");
+                t.addClass("like");
+            }
+        });
+    });
+    $(".hate").click(function(){
+        t = $(this);
+        id = $(this).parent().attr("id");
+        $.get('/goods/hate/gid/' + id,null,function(data){
+            t.parent().parent().parent().hide();
+        });
+    });
+    <?php endif;?>
+</script>
