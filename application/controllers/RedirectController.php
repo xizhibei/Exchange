@@ -27,7 +27,7 @@ class RedirectController extends Zend_Controller_Action {
             'MsgNotExist' => '消息不存在！',
             'ExitSuccess' => '退出成功！',
             'NotLogin' => '您还没有登录！',
-            'ActiveSuccess' => '激活成功',
+            'ActiveSuccess' => '激活成功,登录后请修改个人资料，以享受更多服务',
             'ActiveSuccess1' => '激活成功,之前可能由于他人登录您账户所致，建议您登录之后修改密码!',
             'SendActiveMailSuccess' => '成功发送激活邮件！',
         );
