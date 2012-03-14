@@ -4,16 +4,20 @@
  * impress.js is a presentation tool based on the power of CSS3 transforms and transitions
  * in modern browsers and inspired by the idea behind prezi.com.
  *
- * MIT Licensed.
  *
  * Copyright 2011-2012 Bartek Szopka (@bartaz)
  *
+ * Released under the MIT and GPL Licenses.
+ *
  * ------------------------------------------------
  *  author:  Bartek Szopka
- *  version: 0.3
+ *  version: 0.4.1
  *  url:     http://bartaz.github.com/impress.js/
  *  source:  http://github.com/bartaz/impress.js/
  */
+
+/*jshint bitwise:true, curly:true, eqeqeq:true, forin:true, latedef:true, newcap:true,
+         noarg:true, noempty:true, undef:true, strict:true, browser:true */
 
 (function ( document, window ) {
     'use strict';
@@ -43,7 +47,7 @@
             }
 
             return memory[ prop ];
-        }
+        };
 
     })();
 
@@ -56,17 +60,21 @@
         for ( key in props ) {
             if ( props.hasOwnProperty(key) ) {
                 pkey = pfx(key);
-                if ( pkey != null ) {
+                if ( pkey !== null ) {
                     el.style[pkey] = props[key];
                 }
             }
         }
         return el;
-    }
+    };
+    
+    var toNumber = function (numeric, fallback) {
+        return isNaN(numeric) ? (fallback || 0) : Number(numeric);
+    };
     
     var byId = function ( id ) {
         return document.getElementById(id);
-    }
+    };
     
     var $ = function ( selector, context ) {
         context = context || document;
@@ -94,24 +102,52 @@
         return " scale(" + s + ") ";
     };
     
+    var perspective = function ( p ) {
+        return " perspective(" + p + "px) ";
+    };
+    
     var getElementFromUrl = function () {
         // get id from url # by removing `#` or `#/` from the beginning,
-        // so both "fallback" `#slide-id` and "enhanced" `#/slide-id` will work
+        // so both `#slide-id` and "legacy" `#/slide-id` will work
         return byId( window.location.hash.replace(/^#\/?/,"") );
     };
     
     // CHECK SUPPORT
+    var body = document.body;
     
     var ua = navigator.userAgent.toLowerCase();
-    var impressSupported = ( pfx("perspective") != null ) &&
-                           ( document.body.classList ) &&
-                           ( document.body.dataset ) &&
-                           ( ua.search(/(iphone)|(ipod)|(android)/) == -1 );
+    var impressSupported = ( pfx("perspective") !== null ) &&
+                           ( body.classList ) &&
+                           ( body.dataset ) &&
+                           ( ua.search(/(iphone)|(ipod)|(android)/) === -1 );
+    
+    if (!impressSupported) {
+        // we can't be sure that `classList` is supported
+        body.className += " impress-not-supported ";
+    } else {
+        body.classList.remove("impress-not-supported");
+        body.classList.add("impress-supported");
+    }
     
     var roots = {};
     
+    var defaults = {
+        width: 1024,
+        height: 768,
+        maxScale: 1,
+        minScale: 0,
+        
+        perspective: 1000,
+        
+        transitionDuration: 1000
+    };
+    
     var impress = window.impress = function ( rootId ) {
-
+        
+        if (!impressSupported) {
+            return null;
+        }
+        
         rootId = rootId || "impress";
         
         // if already initialized just return the API
@@ -123,22 +159,28 @@
         
         var root = byId( rootId );
         
-        if (!impressSupported) {
-            root.className = "impress-not-supported";
-            return;
-        } else {
-            root.className = "";
-        }
-        
         // viewport updates for iPad
         var meta = $("meta[name='viewport']") || document.createElement("meta");
         // hardcoding these values looks pretty bad, as they kind of depend on the content
         // so they should be at least configurable
-        meta.content = "width=1024, minimum-scale=0.75, maximum-scale=0.75, user-scalable=no";
-        if (meta.parentNode != document.head) {
+        meta.content = "width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no";
+        if (meta.parentNode !== document.head) {
             meta.name = 'viewport';
             document.head.appendChild(meta);
         }
+        
+        // initialize configuration object
+        var rootData = root.dataset;
+        var config = {
+            width: toNumber(rootData.width,    defaults.width),
+            height: toNumber(rootData.height,   defaults.height),
+            maxScale: toNumber(rootData.maxScale, defaults.maxScale),
+            minScale: toNumber(rootData.minScale, defaults.minScale),
+            
+            perspective: toNumber(rootData.perspective, defaults.perspective),
+            
+            transitionDuration: toNumber(rootData.transitionDuration, defaults.transitionDuration)
+        };
         
         var canvas = document.createElement("div");
         canvas.className = "canvas";
@@ -155,7 +197,7 @@
         
         document.documentElement.style.height = "100%";
         
-        css(document.body, {
+        css(body, {
             height: "100%",
             overflow: "hidden"
         });
@@ -165,13 +207,13 @@
             transformOrigin: "top left",
             transition: "all 0s ease-in-out",
             transformStyle: "preserve-3d"
-        }
+        };
         
         css(root, props);
         css(root, {
             top: "50%",
             left: "50%",
-            perspective: "1000px"
+            transform: perspective( config.perspective )
         });
         css(canvas, props);
         
@@ -185,22 +227,38 @@
         
         var isStep = function ( el ) {
             return !!(el && el.id && stepData["impress-" + el.id]);
-        }
+        };
+        
+        var computeWindowScale = function () {
+            var hScale = window.innerHeight / config.height,
+                wScale = window.innerWidth / config.width,
+                scale = hScale > wScale ? wScale : hScale;
+            
+            if (config.maxScale && scale > config.maxScale) {
+                scale = config.maxScale;
+            }
+            
+            if (config.minScale && scale < config.minScale) {
+                scale = config.minScale;
+            }
+            
+            return scale;
+        };
         
         steps.forEach(function ( el, idx ) {
             var data = el.dataset,
                 step = {
                     translate: {
-                        x: data.x || 0,
-                        y: data.y || 0,
-                        z: data.z || 0
+                        x: toNumber(data.x),
+                        y: toNumber(data.y),
+                        z: toNumber(data.z)
                     },
                     rotate: {
-                        x: data.rotateX || 0,
-                        y: data.rotateY || 0,
-                        z: data.rotateZ || data.rotate || 0
+                        x: toNumber(data.rotateX),
+                        y: toNumber(data.rotateY),
+                        z: toNumber(data.rotateZ || data.rotate)
                     },
-                    scale: data.scale || 1,
+                    scale: toNumber(data.scale, 1),
                     el: el
                 };
             
@@ -226,8 +284,10 @@
         var active = null;
         var hashTimeout = null;
         
-        var goto = function ( el ) {
-            if ( !isStep(el) || el == active) {
+        var windowScale = computeWindowScale();
+        
+        var stepTo = function ( el, force ) {
+            if ( !isStep(el) || (el === active && !force) ) {
                 // selected element is not defined as step or is already active
                 return false;
             }
@@ -246,33 +306,33 @@
             
             if ( active ) {
                 active.classList.remove("active");
+                body.classList.remove("impress-on-" + active.id);
             }
             el.classList.add("active");
             
-            root.className = "step-" + el.id;
+            body.classList.add("impress-on-" + el.id);
             
-            // `#/step-id` is used instead of `#step-id` to prevent default browser
-            // scrolling to element in hash
-            //
-            // and it has to be set after animation finishes, because in chrome it
+            // Setting fragment URL with `history.pushState`
+            // and it has to be set after animation finishes, because in Chrome it
             // causes transtion being laggy
+            // BUG: http://code.google.com/p/chromium/issues/detail?id=62820
             window.clearTimeout( hashTimeout );
             hashTimeout = window.setTimeout(function () {
                 window.location.hash = "#/" + el.id;
-            }, 1000);
+            }, config.transitionDuration);
             
             var target = {
                 rotate: {
-                    x: -parseInt(step.rotate.x, 10),
-                    y: -parseInt(step.rotate.y, 10),
-                    z: -parseInt(step.rotate.z, 10)
+                    x: -step.rotate.x,
+                    y: -step.rotate.y,
+                    z: -step.rotate.z
                 },
                 translate: {
                     x: -step.translate.x,
                     y: -step.translate.y,
                     z: -step.translate.z
                 },
-                scale: 1 / parseFloat(step.scale)
+                scale: 1 / step.scale
             };
             
             // check if the transition is zooming in or not
@@ -280,21 +340,27 @@
             
             // if presentation starts (nothing is active yet)
             // don't animate (set duration to 0)
-            var duration = (active) ? "1s" : "0";
+            var duration = (active) ? config.transitionDuration + "ms" : "0ms",
+                delay = (config.transitionDuration / 2) + "ms";
+            
+            if (force) {
+                windowScale = computeWindowScale();
+            }
+            
+            var targetScale = target.scale * windowScale;
             
             css(root, {
                 // to keep the perspective look similar for different scales
                 // we need to 'scale' the perspective, too
-                perspective: step.scale * 1000 + "px",
-                transform: scale(target.scale),
+                transform: perspective( config.perspective / targetScale ) + scale( targetScale ),
                 transitionDuration: duration,
-                transitionDelay: (zoomin ? "500ms" : "0ms")
+                transitionDelay: (zoomin ? delay : "0ms")
             });
             
             css(canvas, {
                 transform: rotate(target.rotate, true) + translate(target.translate),
                 transitionDuration: duration,
-                transitionDelay: (zoomin ? "0ms" : "500ms")
+                transitionDelay: (zoomin ? "0ms" : delay)
             });
             
             current = target;
@@ -307,18 +373,18 @@
             var prev = steps.indexOf( active ) - 1;
             prev = prev >= 0 ? steps[ prev ] : steps[ steps.length-1 ];
             
-            return goto(prev);
+            return stepTo(prev);
         };
         
         var next = function () {
             var next = steps.indexOf( active ) + 1;
             next = next < steps.length ? steps[ next ] : steps[ 0 ];
             
-            return goto(next);
+            return stepTo(next);
         };
         
         window.addEventListener("hashchange", function () {
-            goto( getElementFromUrl() );
+            stepTo( getElementFromUrl() );
         }, false);
         
         window.addEventListener("orientationchange", function () {
@@ -327,15 +393,18 @@
         
         // START 
         // by selecting step defined in url or first step of the presentation
-        goto(getElementFromUrl() || steps[0]);
+        stepTo(getElementFromUrl() || steps[0]);
 
         return (roots[ "impress-root-" + rootId ] = {
-            goto: goto,
+            stepTo: stepTo,
             next: next,
             prev: prev
         });
 
-    }
+    };
+    
+    impress.supported = impressSupported;
+    
 })(document, window);
 
 // EVENTS
@@ -343,20 +412,49 @@
 (function ( document, window ) {
     'use strict';
     
-    // keyboard navigation handler
+    var impress = window.impress;
+    
+    // if impress is not supported don't add any handlers
+    if (!impress.supported) {
+        return;
+    }
+    
+    // throttling function calls, by Remy Sharp
+    // http://remysharp.com/2010/07/21/throttling-function-calls/
+    var throttle = function (fn, delay) {
+        var timer = null;
+        return function () {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                fn.apply(context, args);
+            }, delay);
+        };
+    };
+    
+    // keyboard navigation handlers
+    
+    // prevent default keydown action when one of supported key is pressed
     document.addEventListener("keydown", function ( event ) {
-        if ( event.keyCode == 9 || ( event.keyCode >= 32 && event.keyCode <= 34 ) || (event.keyCode >= 37 && event.keyCode <= 40) ) {
+        if ( event.keyCode === 9 || ( event.keyCode >= 32 && event.keyCode <= 34 ) || (event.keyCode >= 37 && event.keyCode <= 40) ) {
+            event.preventDefault();
+        }
+    }, false);
+    
+    // trigger impress action on keyup
+    document.addEventListener("keyup", function ( event ) {
+        if ( event.keyCode === 9 || ( event.keyCode >= 32 && event.keyCode <= 34 ) || (event.keyCode >= 37 && event.keyCode <= 40) ) {
             switch( event.keyCode ) {
-                case 33: ; // pg up
-                case 37: ; // left
-                case 38:   // up
+                case 33: // pg up
+                case 37: // left
+                case 38: // up
                          impress().prev();
                          break;
-                case 9:  ; // tab
-                case 32: ; // space
-                case 34: ; // pg down
-                case 39: ; // right
-                case 40:   // down
+                case 9:  // tab
+                case 32: // space
+                case 34: // pg down
+                case 39: // right
+                case 40: // down
                          impress().next();
                          break;
             }
@@ -370,21 +468,21 @@
         // event delegation with "bubbling"
         // check if event target (or any of its parents is a link)
         var target = event.target;
-        while ( (target.tagName != "A") &&
-                (target != document.body) ) {
+        while ( (target.tagName !== "A") &&
+                (target !== document.documentElement) ) {
             target = target.parentNode;
         }
         
-        if ( target.tagName == "A" ) {
+        if ( target.tagName === "A" ) {
             var href = target.getAttribute("href");
             
             // if it's a link to presentation step, target this step
-            if ( href && href[0] == '#' ) {
+            if ( href && href[0] === '#' ) {
                 target = document.getElementById( href.slice(1) );
             }
         }
         
-        if ( impress().goto(target) ) {
+        if ( impress().stepTo(target) ) {
             event.stopImmediatePropagation();
             event.preventDefault();
         }
@@ -395,11 +493,11 @@
         var target = event.target;
         // find closest step element
         while ( !target.classList.contains("step") &&
-                (target != document.body) ) {
+                (target !== document.documentElement) ) {
             target = target.parentNode;
         }
         
-        if ( impress().goto(target) ) {
+        if ( impress().stepTo(target) ) {
             event.preventDefault();
         }
     }, false);
@@ -422,5 +520,10 @@
             }
         }
     }, false);
+    
+    // rescale presentation when window is resized
+    window.addEventListener("resize", throttle(function () {
+        // force going to active step again, to trigger rescaling
+        impress().stepTo( document.querySelector(".active"), true );
+    }, 250), false);
 })(document, window);
-
